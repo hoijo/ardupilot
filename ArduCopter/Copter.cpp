@@ -496,6 +496,8 @@ void Copter::ten_hz_logging_loop()
 #if FRAME_CONFIG == HELI_FRAME
     Log_Write_Heli();
 #endif
+    attitude_control->dobc_monitor_log();
+    attitude_control->dobc_monitor2_log();
 #if WINCH_ENABLED == ENABLED
     if (should_log(MASK_LOG_ANY)) {
         g2.winch.write_log();

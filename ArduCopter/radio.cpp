@@ -132,6 +132,8 @@ void Copter::read_radio()
     // Nobody ever talks to us.  Log an error and enter failsafe.
     AP::logger().Write_Error(LogErrorSubsystem::RADIO, LogErrorCode::RADIO_LATE_FRAME);
     set_failsafe_radio(true);
+
+    radio_set_use_DOB();
 }
 
 #define FS_COUNTER 3        // radio failsafe kicks in after 3 consecutive throttle values below failsafe_throttle_value
@@ -183,7 +185,7 @@ void Copter::set_throttle_zero_flag(int16_t throttle_control)
     uint32_t tnow_ms = millis();
 
     // if not using throttle interlock and non-zero throttle and not E-stopped,
-    // or using motor interlock and it's enabled, then motors are running, 
+    // or using motor interlock and it's enabled, then motors are running,
     // and we are flying. Immediately set as non-zero
     if ((!ap.using_interlock && (throttle_control > 0) && !SRV_Channels::get_emergency_stop()) ||
         (ap.using_interlock && motors->get_interlock()) ||
@@ -202,6 +204,31 @@ void Copter::radio_passthrough_to_motors()
                                   channel_pitch->norm_input(),
                                   channel_throttle->get_control_in_zero_dz()*0.001f,
                                   channel_yaw->norm_input());
+}
+
+
+void Copter::radio_set_use_DOB()
+{
+  if (RC_Channels::rc_channel(CH_8)->get_radio_in() > 1600)
+  {
+      attitude_control->set_use_DOB(true);
+
+  }
+  else
+  {
+      attitude_control->set_use_DOB(false);
+  }
+
+
+  if (flag_DOB_last != attitude_control->get_use_DOB())
+  {
+    flag_DOB_last = attitude_control->get_use_DOB();
+    if (attitude_control->get_use_DOB())
+    gcs().send_text(MAV_SEVERITY_CRITICAL,"Disturbance Observer is On");
+    else
+    gcs().send_text(MAV_SEVERITY_CRITICAL,"Disturbance Observer is Off");
+
+  }
 }
 
 /*

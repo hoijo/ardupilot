@@ -144,6 +144,114 @@ const AP_Param::GroupInfo AC_AttitudeControl::var_info[] = {
     // @User: Standard
     AP_GROUPINFO("INPUT_TC", 20, AC_AttitudeControl, _input_tc, AC_ATTITUDE_CONTROL_INPUT_TC_DEFAULT),
 
+        // @Param: ROLL_A0
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("ROLL_A0", 21, AC_AttitudeControl, roll_a0, ROLL_A0_DEFAULT),
+
+    // @Param: ROLL_A1
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("ROLL_A1", 22, AC_AttitudeControl, roll_a1, ROLL_A1_DEFAULT),
+
+    // @Param: ROLL_B0
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("ROLL_B0", 23, AC_AttitudeControl, roll_b0, ROLL_B0_DEFAULT),
+
+    // @Param: ROLL_MOI
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("ROLL_MOI", 24, AC_AttitudeControl, roll_moi, ROLL_MOI_DEFAULT),
+
+    // @Param: ROLL_TAU
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("ROLL_TAU", 25, AC_AttitudeControl, roll_tau, ROLL_TAU_DEFAULT),
+
+
+    // @Param: PITCH_A0
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("PITCH_A0", 26, AC_AttitudeControl, pitch_a0, PITCH_A0_DEFAULT),
+
+    // @Param: PITCH_A1
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("PITCH_A1", 27, AC_AttitudeControl, pitch_a1, PITCH_A1_DEFAULT),
+
+    // @Param: PITCH_B0
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("PITCH_B0", 28, AC_AttitudeControl, pitch_b0, PITCH_B0_DEFAULT),
+
+    // @Param: PITCH_MOI
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("PITCH_MOI", 29, AC_AttitudeControl, pitch_moi, PITCH_MOI_DEFAULT),
+
+    // @Param: PITCH_TAU
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("PITCH_TAU", 30, AC_AttitudeControl, pitch_tau, PITCH_TAU_DEFAULT),
+
+
+
+    // @Param: YAW_A0
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("YAW_A0", 31, AC_AttitudeControl, yaw_a0, YAW_A0_DEFAULT),
+
+    // @Param: YAW_A1
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("YAW_A1", 32, AC_AttitudeControl, yaw_a1, YAW_A1_DEFAULT),
+
+    // @Param: YAW_B0
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("YAW_B0", 33, AC_AttitudeControl, yaw_b0, YAW_B0_DEFAULT),
+
+    // @Param: YAW_MOI
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("YAW_MOI", 34, AC_AttitudeControl, yaw_moi, YAW_MOI_DEFAULT),
+
+    // @Param: YAW_TAU
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("YAW_TAU", 35, AC_AttitudeControl, yaw_tau, YAW_TAU_DEFAULT),
+
     AP_GROUPEND
 };
 
@@ -745,7 +853,7 @@ void AC_AttitudeControl::thrust_vector_rotation_angles(const Quaternion& attitud
     const Vector3f thrust_vector_up{0.0f, 0.0f, -1.0f};
 
     // attitude_target and attitute_body are passive rotations from target / body frames to the NED frame
-    
+
     // Rotating [0,0,-1] by attitude_target expresses (gets a view of) the target thrust vector in the inertial frame
     Vector3f att_target_thrust_vec = attitude_target * thrust_vector_up; // target thrust vector
 
@@ -1106,4 +1214,242 @@ bool AC_AttitudeControl::pre_arm_checks(const char *param_prefix,
         }
     }
     return true;
+}
+
+// Set Function for the Disturbance Observer Based Controller
+void AC_AttitudeControl::set_use_DOB(bool use_DOB)
+{
+    _use_DOB = use_DOB;
+}
+
+// Addition of Disturbance Observer Based Controller for Attitude Control Loops
+float AC_AttitudeControl::disturbance_observer_on_roll(float control_output, bool use_DOB)
+{
+    _dob_monitor.roll_filtered = ToDeg(state_filtered_roll);
+    // System Setup
+    // Nominal System is basic 2nd order system
+    // float a0 = 1.0f;
+    float a0 = get_roll_a0();
+    float a1 = get_roll_a1();
+    float MOI = get_roll_moi();
+    float b0 = get_roll_b0();
+
+    // Q-Filter Coefficient
+    // float tau = 0.25f;
+    float tau = get_roll_tau();
+
+    float temp = a0/(tau * tau);
+    float state = wrap_PI(_ahrs.roll);
+    // A : Control Input Filtering (Q-Filter A)
+
+    float p2_dot = -temp * control_filtered_roll - a1/tau * p2_roll + temp * control_output;
+    p2_roll += p2_dot * _dt;
+    control_filtered_roll += p2_roll * _dt;
+
+    // Time-Domain Serialized Implementation
+    // B : Q_Filter B to State Filtering
+    float q2_dot = -temp * state_filtered_roll - a1/tau * q2_roll + temp * state;
+    q2_roll += q2_dot * _dt;
+
+    state_filtered_roll += q2_roll * _dt;
+    // state_filtered_roll = DOB_on_change(state_filtered_roll, 1);
+    state_filtered_roll = wrap_PI(state_filtered_roll);
+    // float control_DOB = 1/b0 * (q2_dot - a0 * state_filtered_roll - a1 * q2_roll);
+    float control_DOB = 1/b0 * (MOI * q2_dot);
+
+    //Inverse Dyanmics
+    // B-A = FeedForward Control to the disturbance
+    control_DOB -= control_filtered_roll;
+    control_DOB = constrain_float(control_DOB,-1.0f, 1.0f);
+
+    _dob_monitor.roll_control_in = control_output;
+    _dob_monitor.roll_control_filtered = control_filtered_roll;
+    _dob_monitor.flagR = flag_last_R;
+    // this should be subtracted to original roll_control
+    if (use_DOB)
+    {
+      if (flag_last_R == false)
+      {
+        state_filtered_roll = wrap_PI(_ahrs.roll);
+        flag_last_R = true;
+      }
+
+      _dob_monitor.roll_control = control_DOB;
+      return control_DOB;
+    }
+    else
+    {
+      flag_last_R = false;
+      _dob_monitor.roll_control = 0.0f;
+      return 0.0f; //direct feed-through
+    }
+}
+
+float AC_AttitudeControl::disturbance_observer_on_pitch(float control_output, bool use_DOB)
+{
+    _dob_monitor.pitch_filtered = ToDeg(state_filtered_pitch);
+    // System Setup
+    // Nominal System is basic 2nd order system
+    // float a0 = 1.0f;
+    // float a1 = 2.0f;
+    // float MOI = 0.03872f;
+    // float b0 = 1.0f;
+
+    float a0 = get_pitch_a0();
+    float a1 = get_pitch_a1();
+    float MOI = get_pitch_moi();
+    float b0 = get_pitch_b0();
+
+    // Q-Filter Coefficient
+    // float tau = 0.25f;
+    float tau = get_pitch_tau();
+
+    float temp = a0/(tau * tau);
+    float state = wrap_PI(_ahrs.pitch);
+    // A : Control Input Filtering (Q-Filter A)
+    float p2_dot = -temp * control_filtered_pitch - a1/tau * p2_pitch + temp * control_output;
+    p2_pitch += p2_dot * _dt;
+    control_filtered_pitch += p2_pitch * _dt;
+
+    // Time-Domain Serialized Implementation
+    // B : Q_Filter B for State Filtering
+
+
+    float q2_dot = -temp * state_filtered_pitch - a1/tau * q2_pitch + temp * state;
+    q2_pitch += q2_dot * _dt;
+
+    state_filtered_pitch += q2_pitch * _dt;
+    state_filtered_pitch = wrap_PI(state_filtered_pitch);
+
+    // float control_DOB = 1/b0 * (q2_dot - a0 * state_filtered_pitch - a1 * q2_pitch);
+    float control_DOB = 1/b0 * (MOI * q2_dot);
+    //Inverse Dyanmics
+    // B-A = FeedForward Control to the disturbance
+    control_DOB -= control_filtered_pitch;
+    control_DOB = constrain_float(control_DOB,-1.0f, 1.0f);
+    // this should be subtracted to original roll_control
+
+    _dob_monitor.pitch_control_in = control_output;
+    _dob_monitor.pitch_control_filtered = control_filtered_pitch;
+    _dob_monitor.flagP = flag_last_P;
+
+    if (use_DOB)
+    {
+      if (flag_last_P == false)
+      {
+        state_filtered_pitch = wrap_PI(_ahrs.pitch);
+        flag_last_P = true;
+      }
+      // return control_DOB;
+      _dob_monitor.pitch_control = control_DOB;
+      return control_DOB;
+    }
+
+    else
+    {
+      flag_last_P = false;
+      _dob_monitor.pitch_control = 0.0f;
+      return 0.0f;
+    }
+}
+
+float AC_AttitudeControl::disturbance_observer_on_yaw(float control_output, bool use_DOB)
+{
+    _dob_monitor.yaw_filtered = ToDeg(wrap_2PI(state_filtered_yaw));
+    // System Setup
+    // Nominal System is basic 2nd order system
+    // float a0 = 1.0f;
+    // float a1 = 2.0f;
+    // float b0 = 1.0f;
+    // float MOI = 0.02438f;
+    float a0 = get_yaw_a0();
+    float a1 = get_yaw_a1();
+    float b0 = get_yaw_b0();
+    float MOI = get_yaw_moi();
+
+    // Q-Filter Coefficient
+    // float tau = 0.25f;
+    float tau = get_yaw_tau();
+
+    float temp = a0/(tau * tau);
+    float state = wrap_PI(_ahrs.yaw);
+    // A : Control Input Filtering (Q-Filter A)
+    float p2_dot = -temp * control_filtered_yaw - a1/tau * p2_yaw + temp * control_output;
+
+    p2_yaw += p2_dot * _dt;
+    control_filtered_yaw += p2_yaw * _dt;
+
+    // Time-Domain Serialized Implementation
+    // B : Q_Filter B to State Filtering
+    state_filtered_yaw = wrap_PI(state_filtered_yaw);
+
+    float state_error = wrap_PI(state - state_filtered_yaw);
+
+    float q2_dot = - a1/tau * q2_yaw + temp * state_error;
+    q2_yaw += q2_dot * _dt;
+
+    state_filtered_yaw += q2_yaw * _dt;
+    // state_filtered_yaw = wrap_PI(state_filtered_yaw);
+    // float control_DOB = 1/b0 * (q2_dot - a0 * state_filtered_yaw - a1 * q2_yaw);
+    float control_DOB = 1/b0 * (MOI * q2_dot);
+    //Inverse Dyanmics
+    // B-A = FeedForward Control to the disturbance
+    control_DOB -= control_filtered_yaw;
+    control_DOB = constrain_float(control_DOB, -0.5f, 0.5f);
+
+    _dob_monitor.yaw_control_in = control_output;
+    _dob_monitor.yaw_control_filtered = control_filtered_yaw;
+    _dob_monitor.q2_yaw = q2_yaw;
+    _dob_monitor.q2_dot = q2_dot;
+    _dob_monitor.flagY = flag_last_Y;
+
+    // this should be subtracted to the original yaw_control
+    if (use_DOB)
+    {
+      if (flag_last_Y == false)
+      {
+        state_filtered_yaw = wrap_PI(_ahrs.yaw);
+        flag_last_Y = true;
+      }
+      _dob_monitor.yaw_control = control_DOB;
+      // return control_DOB;
+      return 0.0f;
+    }
+
+    else
+    {
+      flag_last_Y = false;
+      _dob_monitor.yaw_control = 0.0f;
+      return 0.0f;
+    }
+}
+
+float AC_AttitudeControl::second_conroller_roll(float output)
+{
+    output = constrain_float(output, -1.0f, 1.0f);
+    float control_DOB = disturbance_observer_on_roll(output, _use_DOB);
+
+    output -= control_DOB;
+    // Constrain output
+    return constrain_float(output, -1.0f, 1.0f);
+}
+
+float AC_AttitudeControl::second_conroller_pitch(float output)
+{
+    output = constrain_float(output, -1.0f, 1.0f);
+    float control_DOB = disturbance_observer_on_pitch(output, _use_DOB);
+
+    output -= control_DOB;
+    // Constrain output
+    return constrain_float(output, -1.0f, 1.0f);
+}
+
+float AC_AttitudeControl::second_conroller_yaw(float output)
+{
+    output = constrain_float(output, -1.0f, 1.0f);
+    float control_DOB = disturbance_observer_on_yaw(output, _use_DOB);
+
+    output -= control_DOB;
+    // Constrain output
+    return constrain_float(output, -1.0f, 1.0f);
 }
