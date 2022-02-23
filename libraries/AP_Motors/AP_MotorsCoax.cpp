@@ -208,7 +208,7 @@ void AP_MotorsCoax::output_armed_stabilizing()
     _actuator_out[1] = pitch_thrust / thrust_out_actuator;
 
     // hear I have to edit the code for coaxial helicopter.
-    // ass
+    // assvhvh
 
     if (fabsf(_actuator_out[0]) > 1.0f) {
         limit.roll = true;
