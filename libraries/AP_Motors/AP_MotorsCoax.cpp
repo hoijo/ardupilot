@@ -206,6 +206,9 @@ void AP_MotorsCoax::output_armed_stabilizing()
     // the angle of attack multiplied by the static thrust.
     _actuator_out[0] = roll_thrust / thrust_out_actuator;
     _actuator_out[1] = pitch_thrust / thrust_out_actuator;
+
+    // hear I have to edit the code for coaxial helicopter.
+
     if (fabsf(_actuator_out[0]) > 1.0f) {
         limit.roll = true;
         _actuator_out[0] = constrain_float(_actuator_out[0], -1.0f, 1.0f);
