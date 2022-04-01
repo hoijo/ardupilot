@@ -145,72 +145,72 @@ const AP_Param::GroupInfo AC_AttitudeControl::var_info[] = {
     AP_GROUPINFO("INPUT_TC", 20, AC_AttitudeControl, _input_tc, AC_ATTITUDE_CONTROL_INPUT_TC_DEFAULT),
 
         // @Param: ROLL_A0
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @DisplayName: HOIJO1
+    // @Description: HOIJO1
     // @Range: 0.0 10.0
     // @User: Advanced
     AP_GROUPINFO("ROLL_A0", 21, AC_AttitudeControl, roll_a0, ROLL_A0_DEFAULT),
 
     // @Param: ROLL_A1
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @DisplayName: HOIJO2
+    // @Description: HOIJO2
     // @Range: 0.0 10.0
     // @User: Advanced
     AP_GROUPINFO("ROLL_A1", 22, AC_AttitudeControl, roll_a1, ROLL_A1_DEFAULT),
 
     // @Param: ROLL_B0
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @DisplayName: HOIJO3
+    // @Description: HOIJO3
     // @Range: 0.0 10.0
     // @User: Advanced
     AP_GROUPINFO("ROLL_B0", 23, AC_AttitudeControl, roll_b0, ROLL_B0_DEFAULT),
 
     // @Param: ROLL_MOI
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @DisplayName: HOIJO4
+    // @Description: HOIJO4
     // @Range: 0.0 10.0
     // @User: Advanced
     AP_GROUPINFO("ROLL_MOI", 24, AC_AttitudeControl, roll_moi, ROLL_MOI_DEFAULT),
 
     // @Param: ROLL_TAU
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @DisplayName: HOIJO5
+    // @Description: HOIJO5
     // @Range: 0.0 10.0
     // @User: Advanced
     AP_GROUPINFO("ROLL_TAU", 25, AC_AttitudeControl, roll_tau, ROLL_TAU_DEFAULT),
 
 
     // @Param: PITCH_A0
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @DisplayName: HOIJO6
+    // @Description: HOIJO6
     // @Range: 0.0 10.0
     // @User: Advanced
     AP_GROUPINFO("PITCH_A0", 26, AC_AttitudeControl, pitch_a0, PITCH_A0_DEFAULT),
 
     // @Param: PITCH_A1
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @DisplayName: HOIJO7
+    // @Description: HOIJO7
     // @Range: 0.0 10.0
     // @User: Advanced
     AP_GROUPINFO("PITCH_A1", 27, AC_AttitudeControl, pitch_a1, PITCH_A1_DEFAULT),
 
     // @Param: PITCH_B0
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @DisplayName: HOIJO8
+    // @Description: HOIJO8
     // @Range: 0.0 10.0
     // @User: Advanced
     AP_GROUPINFO("PITCH_B0", 28, AC_AttitudeControl, pitch_b0, PITCH_B0_DEFAULT),
 
     // @Param: PITCH_MOI
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @DisplayName: HOIJO9
+    // @Description: HOIJO9
     // @Range: 0.0 10.0
     // @User: Advanced
     AP_GROUPINFO("PITCH_MOI", 29, AC_AttitudeControl, pitch_moi, PITCH_MOI_DEFAULT),
 
     // @Param: PITCH_TAU
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @DisplayName: HOIJO10
+    // @Description: HOIJO10
     // @Range: 0.0 10.0
     // @User: Advanced
     AP_GROUPINFO("PITCH_TAU", 30, AC_AttitudeControl, pitch_tau, PITCH_TAU_DEFAULT),
@@ -218,36 +218,36 @@ const AP_Param::GroupInfo AC_AttitudeControl::var_info[] = {
 
 
     // @Param: YAW_A0
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @DisplayName: HOIJO11
+    // @Description: HOIJO11
     // @Range: 0.0 10.0
     // @User: Advanced
     AP_GROUPINFO("YAW_A0", 31, AC_AttitudeControl, yaw_a0, YAW_A0_DEFAULT),
 
     // @Param: YAW_A1
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @DisplayName: HOIJO12
+    // @Description: HOIJO12
     // @Range: 0.0 10.0
     // @User: Advanced
     AP_GROUPINFO("YAW_A1", 32, AC_AttitudeControl, yaw_a1, YAW_A1_DEFAULT),
 
     // @Param: YAW_B0
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @DisplayName: HOIJO13
+    // @Description: HOIJO13
     // @Range: 0.0 10.0
     // @User: Advanced
     AP_GROUPINFO("YAW_B0", 33, AC_AttitudeControl, yaw_b0, YAW_B0_DEFAULT),
 
     // @Param: YAW_MOI
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @DisplayName: HOIJO14
+    // @Description: HOIJO14
     // @Range: 0.0 10.0
     // @User: Advanced
     AP_GROUPINFO("YAW_MOI", 34, AC_AttitudeControl, yaw_moi, YAW_MOI_DEFAULT),
 
     // @Param: YAW_TAU
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @DisplayName: HOIJO15
+    // @Description: HOIJO15
     // @Range: 0.0 10.0
     // @User: Advanced
     AP_GROUPINFO("YAW_TAU", 35, AC_AttitudeControl, yaw_tau, YAW_TAU_DEFAULT),
@@ -357,6 +357,7 @@ void AC_AttitudeControl::input_quaternion(Quaternion attitude_desired_quat)
 }
 
 // Command an euler roll and pitch angle and an euler yaw rate with angular velocity feedforward and smoothing
+// 가장 흔하게 사용
 void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler_roll_angle_cd, float euler_pitch_angle_cd, float euler_yaw_rate_cds)
 {
     // Convert from centidegrees on public interface to radians
