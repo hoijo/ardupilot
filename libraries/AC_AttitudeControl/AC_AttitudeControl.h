@@ -155,12 +155,15 @@ public:
 
     // Command an euler roll and pitch angle and an euler yaw rate with angular velocity feedforward and smoothing
     virtual void input_euler_angle_roll_pitch_euler_rate_yaw(float euler_roll_angle_cd, float euler_pitch_angle_cd, float euler_yaw_rate_cds);
+
+     virtual void angle_controller_smc(float euler_roll_angle_cd, float euler_pitch_angle_cd, float euler_yaw_rate_cds);
+
     // Command an euler roll, pitch and yaw angle with angular velocity feedforward and smoothing
     virtual void input_euler_angle_roll_pitch_yaw(float euler_roll_angle_cd, float euler_pitch_angle_cd, float euler_yaw_angle_cd, bool slew_yaw);
 
     // Command euler yaw rate and pitch angle with roll angle specified in body frame
     // (implemented only in AC_AttitudeControl_TS for tailsitter quadplanes)
-    virtual void input_euler_rate_yaw_euler_angle_pitch_bf_roll(bool plane_controls, float euler_roll_angle_cd, 
+    virtual void input_euler_rate_yaw_euler_angle_pitch_bf_roll(bool plane_controls, float euler_roll_angle_cd,
         float euler_pitch_angle_cd, float euler_yaw_rate_cds) {}
 
     // Command an euler roll, pitch, and yaw rate with angular velocity feedforward and smoothing
@@ -362,7 +365,7 @@ public:
 
     // enable inverted flight on backends that support it
     virtual void set_inverted_flight(bool inverted) {}
-    
+
     // User settable parameters
     static const struct AP_Param::GroupInfo var_info[];
 
@@ -483,6 +486,123 @@ protected:
     const AP_Vehicle::MultiCopter &_aparm;
     AP_Motors&          _motors;
 
+public:
+    // ------------------------------------------------- about dobc
+    // switch the dobc
+    bool _use_DOB = true;
+
+  // Decide the Disturbance Observer Based Controller
+    void set_use_DOB(bool use_DOB);
+    bool get_use_DOB() { return _use_DOB; }
+
+     // float DOB_on_change(float state_filtered, uint16_t flag_RPY);
+    float disturbance_observer_on_roll(float control_output, bool use_DOB);
+    float disturbance_observer_on_pitch(float control_output, bool use_DOB);
+    float disturbance_observer_on_yaw(float control_output, bool use_DOB);
+
+    float second_conroller_roll_DOB(float output);
+    float second_conroller_pitch_DOB(float output);
+    float second_conroller_yaw_DOB(float output);
+
+
+        // ------------------------------------------------- about smc
+   // switch the smc att
+       bool _use_SMC = true;
+    // switch the smc alt
+    bool _use_SMC_alt = true;
+
+
+        // Decide the SMC
+    void set_use_SMC(bool use_SMC);
+    bool get_use_SMC() {return _use_SMC;}
+
+    // Decide the SMC alt
+    void set_use_SMC_alt(bool use_SMC_alt);
+    bool get_use_SMC_alt() {return _use_SMC_alt;}
+
+
+
+protected:
+    // ------------------------------------------------- about dobc variables
+    float get_roll_a0() { return roll_a0; }
+    float get_roll_a1() { return roll_a1; }
+    float get_roll_b0() { return roll_b0; }
+    float get_roll_moi() { return roll_moi; }
+    float get_roll_tau() { return roll_tau; }
+
+    float get_pitch_a0() { return pitch_a0; }
+    float get_pitch_a1() { return pitch_a1; }
+    float get_pitch_b0() { return pitch_b0; }
+    float get_pitch_moi() { return pitch_moi; }
+    float get_pitch_tau() { return pitch_tau; }
+
+    float get_yaw_a0() { return yaw_a0; }
+    float get_yaw_a1() { return yaw_a1; }
+    float get_yaw_b0() { return yaw_b0; }
+    float get_yaw_moi() { return yaw_moi; }
+    float get_yaw_tau() { return yaw_tau; }
+
+    AP_Float roll_a0;
+    AP_Float roll_a1;
+    AP_Float roll_b0;
+    AP_Float roll_moi;
+    AP_Float roll_tau;
+
+    AP_Float pitch_a0;
+    AP_Float pitch_a1;
+    AP_Float pitch_b0;
+    AP_Float pitch_moi;
+    AP_Float pitch_tau;
+
+    AP_Float yaw_a0;
+    AP_Float yaw_a1;
+    AP_Float yaw_b0;
+    AP_Float yaw_moi;
+    AP_Float yaw_tau;
+
+    // Internal variable defined for DOBC
+    // Variables which should be initilialized only once
+    bool flag_last_R = false;
+    bool flag_last_P = false;
+    bool flag_last_Y = false;
+
+    float control_filtered_roll = 0.0f;     // state p1
+    float state_filtered_roll = _ahrs.roll; // state q1
+    float p2_roll = 0.0f;
+    float q2_roll = 0.0f;
+
+    float control_filtered_pitch = 0.0f;      // state p1
+    float state_filtered_pitch = _ahrs.pitch; // state q1
+    float p2_pitch = 0.0f;
+    float q2_pitch = 0.0f;
+
+    float control_filtered_yaw = 0.0f;    // state p1
+    float state_filtered_yaw = _ahrs.yaw; // state q1
+    float p2_yaw = 0.0f;
+    float q2_yaw = 0.0f;
+
+    struct
+    {
+        float roll_filtered;
+        float pitch_filtered;
+        float yaw_filtered;
+        float roll_control;
+        float pitch_control;
+        float yaw_control;
+        float roll_control_filtered;
+        float pitch_control_filtered;
+        float yaw_control_filtered;
+        uint8_t flagR;
+        uint8_t flagP;
+        uint8_t flagY;
+        float roll_control_in;
+        float pitch_control_in;
+        float yaw_control_in;
+        float q2_yaw;
+        float q2_dot;
+    } _dob_monitor;
+
+
 protected:
     /*
       state of control monitoring
@@ -514,4 +634,8 @@ public:
     float control_monitor_rms_output_pitch_D(void) const;
     float control_monitor_rms_output_pitch(void) const;
     float control_monitor_rms_output_yaw(void) const;
+
+    // dobc monitor
+    void dobc_monitor_log(void);
+
 };

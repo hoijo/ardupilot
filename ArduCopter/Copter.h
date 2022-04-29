@@ -29,7 +29,7 @@
 
 // Common dependencies
 #include <AP_Common/AP_Common.h>            // Common definitions and utility routines for the ArduPilot libraries
-#include <AP_Common/Location.h>             // Library having the implementation of location class         
+#include <AP_Common/Location.h>             // Library having the implementation of location class
 #include <AP_Param/AP_Param.h>              // A system for managing and storing variables that are of general interest to the system.
 #include <StorageManager/StorageManager.h>  // library for Management for hal.storage to allow for backwards compatible mapping of storage offsets to available storage
 
@@ -216,6 +216,8 @@ public:
     friend class ModeZigZag;
     friend class ModeAutorotate;
     friend class ModeTurtle;
+    friend class ModeCustom;
+
 
     Copter(void);
 
@@ -912,11 +914,24 @@ private:
     bool get_wp_bearing_deg(float &bearing) const override;
     bool get_wp_crosstrack_error_m(float &xtrack_error) const override;
 
+    // switch DOBC on /off
+    void radio_set_use_DOB();
+    // switch SMC on / off
+    void radio_set_use_SMC();
+    // switch SMC alt on / off
+    void radio_set_use_SMC_alt();
+
+    bool flag_DOB_last = false;
+    bool flag_SMC_last = false;
+    bool flag_SMC_alt_last = false;
+
+
 #if MODE_ACRO_ENABLED == ENABLED
 #if FRAME_CONFIG == HELI_FRAME
     ModeAcro_Heli mode_acro;
 #else
     ModeAcro mode_acro;
+    ModeCustom mode_custom;
 #endif
 #endif
     ModeAltHold mode_althold;

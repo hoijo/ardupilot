@@ -59,6 +59,21 @@ void AC_AttitudeControl::control_monitor_log(void) const
 
 }
 
+// Log Additional Disturbance Observer based controller data
+void AC_AttitudeControl::dobc_monitor_log(void)
+{
+    AP::logger().WriteStreaming("DOBC", "TimeUS,Roll,Pitch,Yaw,RollCTRL,PitchCTRL,YawCTRL,Qtd", "Qfffffff",
+                                           AP_HAL::micros64(),
+                                           (double)_dob_monitor.roll_filtered,
+                                           (double)_dob_monitor.pitch_filtered,
+                                           (double)_dob_monitor.yaw_filtered,
+                                           (double)_dob_monitor.roll_control,
+                                           (double)_dob_monitor.pitch_control,
+                                           (double)_dob_monitor.yaw_control,
+                                           (double)_dob_monitor.q2_dot
+                                          );
+}
+
 /*
   return current controller RMS filter value for roll
  */
