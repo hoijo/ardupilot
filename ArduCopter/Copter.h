@@ -914,17 +914,6 @@ private:
     bool get_wp_bearing_deg(float &bearing) const override;
     bool get_wp_crosstrack_error_m(float &xtrack_error) const override;
 
-    // switch DOBC on /off
-    void radio_set_use_DOB();
-    // switch SMC on / off
-    void radio_set_use_SMC();
-    // switch SMC alt on / off
-    void radio_set_use_SMC_alt();
-
-    bool flag_DOB_last = false;
-    bool flag_SMC_last = false;
-    bool flag_SMC_alt_last = false;
-
 
 #if MODE_ACRO_ENABLED == ENABLED
 #if FRAME_CONFIG == HELI_FRAME
@@ -1011,6 +1000,17 @@ private:
 
 public:
     void failsafe_check();      // failsafe.cpp
+
+    // switch DOBC on /off
+    void radio_set_use_DOB();
+    // switch SMC on / off
+    void radio_set_use_SMC();
+    // switch SMC alt on / off
+    void radio_set_use_SMC_alt();
+
+    bool flag_DOB_last = false;
+    bool flag_SMC_last = false;
+    bool flag_SMC_alt_last = false;
 };
 
 extern Copter copter;

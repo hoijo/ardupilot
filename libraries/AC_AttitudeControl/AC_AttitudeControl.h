@@ -46,8 +46,29 @@
 
 #define AC_ATTITUDE_CONTROL_THR_MIX_DEFAULT             0.5f  // ratio controlling the max throttle output during competing requests of low throttle from the pilot (or autopilot) and higher throttle for attitude control.  Higher favours Attitude over pilot input
 
+// Initial parameter for DOBC
+#define ROLL_A0_DEFAULT 1.0f
+#define ROLL_A1_DEFAULT 2.0f
+#define ROLL_B0_DEFAULT 2.0f
+#define ROLL_MOI_DEFAULT 0.0038f
+#define ROLL_TAU_DEFAULT 0.25f
+
+#define PITCH_A0_DEFAULT 1.0f
+#define PITCH_A1_DEFAULT 2.0f
+#define PITCH_B0_DEFAULT 2.0f
+#define PITCH_MOI_DEFAULT 0.0038f
+#define PITCH_TAU_DEFAULT 0.25f
+
+#define YAW_A0_DEFAULT 1.0f
+#define YAW_A1_DEFAULT 2.0f
+#define YAW_B0_DEFAULT 2.0f
+#define YAW_MOI_DEFAULT 0.0071f
+#define YAW_TAU_DEFAULT 0.25f
+
+
 class AC_AttitudeControl {
 public:
+
     AC_AttitudeControl( AP_AHRS_View &ahrs,
                         const AP_Vehicle::MultiCopter &aparm,
                         AP_Motors& motors,
@@ -156,7 +177,7 @@ public:
     // Command an euler roll and pitch angle and an euler yaw rate with angular velocity feedforward and smoothing
     virtual void input_euler_angle_roll_pitch_euler_rate_yaw(float euler_roll_angle_cd, float euler_pitch_angle_cd, float euler_yaw_rate_cds);
 
-     virtual void angle_controller_smc(float euler_roll_angle_cd, float euler_pitch_angle_cd, float euler_yaw_rate_cds);
+    // virtual void angle_controller_smc(float euler_roll_angle_cd, float euler_pitch_angle_cd, float euler_yaw_rate_cds);
 
     // Command an euler roll, pitch and yaw angle with angular velocity feedforward and smoothing
     virtual void input_euler_angle_roll_pitch_yaw(float euler_roll_angle_cd, float euler_pitch_angle_cd, float euler_yaw_angle_cd, bool slew_yaw);
@@ -500,9 +521,9 @@ public:
     float disturbance_observer_on_pitch(float control_output, bool use_DOB);
     float disturbance_observer_on_yaw(float control_output, bool use_DOB);
 
-    float second_conroller_roll_DOB(float output);
-    float second_conroller_pitch_DOB(float output);
-    float second_conroller_yaw_DOB(float output);
+    float angular_control_roll_DOB(float output);
+    float angular_control_pitch_DOB(float output);
+    float angular_control_yaw_DOB(float output);
 
 
         // ------------------------------------------------- about smc
@@ -523,6 +544,9 @@ public:
 
 
 protected:
+
+    int counter_check = 0;
+
     // ------------------------------------------------- about dobc variables
     float get_roll_a0() { return roll_a0; }
     float get_roll_a1() { return roll_a1; }

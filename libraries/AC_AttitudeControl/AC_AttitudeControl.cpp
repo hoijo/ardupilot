@@ -144,6 +144,115 @@ const AP_Param::GroupInfo AC_AttitudeControl::var_info[] = {
     // @User: Standard
     AP_GROUPINFO("INPUT_TC", 20, AC_AttitudeControl, _input_tc, AC_ATTITUDE_CONTROL_INPUT_TC_DEFAULT),
 
+       // @Param: ROLL_A0
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("ROLL_A0", 21, AC_AttitudeControl, roll_a0, ROLL_A0_DEFAULT),
+
+    // @Param: ROLL_A1
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("ROLL_A1", 22, AC_AttitudeControl, roll_a1, ROLL_A1_DEFAULT),
+
+    // @Param: ROLL_B0
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("ROLL_B0", 23, AC_AttitudeControl, roll_b0, ROLL_B0_DEFAULT),
+
+    // @Param: ROLL_MOI
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("ROLL_MOI", 24, AC_AttitudeControl, roll_moi, ROLL_MOI_DEFAULT),
+
+    // @Param: ROLL_TAU
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("ROLL_TAU", 25, AC_AttitudeControl, roll_tau, ROLL_TAU_DEFAULT),
+
+
+    // @Param: PITCH_A0
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("PITCH_A0", 26, AC_AttitudeControl, pitch_a0, PITCH_A0_DEFAULT),
+
+    // @Param: PITCH_A1
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("PITCH_A1", 27, AC_AttitudeControl, pitch_a1, PITCH_A1_DEFAULT),
+
+    // @Param: PITCH_B0
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("PITCH_B0", 28, AC_AttitudeControl, pitch_b0, PITCH_B0_DEFAULT),
+
+    // @Param: PITCH_MOI
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("PITCH_MOI", 29, AC_AttitudeControl, pitch_moi, PITCH_MOI_DEFAULT),
+
+    // @Param: PITCH_TAU
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("PITCH_TAU", 30, AC_AttitudeControl, pitch_tau, PITCH_TAU_DEFAULT),
+
+
+
+    // @Param: YAW_A0
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("YAW_A0", 31, AC_AttitudeControl, yaw_a0, YAW_A0_DEFAULT),
+
+    // @Param: YAW_A1
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("YAW_A1", 32, AC_AttitudeControl, yaw_a1, YAW_A1_DEFAULT),
+
+    // @Param: YAW_B0
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("YAW_B0", 33, AC_AttitudeControl, yaw_b0, YAW_B0_DEFAULT),
+
+    // @Param: YAW_MOI
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("YAW_MOI", 34, AC_AttitudeControl, yaw_moi, YAW_MOI_DEFAULT),
+
+    // @Param: YAW_TAU
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("YAW_TAU", 35, AC_AttitudeControl, yaw_tau, YAW_TAU_DEFAULT),
+
+
     AP_GROUPEND
 };
 
@@ -306,11 +415,6 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
 
     // Call quaternion attitude controller
     attitude_controller_run_quat();
-}
-
-void AC_AttitudeControl::angle_controller_smc(float euler_roll_angle_cd, float euler_pitch_angle_cd, float euler_yaw_rate_cds)
-{
-
 }
 
 // Command an euler roll, pitch and yaw angle with angular velocity feedforward and smoothing
@@ -1198,6 +1302,8 @@ float AC_AttitudeControl::disturbance_observer_on_roll(float control_output, boo
     _dob_monitor.roll_control_filtered = control_filtered_roll;
     _dob_monitor.flagR = flag_last_R;
     // this should be subtracted to original roll_control
+
+    counter_check++;
     if (use_DOB)
     {
       if (flag_last_R == false)
@@ -1207,6 +1313,13 @@ float AC_AttitudeControl::disturbance_observer_on_roll(float control_output, boo
       }
 
       _dob_monitor.roll_control = control_DOB;
+
+      if (counter_check > 400)
+      {
+          counter_check = 0;
+        //   gcs().send_text(MAV_SEVERITY_CRITICAL, "dob roll_control");
+      }
+
       return control_DOB;
     }
     else
@@ -1356,7 +1469,7 @@ float AC_AttitudeControl::disturbance_observer_on_yaw(float control_output, bool
     }
 }
 
-float AC_AttitudeControl::second_conroller_roll_DOB(float output)
+float AC_AttitudeControl::angular_control_roll_DOB(float output)
 {
     output = constrain_float(output, -1.0f, 1.0f);
     float control_DOB = disturbance_observer_on_roll(output, _use_DOB);
@@ -1366,7 +1479,7 @@ float AC_AttitudeControl::second_conroller_roll_DOB(float output)
     return constrain_float(output, -1.0f, 1.0f);
 }
 
-float AC_AttitudeControl::second_conroller_pitch_DOB(float output)
+float AC_AttitudeControl::angular_control_pitch_DOB(float output)
 {
     output = constrain_float(output, -1.0f, 1.0f);
     float control_DOB = disturbance_observer_on_pitch(output, _use_DOB);
@@ -1376,7 +1489,7 @@ float AC_AttitudeControl::second_conroller_pitch_DOB(float output)
     return constrain_float(output, -1.0f, 1.0f);
 }
 
-float AC_AttitudeControl::second_conroller_yaw_DOB(float output)
+float AC_AttitudeControl::angular_control_yaw_DOB(float output)
 {
     output = constrain_float(output, -1.0f, 1.0f);
     float control_DOB = disturbance_observer_on_yaw(output, _use_DOB);
