@@ -292,6 +292,13 @@ public:
     void set_throttle_takeoff(void);
     uint16_t get_pilot_speed_dn(void);
     // end pass-through functions
+
+    // public:
+    // bool _use_doublet = false;
+    // uint32_t doublet_timer = 0;
+
+    // void set_use_doublet(bool use_doublet);
+    // bool get_use_doublet() { return _use_doublet; }
 };
 
 

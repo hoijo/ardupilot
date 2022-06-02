@@ -50,20 +50,33 @@
 #define ROLL_A0_DEFAULT 1.0f
 #define ROLL_A1_DEFAULT 2.0f
 #define ROLL_B0_DEFAULT 2.0f
-#define ROLL_MOI_DEFAULT 0.0038f
+#define ROLL_MOI_DEFAULT 0.054f
 #define ROLL_TAU_DEFAULT 0.25f
 
 #define PITCH_A0_DEFAULT 1.0f
 #define PITCH_A1_DEFAULT 2.0f
 #define PITCH_B0_DEFAULT 2.0f
-#define PITCH_MOI_DEFAULT 0.0038f
+#define PITCH_MOI_DEFAULT 0.054f
 #define PITCH_TAU_DEFAULT 0.25f
 
 #define YAW_A0_DEFAULT 1.0f
 #define YAW_A1_DEFAULT 2.0f
 #define YAW_B0_DEFAULT 2.0f
-#define YAW_MOI_DEFAULT 0.0071f
+#define YAW_MOI_DEFAULT 0.0976f
 #define YAW_TAU_DEFAULT 0.25f
+
+// Doublet command
+#define ROLL_CD_UP_DEFAULT 1000.0f
+#define ROLL_CD_DO_DEFAULT 1000.f
+#define PITCH_CD_UP_DEFAULT 0.0f
+#define PITCH_CD_DO_DEFAULT 0.0f
+#define YAW_CD_UP_DEFAULT 0.0f
+#define YAW_CD_DO_DEFAULT 0.0f
+
+#define D_T1_DEFAULT 2000
+#define D_T2_DEFAULT 3000
+#define D_T3_DEFAULT 4000
+#define D_T4_DEFAULT 10000
 
 
 class AC_AttitudeControl {
@@ -512,9 +525,16 @@ public:
     // switch the dobc
     bool _use_DOB = true;
 
+    bool _use_doublet = true;
+    bool doublet_arm = true;
+    uint32_t doublet_timer = 0;
+
   // Decide the Disturbance Observer Based Controller
     void set_use_DOB(bool use_DOB);
     bool get_use_DOB() { return _use_DOB; }
+
+    void set_use_doublet(bool use_doublet);
+    bool get_use_doublet() { return _use_doublet; }
 
      // float DOB_on_change(float state_filtered, uint16_t flag_RPY);
     float disturbance_observer_on_roll(float control_output, bool use_DOB);
@@ -546,6 +566,33 @@ public:
 protected:
 
     int counter_check = 0;
+
+    // Doublet command
+    AP_Float roll_cd_up;
+    AP_Float roll_cd_do;
+    AP_Float pitch_cd_up;
+    AP_Float pitch_cd_do;
+    AP_Float yaw_cd_up;
+    AP_Float yaw_cd_do;
+
+    float get_roll_cd_up() { return roll_cd_up; }
+    float get_roll_cd_do() { return roll_cd_do; }
+    float get_pitch_cd_up() { return pitch_cd_up; }
+    float get_pitch_cd_do() { return pitch_cd_do; }
+    float get_yaw_cd_up() { return yaw_cd_up; }
+    float get_yaw_cd_do() { return yaw_cd_do; }
+
+    AP_Int32 d_t1;
+    AP_Int32 d_t2;
+    AP_Int32 d_t3;
+    AP_Int32 d_t4;
+
+    u_int32_t get_d_t1() { return d_t1; }
+    u_int32_t get_d_t2() { return d_t2; }
+    u_int32_t get_d_t3() { return d_t3; }
+    u_int32_t get_d_t4() { return d_t4; }
+
+
 
     // ------------------------------------------------- about dobc variables
     float get_roll_a0() { return roll_a0; }

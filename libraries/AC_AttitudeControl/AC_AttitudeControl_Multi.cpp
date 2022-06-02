@@ -232,15 +232,13 @@ const AP_Param::GroupInfo AC_AttitudeControl_Multi::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("THR_MIX_MAN", 6, AC_AttitudeControl_Multi, _thr_mix_man, AC_ATTITUDE_CONTROL_MAN_DEFAULT),
 
-    AP_GROUPEND
-};
+    AP_GROUPEND};
 
-AC_AttitudeControl_Multi::AC_AttitudeControl_Multi(AP_AHRS_View &ahrs, const AP_Vehicle::MultiCopter &aparm, AP_MotorsMulticopter& motors, float dt) :
-    AC_AttitudeControl(ahrs, aparm, motors, dt),
-    _motors_multi(motors),
-    _pid_rate_roll(AC_ATC_MULTI_RATE_RP_P, AC_ATC_MULTI_RATE_RP_I, AC_ATC_MULTI_RATE_RP_D, 0.0f, AC_ATC_MULTI_RATE_RP_IMAX, AC_ATC_MULTI_RATE_RP_FILT_HZ, 0.0f, AC_ATC_MULTI_RATE_RP_FILT_HZ, dt),
-    _pid_rate_pitch(AC_ATC_MULTI_RATE_RP_P, AC_ATC_MULTI_RATE_RP_I, AC_ATC_MULTI_RATE_RP_D, 0.0f, AC_ATC_MULTI_RATE_RP_IMAX, AC_ATC_MULTI_RATE_RP_FILT_HZ, 0.0f, AC_ATC_MULTI_RATE_RP_FILT_HZ, dt),
-    _pid_rate_yaw(AC_ATC_MULTI_RATE_YAW_P, AC_ATC_MULTI_RATE_YAW_I, AC_ATC_MULTI_RATE_YAW_D, 0.0f, AC_ATC_MULTI_RATE_YAW_IMAX, AC_ATC_MULTI_RATE_RP_FILT_HZ, AC_ATC_MULTI_RATE_YAW_FILT_HZ, 0.0f, dt)
+AC_AttitudeControl_Multi::AC_AttitudeControl_Multi(AP_AHRS_View &ahrs, const AP_Vehicle::MultiCopter &aparm, AP_MotorsMulticopter &motors, float dt) : AC_AttitudeControl(ahrs, aparm, motors, dt),
+                                                                                                                                                       _motors_multi(motors),
+                                                                                                                                                       _pid_rate_roll(AC_ATC_MULTI_RATE_RP_P, AC_ATC_MULTI_RATE_RP_I, AC_ATC_MULTI_RATE_RP_D, 0.0f, AC_ATC_MULTI_RATE_RP_IMAX, AC_ATC_MULTI_RATE_RP_FILT_HZ, 0.0f, AC_ATC_MULTI_RATE_RP_FILT_HZ, dt),
+                                                                                                                                                       _pid_rate_pitch(AC_ATC_MULTI_RATE_RP_P, AC_ATC_MULTI_RATE_RP_I, AC_ATC_MULTI_RATE_RP_D, 0.0f, AC_ATC_MULTI_RATE_RP_IMAX, AC_ATC_MULTI_RATE_RP_FILT_HZ, 0.0f, AC_ATC_MULTI_RATE_RP_FILT_HZ, dt),
+                                                                                                                                                       _pid_rate_yaw(AC_ATC_MULTI_RATE_YAW_P, AC_ATC_MULTI_RATE_YAW_I, AC_ATC_MULTI_RATE_YAW_D, 0.0f, AC_ATC_MULTI_RATE_YAW_IMAX, AC_ATC_MULTI_RATE_RP_FILT_HZ, AC_ATC_MULTI_RATE_YAW_FILT_HZ, 0.0f, dt)
 {
     AP_Param::setup_object_defaults(this, var_info);
 }
@@ -252,7 +250,8 @@ void AC_AttitudeControl_Multi::update_althold_lean_angle_max(float throttle_in)
     float thr_max = _motors_multi.get_throttle_thrust_max();
 
     // divide by zero check
-    if (is_zero(thr_max)) {
+    if (is_zero(thr_max))
+    {
         _althold_lean_angle_max = 0.0f;
         return;
     }
@@ -266,10 +265,13 @@ void AC_AttitudeControl_Multi::set_throttle_out(float throttle_in, bool apply_an
     _throttle_in = throttle_in;
     update_althold_lean_angle_max(throttle_in);
     _motors.set_throttle_filter_cutoff(filter_cutoff);
-    if (apply_angle_boost) {
+    if (apply_angle_boost)
+    {
         // Apply angle boost
         throttle_in = get_throttle_boosted(throttle_in);
-    } else {
+    }
+    else
+    {
         // Clear angle_boost for logging purposes
         _angle_boost = 0.0f;
     }
@@ -287,7 +289,8 @@ void AC_AttitudeControl_Multi::set_throttle_mix_max(float ratio)
 // throttle value should be 0 ~ 1
 float AC_AttitudeControl_Multi::get_throttle_boosted(float throttle_in)
 {
-    if (!_angle_boost_enabled) {
+    if (!_angle_boost_enabled)
+    {
         _angle_boost = 0;
         return throttle_in;
     }
@@ -316,10 +319,13 @@ float AC_AttitudeControl_Multi::get_throttle_avg_max(float throttle_in)
 void AC_AttitudeControl_Multi::update_throttle_rpy_mix()
 {
     // slew _throttle_rpy_mix to _throttle_rpy_mix_desired
-    if (_throttle_rpy_mix < _throttle_rpy_mix_desired) {
+    if (_throttle_rpy_mix < _throttle_rpy_mix_desired)
+    {
         // increase quickly (i.e. from 0.1 to 0.9 in 0.4 seconds)
         _throttle_rpy_mix += MIN(2.0f * _dt, _throttle_rpy_mix_desired - _throttle_rpy_mix);
-    } else if (_throttle_rpy_mix > _throttle_rpy_mix_desired) {
+    }
+    else if (_throttle_rpy_mix > _throttle_rpy_mix_desired)
+    {
         // reduce more slowly (from 0.9 to 0.1 in 1.6 seconds)
         _throttle_rpy_mix -= MIN(0.5f * _dt, _throttle_rpy_mix - _throttle_rpy_mix_desired);
     }
@@ -352,9 +358,9 @@ void AC_AttitudeControl_Multi::rate_controller_run()
     // _motors.set_yaw(get_rate_yaw_pid().update_all(_ang_vel_body.z, gyro_latest.z, _motors.limit.yaw) + _actuator_sysid.z);
     // _motors.set_yaw_ff(get_rate_yaw_pid().get_ff()*_feedforward_scalar);
 
-     float control_cmd_yaw = get_rate_yaw_pid().update_all(_ang_vel_body.z, gyro_latest.z, _motors.limit.yaw) + _actuator_sysid.z;
+    float control_cmd_yaw = get_rate_yaw_pid().update_all(_ang_vel_body.z, gyro_latest.z, _motors.limit.yaw) + _actuator_sysid.z;
     _motors.set_yaw(angular_control_yaw_DOB(control_cmd_yaw));
-    _motors.set_yaw_ff(get_rate_yaw_pid().get_ff()*_feedforward_scalar);
+    _motors.set_yaw_ff(get_rate_yaw_pid().get_ff() * _feedforward_scalar);
 
     _sysid_ang_vel_body.zero();
     _actuator_sysid.zero();
@@ -366,20 +372,24 @@ void AC_AttitudeControl_Multi::rate_controller_run()
 void AC_AttitudeControl_Multi::parameter_sanity_check()
 {
     // sanity check throttle mix parameters
-    if (_thr_mix_man < 0.1f || _thr_mix_man > AC_ATTITUDE_CONTROL_MAN_LIMIT) {
+    if (_thr_mix_man < 0.1f || _thr_mix_man > AC_ATTITUDE_CONTROL_MAN_LIMIT)
+    {
         // parameter description recommends thr-mix-man be no higher than 0.9 but we allow up to 4.0
         // which can be useful for very high powered copters with very low hover throttle
         _thr_mix_man.set_and_save(constrain_float(_thr_mix_man, 0.1, AC_ATTITUDE_CONTROL_MAN_LIMIT));
     }
-    if (_thr_mix_min < 0.1f || _thr_mix_min > AC_ATTITUDE_CONTROL_MIN_LIMIT) {
+    if (_thr_mix_min < 0.1f || _thr_mix_min > AC_ATTITUDE_CONTROL_MIN_LIMIT)
+    {
         _thr_mix_min.set_and_save(constrain_float(_thr_mix_min, 0.1, AC_ATTITUDE_CONTROL_MIN_LIMIT));
     }
-    if (_thr_mix_max < 0.5f || _thr_mix_max > AC_ATTITUDE_CONTROL_MAX) {
+    if (_thr_mix_max < 0.5f || _thr_mix_max > AC_ATTITUDE_CONTROL_MAX)
+    {
         // parameter description recommends thr-mix-max be no higher than 0.9 but we allow up to 5.0
         // which can be useful for very high powered copters with very low hover throttle
         _thr_mix_max.set_and_save(constrain_float(_thr_mix_max, 0.5, AC_ATTITUDE_CONTROL_MAX));
     }
-    if (_thr_mix_min > _thr_mix_max) {
+    if (_thr_mix_min > _thr_mix_max)
+    {
         _thr_mix_min.set_and_save(AC_ATTITUDE_CONTROL_MIN_DEFAULT);
         _thr_mix_max.set_and_save(AC_ATTITUDE_CONTROL_MAX_DEFAULT);
     }

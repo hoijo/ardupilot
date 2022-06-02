@@ -111,6 +111,7 @@ void Copter::read_radio()
     }
 
     radio_set_use_DOB();
+    doublet_on_switch();
     // radio_set_use_SMC();
     // radio_set_use_SMC_alt();
 
@@ -156,7 +157,6 @@ void Copter::radio_set_use_DOB()
     }
     else
     {
-
         attitude_control->set_use_DOB(false);
     }
 
@@ -170,54 +170,75 @@ void Copter::radio_set_use_DOB()
     }
 }
 
-void Copter::radio_set_use_SMC()
+void Copter::doublet_on_switch()
 {
-    // static uint32_t last_smc_time;
-    // const uint32_t now_smc_time = AP_HAL::millis();
-
     if (RC_Channels::rc_channel(CH_9)->get_radio_in() > 1600)
     {
-        attitude_control->set_use_SMC(true);
+        attitude_control->set_use_doublet(true);
     }
     else
     {
-        attitude_control->set_use_SMC(false);
+        attitude_control->set_use_doublet(false);
     }
 
-    if (flag_SMC_last != attitude_control->get_use_SMC())
+    if (flag_doublet_last != attitude_control->get_use_doublet())
     {
-        flag_SMC_last = attitude_control->get_use_SMC();
-        if (attitude_control->get_use_SMC())
-            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "SMC att is On : ch9");
+        flag_doublet_last = attitude_control->get_use_doublet();
+        if (attitude_control->get_use_doublet())
+            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet on : ch9");
         else
-            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "SMC att is Off : ch9");
+            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet off : ch9");
     }
 }
 
-void Copter::radio_set_use_SMC_alt()
-{
-    // static uint32_t last_smc_alt_time;
-    // const uint32_t now_smc_alt_time = AP_HAL::millis();
+// void Copter::radio_set_use_SMC()
+// {
+//     // static uint32_t last_smc_time;
+//     // const uint32_t now_smc_time = AP_HAL::millis();
 
-    if (RC_Channels::rc_channel(CH_10)->get_radio_in() > 1600)
-    {
-        attitude_control->set_use_SMC_alt(true);
-    }
-    else
-    {
-        attitude_control->set_use_SMC_alt(false);
-    }
+//     if (RC_Channels::rc_channel(CH_9)->get_radio_in() > 1600)
+//     {
+//         attitude_control->set_use_SMC(true);
+//     }
+//     else
+//     {
+//         attitude_control->set_use_SMC(false);
+//     }
 
-    if (flag_SMC_last != attitude_control->get_use_SMC_alt())
-    {
-        flag_SMC_last = attitude_control->get_use_SMC_alt();
-        if (attitude_control->get_use_SMC_alt())
+//     if (flag_SMC_last != attitude_control->get_use_SMC())
+//     {
+//         flag_SMC_last = attitude_control->get_use_SMC();
+//         if (attitude_control->get_use_SMC())
+//             GCS_SEND_TEXT(MAV_SEVERITY_INFO, "SMC att is On : ch9");
+//         else
+//             GCS_SEND_TEXT(MAV_SEVERITY_INFO, "SMC att is Off : ch9");
+//     }
+// }
 
-            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "SMC alt is On : ch10");
-        else
-            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "SMC alt is Off : ch10");
-    }
-}
+// void Copter::radio_set_use_SMC_alt()
+// {
+//     // static uint32_t last_smc_alt_time;
+//     // const uint32_t now_smc_alt_time = AP_HAL::millis();
+
+//     if (RC_Channels::rc_channel(CH_10)->get_radio_in() > 1600)
+//     {
+//         attitude_control->set_use_SMC_alt(true);
+//     }
+//     else
+//     {
+//         attitude_control->set_use_SMC_alt(false);
+//     }
+
+//     if (flag_SMC_last != attitude_control->get_use_SMC_alt())
+//     {
+//         flag_SMC_last = attitude_control->get_use_SMC_alt();
+//         if (attitude_control->get_use_SMC_alt())
+
+//             GCS_SEND_TEXT(MAV_SEVERITY_INFO, "SMC alt is On : ch10");
+//         else
+//             GCS_SEND_TEXT(MAV_SEVERITY_INFO, "SMC alt is Off : ch10");
+//     }
+// }
 
 #define FS_COUNTER 3 // radio failsafe kicks in after 3 consecutive throttle values below failsafe_throttle_value
 void Copter::set_throttle_and_failsafe(uint16_t throttle_pwm)
