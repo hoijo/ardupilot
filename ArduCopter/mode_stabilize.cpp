@@ -64,56 +64,7 @@ void ModeStabilize::run()
     // // call attitude controller
     attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(target_roll, target_pitch, target_yaw_rate);
 
-    // // GEnerator of the Doublet command
-    // if (_use_doublet == true)
-    // {
-    //     uint32_t now = AP_HAL::millis();
-
-    //     if (doublet_timer == 0 || now - doublet_timer < 2000)
-    //     {
-    //         if (doublet_timer == 0)
-    //         {
-    //             GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet time start");
-    //             doublet_timer = now;
-    //         }
-    //         target_roll = 0.0f;
-    //         // call attitude controller
-    //         attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(target_roll, target_pitch, target_yaw_rate);
-    //     }
-    //     else if (now - doublet_timer >= 2000 && now - doublet_timer < 2500)
-    //     {
-    //         GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet phase 1");
-    //         target_roll = 500.0f;
-    //         // call attitude controller
-    //         attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(target_roll, target_pitch, target_yaw_rate);
-    //     }
-    //     else if (now - doublet_timer >= 2500 && now - doublet_timer < 3000)
-    //     {
-    //         GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet phase 2");
-    //         target_roll = -500.0f;
-    //         // call attitude controller
-    //         attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(target_roll, target_pitch, target_yaw_rate);
-    //     }
-    //     else if (now - doublet_timer >= 3000 && now - doublet_timer < 5000)
-    //     {
-    //         GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet phase 3");
-    //         target_roll = 0.0f;
-    //         // call attitude controller
-    //         attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(target_roll, target_pitch, target_yaw_rate);
-    //     }
-    //     else
-    //     {
-    //         GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet motion off");
-    //         // call attitude controller
-    //         attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(target_roll, target_pitch, target_yaw_rate);
-    //     }
-    // }
-    // else
-    // {
-    //     doublet_timer = 0;
-    //     // call attitude controller
-    //     attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(target_roll, target_pitch, target_yaw_rate);
-    // }
+    attitude_control->att_smc_controller_outer();
 
     // output pilot's throttle
     attitude_control->set_throttle_out(get_pilot_desired_throttle(),

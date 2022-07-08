@@ -345,21 +345,15 @@ void AC_AttitudeControl_Multi::rate_controller_run()
     // _motors.set_roll_ff(get_rate_roll_pid().get_ff());
 
     float control_cmd_roll = get_rate_roll_pid().update_all(_ang_vel_body.x, gyro_latest.x, _motors.limit.roll) + _actuator_sysid.x;
-    _motors.set_roll(angular_control_roll_DOB(control_cmd_roll));
+    _motors.set_roll(angular_control_roll_dobc_smc_roll(control_cmd_roll));
     _motors.set_roll_ff(get_rate_roll_pid().get_ff());
 
-    // _motors.set_pitch(get_rate_pitch_pid().update_all(_ang_vel_body.y, gyro_latest.y, _motors.limit.pitch) + _actuator_sysid.y);
-    // _motors.set_pitch_ff(get_rate_pitch_pid().get_ff());
-
     float control_cmd_pitch = get_rate_pitch_pid().update_all(_ang_vel_body.y, gyro_latest.y, _motors.limit.pitch) + _actuator_sysid.y;
-    _motors.set_pitch(angular_control_pitch_DOB(control_cmd_pitch));
+    _motors.set_pitch(angular_control_roll_dobc_smc_pitch(control_cmd_pitch));
     _motors.set_pitch_ff(get_rate_roll_pid().get_ff());
 
-    // _motors.set_yaw(get_rate_yaw_pid().update_all(_ang_vel_body.z, gyro_latest.z, _motors.limit.yaw) + _actuator_sysid.z);
-    // _motors.set_yaw_ff(get_rate_yaw_pid().get_ff()*_feedforward_scalar);
-
     float control_cmd_yaw = get_rate_yaw_pid().update_all(_ang_vel_body.z, gyro_latest.z, _motors.limit.yaw) + _actuator_sysid.z;
-    _motors.set_yaw(angular_control_yaw_DOB(control_cmd_yaw));
+    _motors.set_yaw(angular_control_roll_dobc_smc_yaw(control_cmd_yaw));
     _motors.set_yaw_ff(get_rate_yaw_pid().get_ff() * _feedforward_scalar);
 
     _sysid_ang_vel_body.zero();

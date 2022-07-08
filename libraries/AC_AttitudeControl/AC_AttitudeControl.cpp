@@ -249,79 +249,243 @@ const AP_Param::GroupInfo AC_AttitudeControl::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("YAW_TAU", 35, AC_AttitudeControl, yaw_tau, YAW_TAU_DEFAULT),
 
+    // // @Param: roll_cd_up
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: Advanced
+    // AP_GROUPINFO("ROLL_CD_UP", 36, AC_AttitudeControl, roll_cd_up, ROLL_CD_UP_DEFAULT),
 
+    // // @Param: roll_cd_down
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: Advanced
+    // AP_GROUPINFO("ROLL_CD_DO", 37, AC_AttitudeControl, roll_cd_do, ROLL_CD_DO_DEFAULT),
 
+    // // @Param: pitch_cd_up
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: Advanced
+    // AP_GROUPINFO("PITCH_CD_UP", 38, AC_AttitudeControl, pitch_cd_up, PITCH_CD_UP_DEFAULT),
 
+    // // @Param: pitch_cd_down
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: Advanced
+    // AP_GROUPINFO("PITCH_CD_DO", 39, AC_AttitudeControl, pitch_cd_do, PITCH_CD_DO_DEFAULT),
 
-    // @Param: roll_cd_up
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // // @Param: yaw_cd_up
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: AdvancedROLL_CD_UP_DEFAULT
+    // AP_GROUPINFO("YAW_CD_UP", 40, AC_AttitudeControl, yaw_cd_up, YAW_CD_UP_DEFAULT),
+
+    // // @Param: yaw_cd_down
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: Advanced
+    // AP_GROUPINFO("YAW_CD_DO", 41, AC_AttitudeControl, yaw_cd_do, YAW_CD_DO_DEFAULT),
+
+    // // @Param: double_t1
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: Advanced
+    // AP_GROUPINFO("D_T1", 42, AC_AttitudeControl, d_t1, D_T1_DEFAULT),
+
+    // // @Param: double_t2
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: Advanced
+    // AP_GROUPINFO("D_T2", 43, AC_AttitudeControl, d_t2, D_T2_DEFAULT),
+
+    // // @Param: double_t1
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: Advanced
+    // AP_GROUPINFO("D_T3", 44, AC_AttitudeControl, d_t3, D_T3_DEFAULT),
+
+    // // @Param: double_t4
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: Advanced
+    // AP_GROUPINFO("D_T4", 45, AC_AttitudeControl, d_t4, D_T4_DEFAULT),
+
+    // @Param: SMC_C11_1
+    // @DisplayName: gain for att error of phi
+    // @Description: gain for att error of phi
     // @Range: 0.0 10.0
     // @User: Advanced
-    AP_GROUPINFO("ROLL_CD_UP", 36, AC_AttitudeControl, roll_cd_up, ROLL_CD_UP_DEFAULT),
+    AP_GROUPINFO("SMC_C11_1", 36, AC_AttitudeControl, smc_c11_1, SMC_C11_1_DEFAULT),
 
-    // @Param: roll_cd_down
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @Param: SMC_C11_2
+    // @DisplayName: gain for att error of the
+    // @Description: gain for att error of the
     // @Range: 0.0 10.0
     // @User: Advanced
-    AP_GROUPINFO("ROLL_CD_DO", 37, AC_AttitudeControl, roll_cd_do, ROLL_CD_DO_DEFAULT),
+    AP_GROUPINFO("SMC_C11_2", 37, AC_AttitudeControl, smc_c11_2, SMC_C11_2_DEFAULT),
 
-    // @Param: pitch_cd_up
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @Param: SMC_C11_3
+    // @DisplayName: gain for att error of psi
+    // @Description: gain for att error of psi
     // @Range: 0.0 10.0
     // @User: Advanced
-    AP_GROUPINFO("PITCH_CD_UP", 38, AC_AttitudeControl, pitch_cd_up, PITCH_CD_UP_DEFAULT),
+    AP_GROUPINFO("SMC_C11_3", 38, AC_AttitudeControl, smc_c11_3, SMC_C11_3_DEFAULT),
 
-    // @Param: pitch_cd_down
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @Param: SMC_C12_1
+    // @DisplayName: gain for att integral error of phi
+    // @Description: gain for att integral error of phi
     // @Range: 0.0 10.0
     // @User: Advanced
-    AP_GROUPINFO("PITCH_CD_DO", 39, AC_AttitudeControl, pitch_cd_do, PITCH_CD_DO_DEFAULT),
+    AP_GROUPINFO("SMC_C12_1", 39, AC_AttitudeControl, smc_c12_1, SMC_C12_1_DEFAULT),
 
-    // @Param: yaw_cd_up
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
-    // @Range: 0.0 10.0
-    // @User: AdvancedROLL_CD_UP_DEFAULT
-    AP_GROUPINFO("YAW_CD_UP", 40, AC_AttitudeControl, yaw_cd_up, YAW_CD_UP_DEFAULT),
-
-    // @Param: yaw_cd_down
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @Param: SMC_C12_2
+    // @DisplayName: gain for att integral error of the
+    // @Description: gain for att integral error of the
     // @Range: 0.0 10.0
     // @User: Advanced
-    AP_GROUPINFO("YAW_CD_DO", 41, AC_AttitudeControl, yaw_cd_do, YAW_CD_DO_DEFAULT),
+    AP_GROUPINFO("SMC_C12_2", 40, AC_AttitudeControl, smc_c12_2, SMC_C12_2_DEFAULT),
 
-    // @Param: double_t1
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @Param: SMC_C12_3
+    // @DisplayName: gain for att integral error of psi
+    // @Description: gain for att integral error of psi
     // @Range: 0.0 10.0
     // @User: Advanced
-    AP_GROUPINFO("D_T1", 42, AC_AttitudeControl, d_t1, D_T1_DEFAULT),
+    AP_GROUPINFO("SMC_C12_3", 41, AC_AttitudeControl, smc_c12_3, SMC_C12_3_DEFAULT),
 
-    // @Param: double_t2
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @Param: SMC_C13_1
+    // @DisplayName: gain for att smc sat of phi
+    // @Description: gain for att smc sat of phi
     // @Range: 0.0 10.0
     // @User: Advanced
-    AP_GROUPINFO("D_T2", 43, AC_AttitudeControl, d_t2, D_T2_DEFAULT),
+    AP_GROUPINFO("SMC_C13_1", 42, AC_AttitudeControl, smc_c13_1, SMC_C13_1_DEFAULT),
 
-    // @Param: double_t1
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @Param: SMC_C13_2
+    // @DisplayName: gain for att smc sat of the
+    // @Description: gain for att smc sat of the
     // @Range: 0.0 10.0
     // @User: Advanced
-    AP_GROUPINFO("D_T3", 44, AC_AttitudeControl, d_t3, D_T3_DEFAULT),
+    AP_GROUPINFO("SMC_C13_2", 43, AC_AttitudeControl, smc_c13_2, SMC_C13_2_DEFAULT),
 
-    // @Param: double_t4
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
+    // @Param: SMC_C13_3
+    // @DisplayName: gain for att smc sat of psi
+    // @Description: gain for att smc sat of psi
     // @Range: 0.0 10.0
     // @User: Advanced
-    AP_GROUPINFO("D_T4", 45, AC_AttitudeControl, d_t4, D_T4_DEFAULT),
+    AP_GROUPINFO("SMC_C13_3", 44, AC_AttitudeControl, smc_c13_3, SMC_C13_3_DEFAULT),
+
+    // @Param: SMC_C14_1
+    // @DisplayName: gain for cmd_dot of phi
+    // @Description: gain for cmd_dot sat of phi
+    // @Range: 0.0 10.0`
+    // @User: Advanced`
+    AP_GROUPINFO("SMC_C14_1", 45, AC_AttitudeControl, smc_c14_1, SMC_C14_1_DEFAULT),
+
+    // @Param: SMC_C14_2
+    // @DisplayName: gain for cmd_dot sat of the
+    // @Description: gain for cmd_dot sat of the
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("SMC_C14_2", 46, AC_AttitudeControl, smc_c14_2, SMC_C14_2_DEFAULT),
+
+    // @Param: SMC_C14_3
+    // @DisplayName: gain for cmd_dot sat of psi
+    // @Description: gain for cmd_dot sat of psi
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("SMC_C14_3", 47, AC_AttitudeControl, smc_c14_3, SMC_C14_3_DEFAULT),
+
+    // @Param: SMC_C21_1
+    // @DisplayName: gain for att rate error of phi
+    // @Description: gain for att rate error of phi
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("SMC_C21_1", 48, AC_AttitudeControl, smc_c21_1, SMC_C21_1_DEFAULT),
+
+    // @Param: SMC_C21_2
+    // @DisplayName: gain for att rate error of the
+    // @Description: gain for att rate error of the
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("SMC_C21_2", 49, AC_AttitudeControl, smc_c21_2, SMC_C21_2_DEFAULT),
+
+    // @Param: SMC_C21_3
+    // @DisplayName: gain for att rate error of psi
+    // @Description: gain for att rate error of psi
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("SMC_C21_3", 50, AC_AttitudeControl, smc_c21_3, SMC_C21_3_DEFAULT),
+
+    // @Param: SMC_C22_1
+    // @DisplayName: gain for att rate error integral of phi
+    // @Description: gain for att rate error integral of phi
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("SMC_C22_1", 51, AC_AttitudeControl, smc_c22_1, SMC_C22_1_DEFAULT),
+
+    // @Param: SMC_C22_2
+    // @DisplayName: gain for att rate error integral of the
+    // @Description: gain for att rate error integral of the
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("SMC_C22_2", 52, AC_AttitudeControl, smc_c22_2, SMC_C22_2_DEFAULT),
+
+    // @Param: SMC_C22_3
+    // @DisplayName: gain for att rate error integral of psi
+    // @Description: gain for att rate error integral of psi
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("SMC_C22_3", 53, AC_AttitudeControl, smc_c22_3, SMC_C22_3_DEFAULT),
+
+    // @Param: SMC_C23_1
+    // @DisplayName: gain for att rate smc sat of phi
+    // @Description: gain for att rate smc sat of phi
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("SMC_C23_1", 54, AC_AttitudeControl, smc_c23_1, SMC_C23_1_DEFAULT),
+
+    // @Param: SMC_C23_2
+    // @DisplayName: gain for att rate smc sat of the
+    // @Description: gain for att rate smc sat of the
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("SMC_C23_2", 55, AC_AttitudeControl, smc_c23_2, SMC_C23_2_DEFAULT),
+
+    // @Param: SMC_C22_3
+    // @DisplayName: gain for att rate smc sat of psi
+    // @Description: gain for att rate smc sat of psi
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("SMC_C23_3", 56, AC_AttitudeControl, smc_c23_3, SMC_C23_3_DEFAULT),
+
+    // @Param: SMC_C24_1
+    // @DisplayName: gain for att rate cmd_dot of phi
+    // @Description: gain for att rate cmd_dot of phi
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("SMC_C24_1", 57, AC_AttitudeControl, smc_c24_1, SMC_C24_1_DEFAULT),
+
+    // @Param: SMC_C24_2
+    // @DisplayName: gain for att rate cmd_dot of the
+    // @Description: gain for att rate cmd_dot of the
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("SMC_C24_2", 58, AC_AttitudeControl, smc_c24_2, SMC_C24_2_DEFAULT),
+
+    // @Param: SMC_C24_3
+    // @DisplayName: gain for att rate cmd_dot of psi
+    // @Description: gain for att rate cmd_dot of psi
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("SMC_C24_3", 59, AC_AttitudeControl, smc_c24_3, SMC_C24_3_DEFAULT),
 
     AP_GROUPEND};
 
@@ -358,6 +522,41 @@ void AC_AttitudeControl::relax_attitude_controllers()
 
     // Reset the I terms
     reset_rate_controller_I_terms();
+
+    // ------------------ SMC Outer loop
+    // Angle command dot
+    phi_cmd_prev = _euler_angle_target.x;
+    the_cmd_prev = _euler_angle_target.y;
+    psi_cmd_prev = _euler_angle_target.z;
+
+    phi_cmd_dot = 0.0f;
+    the_cmd_dot = 0.0f;
+    psi_cmd_dot = 0.0f;
+    phi_cmd_dot_prev = 0;
+    the_cmd_dot_prev = 0;
+    psi_cmd_dot_prev = 0;
+
+    // for smc att for euler angle
+    smc_angle_err_integral = {0.0f, 0.0f, 0.0f};
+    smc_angle_err_integral_prev = {0.0f, 0.0f, 0.0f};
+    ;
+
+    // for att smd
+    smc_angular_rate_err_integral_roll = 0.0f;
+    smc_angular_rate_err_integral_pitch = 0.0f;
+    smc_angular_rate_err_integral_yaw = 0.0f;
+
+    smc_angular_rate_err_integral_prev_roll = 0.0f;
+    smc_angular_rate_err_integral_prev_pitch = 0.0f;
+    smc_angular_rate_err_integral_prev_yaw = 0.0f;
+
+    // ------------------ SMC Inner loop
+    p_cmd_dot = 0.0f;
+    q_cmd_dot = 0.0f;
+    r_cmd_dot = 0.0f;
+    smc_u_angluar_phi_prev = 0.0f;
+    smc_u_angluar_the_prev = 0.0f;
+    smc_u_angluar_psi_prev = 0.0f;
 }
 
 void AC_AttitudeControl::reset_rate_controller_I_terms()
@@ -1714,3 +1913,353 @@ float AC_AttitudeControl::angular_control_yaw_DOB(float output)
     // Constrain output
     return constrain_float(output, -1.0f, 1.0f);
 }
+
+void AC_AttitudeControl::att_smc_controller_outer()
+{
+    // ----------- Outer loop
+    // Calculate the angle command dot
+    phi_cmd_dot = (_euler_angle_target.x - phi_cmd_prev) / _dt;
+    the_cmd_dot = (_euler_angle_target.y - the_cmd_prev) / _dt;
+    psi_cmd_dot = (_euler_angle_target.z - psi_cmd_prev) / _dt;
+
+    // -> Save the pre-step angle command
+    phi_cmd_prev = _euler_angle_target.x;
+    the_cmd_prev = _euler_angle_target.y;
+    psi_cmd_prev = _euler_angle_target.z;
+
+    // Calculate the euler angle err
+    float phi_err = data_phi - _euler_angle_target.x;
+    float the_err = data_the - _euler_angle_target.y;
+    float psi_err = data_psi - _euler_angle_target.z;
+
+    Vector3f angle_err = {phi_err, the_err, psi_err};
+
+    // Define sliding surface (concept of P-I controller)
+    // - error integral for define the surface
+    smc_angle_err_integral = smc_angle_err_integral_prev + (angle_err * _dt);
+
+    // Sliding surface for Euler angle
+    float smc_angle_ss_phi = (smc_c11_1 * phi_err) + (smc_c12_1 * smc_angle_err_integral.x);
+    float smc_angle_ss_the = (smc_c11_2 * the_err) + (smc_c12_2 * smc_angle_err_integral.y);
+    float smc_angle_ss_psi = (smc_c11_3 * psi_err) + (smc_c12_3 * smc_angle_err_integral.z);
+
+    // Saturated sliding surface for Euler angle
+    float ep = 0.3f;
+    float sat_S_phi = smc_c13_1 * (((fabs(smc_angle_ss_phi) / ep) > 1.0f) * sgnf(smc_angle_ss_phi / ep) + ((fabs(smc_angle_ss_phi) / ep) <= 1.0f) * (smc_angle_ss_phi / ep));
+    float sat_S_the = smc_c13_2 * (((fabs(smc_angle_ss_the) / ep) > 1.0f) * sgnf(smc_angle_ss_the / ep) + ((fabs(smc_angle_ss_the) / ep) <= 1.0f) * (smc_angle_ss_the / ep));
+    float sat_S_psi = smc_c13_3 * (((fabs(smc_angle_ss_psi) / ep) > 1.0f) * sgnf(smc_angle_ss_psi / ep) + ((fabs(smc_angle_ss_psi) / ep) <= 1.0f) * (smc_angle_ss_psi / ep));
+
+    // smc output for Euler angle
+    float theta_s = wrap_PI(_ahrs.pitch);
+    smc_u_angluar_phi = (1.0f * (smc_c14_1 * phi_cmd_dot - phi_err - smc_angle_ss_phi - sat_S_phi)) -
+                        (sinf(theta_s) * (smc_c14_3 * psi_cmd_dot - psi_err - smc_angle_ss_psi - sat_S_psi));
+
+    float phi_s = wrap_PI(_ahrs.roll);
+    smc_u_angluar_the = (cosf(phi_s) * (smc_c14_2 * the_cmd_dot - the_err - smc_angle_ss_the - sat_S_the)) +
+                        (sinf(phi_s) * cosf(theta_s) * (smc_c14_3 * psi_cmd_dot - psi_err - smc_angle_ss_psi - sat_S_psi));
+
+    smc_u_angluar_psi = (-sinf(phi_s) * (smc_c14_2 * the_cmd_dot - the_err - smc_angle_ss_the - sat_S_the)) +
+                        (cosf(phi_s) * cosf(theta_s) * (smc_c14_3 * psi_cmd_dot - psi_err - smc_angle_ss_psi - sat_S_psi));
+}
+
+float AC_AttitudeControl::att_smc_controller_inner_roll(float output)
+{
+    // ------------------------ Inner loop -----------------------
+    // Calculate the command dot
+    p_cmd_dot = (output - smc_u_angluar_phi_prev) / _dt;
+
+    // Save the pre-step angular rate command
+    smc_u_angluar_phi_prev = output;
+
+    // Calculate the angular rate err
+    Vector3f gyro_latest_smc = _ahrs.get_gyro_latest();
+    float p_err = gyro_latest_smc.x - output;
+
+    float angular_rate_err = p_err;
+
+    // Define sliding surface (concept of P-I controller)
+    // - error integral for define the surface
+    smc_angular_rate_err_integral_roll = smc_angular_rate_err_integral_prev_roll + (angular_rate_err * _dt);
+
+    // Sliding surface for angular rate
+    float smc_angle_ss_p = (smc_c21_1 * p_err) + (smc_c22_1 * smc_angular_rate_err_integral_roll);
+
+    // Saturated sliding surface for Euler angle
+    float ep = 0.3f;
+    float sat_S_p = smc_c23_1 * (((fabsF(smc_angle_ss_p) / ep) > 1.0f) * sgnf(smc_angle_ss_p / ep) + ((fabsF(smc_angle_ss_p) / ep) <= 1.0f) * (smc_angle_ss_p / ep));
+
+    // f2 matrix
+    float f2_1 = (1 / get_roll_moi()) * ((gyro_latest_smc.y * gyro_latest_smc.z) * (get_pitch_moi() - get_yaw_moi()));
+
+    // smc output for angular rate
+    float smc_u_angluar_rate_p = get_roll_moi() * (f2_1 + smc_c24_1 * p_cmd_dot - p_err - smc_angle_ss_p - sat_S_p);
+    return smc_u_angluar_rate_p;
+}
+
+float AC_AttitudeControl::att_smc_controller_inner_pitch(float output)
+{
+    // ------------------------ Inner loop -----------------------
+    // Calculate the command dot
+    q_cmd_dot = (output - smc_u_angluar_the_prev) / _dt;
+
+    // Save the pre-step angular rate command
+    smc_u_angluar_the_prev = output;
+
+    // Calculate the angular rate err
+    Vector3f gyro_latest_smc = _ahrs.get_gyro_latest();
+    float q_err = gyro_latest_smc.y - output;
+
+    float angular_rate_err = q_err;
+
+    // Define sliding surface (concept of P-I controller)
+    // - error integral for define the surface
+    smc_angular_rate_err_integral_pitch = smc_angular_rate_err_integral_prev_pitch + (angular_rate_err * _dt);
+
+    // Sliding surface for angular rate
+    float smc_angle_ss_q = (smc_c21_2 * q_err) + (smc_c22_2 * smc_angular_rate_err_integral_pitch);
+
+    // Saturated sliding surface for Euler angle
+    float ep = 0.3f;
+    float sat_S_q = smc_c23_2 * (((fabsF(smc_angle_ss_q) / ep) > 1.0f) * sgnf(smc_angle_ss_q / ep) + ((fabsF(smc_angle_ss_q) / ep) <= 1.0f) * (smc_angle_ss_q / ep));
+
+    // f2 matrix
+    float f2_2 = (1 / get_pitch_moi()) * ((gyro_latest_smc.x * gyro_latest_smc.z) * (get_yaw_moi() - get_roll_moi()));
+
+    // smc output for angular rate
+    float smc_u_angluar_rate_q = get_pitch_moi() * (f2_2 + smc_c24_2 * q_cmd_dot - q_err - smc_angle_ss_q - sat_S_q);
+    return smc_u_angluar_rate_q;
+}
+
+float AC_AttitudeControl::att_smc_controller_inner_yaw(float output)
+{
+    // ------------------------ Inner loop -----------------------
+    // Calculate the command dot
+    r_cmd_dot = (output - smc_u_angluar_psi_prev) / _dt;
+
+    // Save the pre-step angular rate command
+    smc_u_angluar_psi_prev = output;
+
+    // Calculate the angular rate err
+    Vector3f gyro_latest_smc = _ahrs.get_gyro_latest();
+    float r_err = gyro_latest_smc.z - output;
+
+    float angular_rate_err = r_err;
+
+    // Define sliding surface (concept of P-I controller)
+    // - error integral for define the surface
+    smc_angular_rate_err_integral_yaw = smc_angular_rate_err_integral_prev_yaw + (angular_rate_err * _dt);
+
+    // Sliding surface for angular rate
+    float smc_angle_ss_r = (smc_c21_3 * r_err) + (smc_c22_3 * smc_angular_rate_err_integral_yaw);
+
+    // Saturated sliding surface for Euler angle
+    float ep = 0.3f;
+    float sat_S_r = smc_c23_3 * (((fabsF(smc_angle_ss_r) / ep) > 1.0f) * sgnf(smc_angle_ss_r / ep) + ((fabsF(smc_angle_ss_r) / ep) <= 1.0f) * (smc_angle_ss_r / ep));
+
+    // f2 matrix
+    float f2_3 = (1 / get_yaw_moi()) * ((gyro_latest_smc.x * gyro_latest_smc.y) * (get_roll_moi() - get_pitch_moi()));
+
+    // smc output for angular rate
+    float smc_u_angluar_rate_r = get_yaw_moi() * (f2_3 + smc_c24_3 * r_cmd_dot - r_err - smc_angle_ss_r - sat_S_r);
+    return smc_u_angluar_rate_r;
+}
+
+float AC_AttitudeControl::angular_control_roll_dobc_smc_roll(float output)
+{
+    // dobc 8 channel, smc 10 channel
+
+    // Vector3f gyro_latest = _ahrs.get_gyro_latest();
+    // roll_out_rate = get_rate_roll_pid().update_all(_ang_vel_body.x, gyro_latest.x, _motors.limit.roll) + _actuator_sysid.x;
+
+    if (_use_SMC == false && _use_DOB == false) // PID
+    {
+        // float roll_out = get_rate_roll_pid().update_all(_ang_vel_body.x, gyro_latest.x, _motors.limit.roll) + _actuator_sysid.x;
+    }
+    else if (_use_SMC == false && _use_DOB == true) // DOBC
+    {
+        output = angular_control_roll_DOB(output);
+    }
+    else if (_use_SMC == true && _use_DOB == false) // SMC
+    {
+        // att_smc_controller_outer();
+        output = att_smc_controller_inner_roll(smc_u_angluar_phi);
+    }
+    else if (_use_SMC == true && _use_DOB == true) // SMC && DOBC
+    {
+        // att_smc_controller_outer();
+        float roll_out_smc = att_smc_controller_inner_roll(smc_u_angluar_phi);
+
+        float roll_out_dobc = angular_control_roll_DOB(output);
+
+        output = roll_out_smc - roll_out_dobc;
+    }
+
+    // Constraint
+    output = constrain_float(output, -1.0f, 1.0f);
+
+    return output;
+}
+
+float AC_AttitudeControl::angular_control_roll_dobc_smc_pitch(float output)
+{
+    // dobc 8 channel, smc 10 channel
+
+    // Vector3f gyro_latest = _ahrs.get_gyro_latest();
+    // pitch_out_rate = get_rate_pitch_pid().update_all(_ang_vel_body.y, gyro_latest.y, _motors.limit.pitch) + _actuator_sysid.y;
+
+    if (_use_SMC == false && _use_DOB == false) // PID
+    {
+        // output = get_rate_pitch_pid().update_all(_ang_vel_body.y, gyro_latest.y, _motors.limit.pitch) + _actuator_sysid.y;
+    }
+    else if (_use_SMC == false && _use_DOB == true) // DOBC
+    {
+        output = angular_control_pitch_DOB(output);
+    }
+    else if (_use_SMC == true && _use_DOB == false) // SMC
+    {
+        // att_smc_controller_outer();
+        output = att_smc_controller_inner_pitch(smc_u_angluar_the);
+    }
+    else if (_use_SMC == true && _use_DOB == true) // SMC && DOBC
+    {
+        // att_smc_controller_outer();
+        float pitch_out_smc = att_smc_controller_inner_pitch(smc_u_angluar_the);
+
+        float pitch_out_dobc = angular_control_pitch_DOB(output);
+
+        output = pitch_out_smc - pitch_out_dobc;
+    }
+
+    // Constraint
+    output = constrain_float(output, -1.0f, 1.0f);
+
+    return output;
+}
+
+float AC_AttitudeControl::angular_control_roll_dobc_smc_yaw(float output)
+{
+    // dobc 8 channel, smc 10 channel
+
+    // Vector3f gyro_latest = _ahrs.get_gyro_latest();
+    // yaw_out_rate = get_rate_yaw_pid().update_all(_ang_vel_body.z, gyro_latest.z, _motors.limit.yaw) + _actuator_sysid.z;
+
+    if (_use_SMC == false && _use_DOB == false) // PID
+    {
+        // output = get_rate_yaw_pid().update_all(_ang_vel_body.z, gyro_latest.z, _motors.limit.yaw) + _actuator_sysid.z;
+    }
+    else if (_use_SMC == false && _use_DOB == true) // DOBC
+    {
+        output = angular_control_yaw_DOB(output);
+    }
+    else if (_use_SMC == true && _use_DOB == false) // SMC
+    {
+        // att_smc_controller_outer();
+        output = att_smc_controller_inner_yaw(smc_u_angluar_psi);
+    }
+    else if (_use_SMC == true && _use_DOB == true) // SMC && DOBC
+    {
+        // att_smc_controller_outer();
+        float yaw_out_smc = att_smc_controller_inner_yaw(smc_u_angluar_psi);
+
+        float yaw_out_dobc = angular_control_yaw_DOB(output);
+
+        output = yaw_out_smc - yaw_out_dobc;
+    }
+
+    // Constraint
+    output = constrain_float(output, -1.0f, 1.0f);
+
+    return output;
+}
+
+// float AC_AttitudeControl::att_smc_controller_inner_roll()
+// {
+//  // ----------- Outer loop
+//     // Calculate the angle command dot
+//     phi_cmd_dot = (_euler_angle_target.x - phi_cmd_prev) / _dt;
+//     the_cmd_dot = (_euler_angle_target.y - the_cmd_prev) / _dt;
+//     psi_cmd_dot = (_euler_angle_target.z - psi_cmd_prev) / _dt;
+
+//     // -> Save the pre-step angle command
+//     phi_cmd_prev = _euler_angle_target.x;
+//     the_cmd_prev = _euler_angle_target.y;
+//     psi_cmd_prev = _euler_angle_target.z;
+
+//     // Calculate the euler angle err
+//     float phi_err = data_phi - _euler_angle_target.x;
+//     float the_err = data_the - _euler_angle_target.y;
+//     float psi_err = data_psi - _euler_angle_target.z;
+
+//     Vector3f angle_err = {phi_err, the_err, psi_err};
+
+//     // Define sliding surface (concept of P-I controller)
+//     // - error integral for define the surface
+//     smc_angle_err_integral = smc_angle_err_integral_prev + (angle_err * _dt);
+
+//     // Sliding surface for Euler angle
+//     float smc_angle_ss_phi = (smc_c11_1 * phi_err) + (smc_c12_1 * smc_angle_err_integral.x);
+//     float smc_angle_ss_the = (smc_c11_2 * the_err) + (smc_c12_2 * smc_angle_err_integral.y);
+//     float smc_angle_ss_psi = (smc_c11_3 * psi_err) + (smc_c12_3 * smc_angle_err_integral.z);
+
+//     // Saturated sliding surface for Euler angle
+//     float ep = 0.3f;
+//     float sat_S_phi = smc_c13_1 * (((fabs(smc_angle_ss_phi)/ep)>1.0f)*sgnf(smc_angle_ss_phi/ep) + ((fabs(smc_angle_ss_phi)/ep)<=1.0f)*(smc_angle_ss_phi/ep));
+//     float sat_S_the = smc_c13_2 * (((fabs(smc_angle_ss_the)/ep)>1.0f)*sgnf(smc_angle_ss_the/ep) + ((fabs(smc_angle_ss_the)/ep)<=1.0f)*(smc_angle_ss_the/ep));
+//     float sat_S_psi = smc_c13_3 * (((fabs(smc_angle_ss_psi)/ep)>1.0f)*sgnf(smc_angle_ss_psi/ep) + ((fabs(smc_angle_ss_psi)/ep)<=1.0f)*(smc_angle_ss_psi/ep));
+
+//     // smc output for Euler angle
+//     float theta_s = wrap_PI(_ahrs.pitch);
+//     float smc_u_angluar_phi = (1.0f * (smc_c14_1*phi_cmd_dot - phi_err - smc_angle_ss_phi - sat_S_phi)) -
+//      (sinf(theta_s) * (smc_c14_3*psi_cmd_dot - psi_err - smc_angle_ss_psi - sat_S_psi));
+
+//     float phi_s = wrap_PI(_ahrs.roll);
+//     float smc_u_angluar_the = (cosf(phi_s) * (smc_c14_2*the_cmd_dot - the_err - smc_angle_ss_the - sat_S_the)) +
+//     (sinf(phi_s)*cosf(theta_s)*(smc_c14_3*psi_cmd_dot - psi_err - smc_angle_ss_psi - sat_S_psi));
+
+//     float smc_u_angluar_psi = (-sinf(phi_s)*(smc_c14_2*the_cmd_dot - the_err - smc_angle_ss_the - sat_S_the)) +
+//     (cosf(phi_s)*cosf(theta_s)*(smc_c14_3*psi_cmd_dot - psi_err - smc_angle_ss_psi - sat_S_psi));
+
+//     // ------------------------ Inner loop -----------------------
+//     // Calculate the command dot
+//     p_cmd_dot = (smc_u_angluar_phi - smc_u_angluar_phi_prev) / _dt;
+//     q_cmd_dot = (smc_u_angluar_the - smc_u_angluar_the_prev) / _dt;
+//     r_cmd_dot = (smc_u_angluar_psi - smc_u_angluar_psi_prev) / _dt;
+
+//     // Save the pre-step angular rate command
+//     smc_u_angluar_phi_prev = smc_u_angluar_phi;
+//     smc_u_angluar_the_prev = smc_u_angluar_the;
+//     smc_u_angluar_psi_prev = smc_u_angluar_psi;
+
+//     // Calculate the angular rate err
+//     Vector3f gyro_latest_smc = _ahrs.get_gyro_latest();
+//     float p_err = gyro_latest_smc.x - smc_u_angluar_phi;
+//     float q_err = gyro_latest_smc.y - smc_u_angluar_the;
+//     float r_err = gyro_latest_smc.z - smc_u_angluar_psi;
+
+//     Vector3f angular_rate_err = {p_err, q_err, r_err};
+
+//     // Define sliding surface (concept of P-I controller)
+//     // - error integral for define the surface
+//     smc_angular_rate_err_integral = smc_angular_rate_err_integral_prev + (angular_rate_err * _dt);
+
+//     // Sliding surface for angular rate
+//     float smc_angle_ss_p = (smc_c21_1 * p_err) + (smc_c22_1 * smc_angular_rate_err_integral.x);
+//     float smc_angle_ss_q = (smc_c21_2 * q_err) + (smc_c22_2 * smc_angular_rate_err_integral.y);
+//     float smc_angle_ss_r = (smc_c21_3 * r_err) + (smc_c22_3 * smc_angular_rate_err_integral.z);
+
+//     // Saturated sliding surface for Euler angle
+//     float ep = 0.3f;
+//     float sat_S_p = smc_c23_1 * (((fabs(smc_angle_ss_p)/ep)>1.0f)*sgnf(smc_angle_ss_p/ep) + ((fabs(smc_angle_ss_p)/ep)<=1.0f)*(smc_angle_ss_p/ep));
+//     float sat_S_q = smc_c23_2 * (((fabs(smc_angle_ss_q)/ep)>1.0f)*sgnf(smc_angle_ss_q/ep) + ((fabs(smc_angle_ss_q)/ep)<=1.0f)*(smc_angle_ss_q/ep));
+//     float sat_S_r = smc_c23_3 * (((fabs(smc_angle_ss_r)/ep)>1.0f)*sgnf(smc_angle_ss_r/ep) + ((fabs(smc_angle_ss_r)/ep)<=1.0f)*(smc_angle_ss_r/ep));
+
+//     // f2 matrix
+//     float f2_1 = (1/get_roll_moi()) * ((gyro_latest_smc.y * gyro_latest_smc.z) * (get_pitch_moi() - get_yaw_moi()));
+//     float f2_2 = (1/get_pitch_moi()) * ((gyro_latest_smc.x * gyro_latest_smc.z) * (get_yaw_moi() - get_roll_moi()));
+//     float f2_3 = (1/get_yaw_moi()) * ((gyro_latest_smc.x * gyro_latest_smc.y) * (get_roll_moi() - get_pitch_moi()));
+
+//     // smc output for angular rate
+//     float smc_u_angluar_rate_p = get_roll_moi()  * (f2_1 + smc_c24_1*p_cmd_dot - p_err - smc_angle_ss_p - sat_S_p);
+//     float smc_u_angluar_rate_q = get_pitch_moi() * (f2_2 + smc_c24_2*q_cmd_dot - q_err - smc_angle_ss_q - sat_S_q);
+//     float smc_u_angluar_rate_r = get_yaw_moi()   * (f2_3 + smc_c24_3*r_cmd_dot - r_err - smc_angle_ss_r - sat_S_r);
+// }

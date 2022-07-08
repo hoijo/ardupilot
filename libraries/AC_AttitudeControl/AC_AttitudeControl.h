@@ -78,6 +78,42 @@
 #define D_T3_DEFAULT 4000
 #define D_T4_DEFAULT 10000
 
+// outer SMC parameters
+#define SMC_C11_1_DEFAULT 0.0f
+#define SMC_C11_2_DEFAULT 0.0f
+#define SMC_C11_3_DEFAULT 0.0f
+
+#define SMC_C12_1_DEFAULT 0.0f
+#define SMC_C12_2_DEFAULT 0.0f
+#define SMC_C12_3_DEFAULT 0.0f
+
+#define SMC_C13_1_DEFAULT 0.0f
+#define SMC_C13_2_DEFAULT 0.0f
+#define SMC_C13_3_DEFAULT 0.0f
+
+#define SMC_C14_1_DEFAULT 0.0f
+#define SMC_C14_2_DEFAULT 0.0f
+#define SMC_C14_3_DEFAULT 0.0f
+
+// Inner SMC parameters
+#define SMC_C21_1_DEFAULT 0.0f
+#define SMC_C21_2_DEFAULT 0.0f
+#define SMC_C21_3_DEFAULT 0.0f
+
+#define SMC_C22_1_DEFAULT 0.0f
+#define SMC_C22_2_DEFAULT 0.0f
+#define SMC_C22_3_DEFAULT 0.0f
+
+#define SMC_C23_1_DEFAULT 0.0f
+#define SMC_C23_2_DEFAULT 0.0f
+#define SMC_C23_3_DEFAULT 0.0f
+
+#define SMC_C24_1_DEFAULT 0.0f
+#define SMC_C24_2_DEFAULT 0.0f
+#define SMC_C24_3_DEFAULT 0.0f
+
+#define sgnf(v) ( ( (v) < 0.0f ) ? -1.0f : ( (v) > 0.0f ) )
+
 
 class AC_AttitudeControl {
 public:
@@ -546,14 +582,7 @@ public:
     float angular_control_yaw_DOB(float output);
 
 
-        // ------------------------------------------------- about smc
-   // switch the smc att
-       bool _use_SMC = true;
-    // switch the smc alt
-    bool _use_SMC_alt = true;
-
-
-        // Decide the SMC
+    // Decide the SMC
     void set_use_SMC(bool use_SMC);
     bool get_use_SMC() {return _use_SMC;}
 
@@ -561,7 +590,20 @@ public:
     void set_use_SMC_alt(bool use_SMC_alt);
     bool get_use_SMC_alt() {return _use_SMC_alt;}
 
+    void att_smc_controller_outer();
 
+    float att_smc_controller_inner_roll(float output);
+    float att_smc_controller_inner_pitch(float output);
+    float att_smc_controller_inner_yaw(float output);
+
+    float angular_control_roll_dobc_smc_roll(float output);
+    float angular_control_roll_dobc_smc_pitch(float output);
+    float angular_control_roll_dobc_smc_yaw(float output);
+
+
+    float smc_u_angluar_phi;
+    float smc_u_angluar_the;
+    float smc_u_angluar_psi;
 
 protected:
 
@@ -673,6 +715,125 @@ protected:
         float q2_dot;
     } _dob_monitor;
 
+    // --------------------------------------- SMC variables -------------------------
+    // ----------- Outer loop
+    // use for SMC for euler angle
+    // for attitude command derivitive for euler angle
+    float phi_cmd_prev = 0.0f;
+    float the_cmd_prev = 0.0f;
+    float psi_cmd_prev = 0.0f;
+
+    float phi_cmd_dot = 0.0f;
+    float the_cmd_dot = 0.0f;
+    float psi_cmd_dot = 0.0f;
+
+    float phi_cmd_dot_prev = 0.0f;
+    float the_cmd_dot_prev = 0.0f;
+    float psi_cmd_dot_prev = 0.0f;
+
+    float data_phi = 0.0f;
+    float data_the = 0.0f;
+    float data_psi = 0.0f;
+
+    // Internal variable defined for SMC
+    bool _use_SMC = true;
+
+    // Internal variable defined for SMC alt
+    bool _use_SMC_alt = true;
+
+    // for smc att for euler angle
+    Vector3f smc_angle_err_integral = {0.0f,0.0f,0.0f};
+    Vector3f smc_angle_err_integral_prev = {0.0f,0.0f,0.0f};
+
+
+    // sliding surface err gain for euler angle
+    float get_smc_c11_1() {return smc_c11_1;}
+    float get_smc_c11_2() {return smc_c11_2;}
+    float get_smc_c11_3() {return smc_c11_3;}
+    AP_Float smc_c11_1;
+    AP_Float smc_c11_2;
+    AP_Float smc_c11_3;
+
+    // sliding surface err integral gain for euler angle
+    float get_smc_c12_1() {return smc_c12_1;}
+    float get_smc_c12_2() {return smc_c12_2;}
+    float get_smc_c12_3() {return smc_c12_3;}
+    AP_Float smc_c12_1;
+    AP_Float smc_c12_2;
+    AP_Float smc_c12_3;
+
+    // saturated sliding surface for euler angle
+    float get_smc_c13_1() {return smc_c13_1;}
+    float get_smc_c13_2() {return smc_c13_2;}
+    float get_smc_c13_3() {return smc_c13_3;}
+    AP_Float smc_c13_1;
+    AP_Float smc_c13_2;
+    AP_Float smc_c13_3;
+
+    // smc_output calculation for euler angle
+    float get_smc_c14_1() {return smc_c14_1;}
+    float get_smc_c14_2() {return smc_c14_2;}
+    float get_smc_c14_3() {return smc_c14_3;}
+    AP_Float smc_c14_1;
+    AP_Float smc_c14_2;
+    AP_Float smc_c14_3;
+
+    // ----------- Inner loop
+    // for attitude command derivitive for angular velocity
+    float p_cmd_dot = 0.0f;
+    float q_cmd_dot = 0.0f;
+    float r_cmd_dot = 0.0f;
+
+    float smc_u_angluar_phi_prev = 0.0f;
+    float smc_u_angluar_the_prev = 0.0f;
+    float smc_u_angluar_psi_prev = 0.0f;
+
+    // for smc att for euler angle
+    float smc_angular_rate_err_integral_roll = 0.0f;
+    float smc_angular_rate_err_integral_pitch = 0.0f;
+    float smc_angular_rate_err_integral_yaw = 0.0f;
+
+    float smc_angular_rate_err_integral_prev_roll = 0.0f;
+    float smc_angular_rate_err_integral_prev_pitch = 0.0f;
+    float smc_angular_rate_err_integral_prev_yaw = 0.0f;
+
+    float get_smc_c21_1() {return smc_c21_1;}
+    float get_smc_c21_2() {return smc_c21_2;}
+    float get_smc_c21_3() {return smc_c21_3;}
+    AP_Float smc_c21_1;
+    AP_Float smc_c21_2;
+    AP_Float smc_c21_3;
+
+    float get_smc_c22_1() {return smc_c22_1;}
+    float get_smc_c22_2() {return smc_c22_2;}
+    float get_smc_c22_3() {return smc_c22_3;}
+    AP_Float smc_c22_1;
+    AP_Float smc_c22_2;
+    AP_Float smc_c22_3;
+
+    float get_smc_c23_1() {return smc_c23_1;}
+    float get_smc_c23_2() {return smc_c23_2;}
+    float get_smc_c23_3() {return smc_c23_3;}
+    AP_Float smc_c23_1;
+    AP_Float smc_c23_2;
+    AP_Float smc_c23_3;
+
+    float get_smc_c24_1() {return smc_c24_1;}
+    float get_smc_c24_2() {return smc_c24_2;}
+    float get_smc_c24_3() {return smc_c24_3;}
+    AP_Float smc_c24_1;
+    AP_Float smc_c24_2;
+    AP_Float smc_c24_3;
+
+    // ----------- alt loop
+    // for alt command
+    float h_cmd_dot;
+    float h_cmd_dot2;
+
+
+    float roll_out_rate = 0.0f;
+    float pitch_out_rate = 0.0f;
+    float yaw_out_rate = 0.0f;
 
 protected:
     /*
