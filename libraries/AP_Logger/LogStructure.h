@@ -456,7 +456,7 @@ struct PACKED log_TERRAIN {
 
 struct PACKED log_CSRV {
     LOG_PACKET_HEADER;
-    uint64_t time_us;     
+    uint64_t time_us;
     uint8_t id;
     float position;
     float force;
@@ -505,6 +505,8 @@ struct PACKED log_RPM {
     uint64_t time_us;
     float rpm1;
     float rpm2;
+    float rpm3;
+    float rpm4;
 };
 
 struct PACKED log_Rally {
@@ -1129,6 +1131,8 @@ struct PACKED log_VER {
 // @Field: TimeUS: Time since system startup
 // @Field: rpm1: First sensor's data
 // @Field: rpm2: Second sensor's data
+// @Field: rpm3: Third sensor's data
+// @Field: rpm4: Four sensor's data
 
 // @LoggerMessage: RSSI
 // @Description: Received Signal Strength Indicator for RC receiver
@@ -1358,7 +1362,7 @@ LOG_STRUCTURE_FROM_AHRS \
     { LOG_DF_FILE_STATS, sizeof(log_DSF), \
       "DSF", "QIHIIII", "TimeUS,Dp,Blk,Bytes,FMn,FMx,FAv", "s--b---", "F--0---" }, \
     { LOG_RPM_MSG, sizeof(log_RPM), \
-      "RPM",  "Qff", "TimeUS,rpm1,rpm2", "sqq", "F00" , true }, \
+      "RPM",  "Qffff", "TimeUS,rpm1,rpm2,rpm3,rpm4", "sqqqq", "F0000" , true }, \
     { LOG_RALLY_MSG, sizeof(log_Rally), \
       "RALY", "QBBLLh", "TimeUS,Tot,Seq,Lat,Lng,Alt", "s--DUm", "F--GGB" },  \
     { LOG_MAV_MSG, sizeof(log_MAV),   \

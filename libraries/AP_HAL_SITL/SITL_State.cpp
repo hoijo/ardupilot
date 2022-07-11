@@ -495,8 +495,8 @@ void SITL_State::_output_to_flightgear(void)
         fdm.rpm[0] = constrain_float((pwm_output[2]-1000)*3, 0, 3000);
         // for quadplane
         fdm.rpm[1] = constrain_float((pwm_output[5]-1000)*12, 0, 12000);
-        fdm.rpm[2] = constrain_float((pwm_output[6]-1000)*12, 0, 12000);
-        fdm.rpm[3] = constrain_float((pwm_output[7]-1000)*12, 0, 12000);
+        // fdm.rpm[2] = constrain_float((pwm_output[6]-1000)*12, 0, 12000);
+        // fdm.rpm[3] = constrain_float((pwm_output[7]-1000)*12, 0, 12000);
     }
     fdm.ByteSwap();
 
@@ -717,7 +717,7 @@ void SITL_State::_simulator_servos(struct sitl_input &input)
         wind_speed =     _sitl->wind_speed_active     = (0.95f*_sitl->wind_speed_active)     + (0.05f*_sitl->wind_speed);
         wind_direction = _sitl->wind_direction_active = (0.95f*_sitl->wind_direction_active) + (0.05f*_sitl->wind_direction);
         wind_dir_z =     _sitl->wind_dir_z_active     = (0.95f*_sitl->wind_dir_z_active)     + (0.05f*_sitl->wind_dir_z);
-        
+
         // pass wind into simulators using different wind types via param SIM_WIND_T*.
         switch (_sitl->wind_type) {
         case SITL::SIM::WIND_TYPE_SQRT:
@@ -772,7 +772,7 @@ void SITL_State::_simulator_servos(struct sitl_input &input)
     float engine_mul = _sitl?_sitl->engine_mul.get():1;
     uint8_t engine_fail = _sitl?_sitl->engine_fail.get():0;
     float throttle = 0.0f;
-    
+
     if (engine_fail >= ARRAY_SIZE(input.servos)) {
         engine_fail = 0;
     }
@@ -829,7 +829,7 @@ void SITL_State::_simulator_servos(struct sitl_input &input)
 
     float voltage = 0;
     _current = 0;
-    
+
     if (_sitl != nullptr) {
         if (_sitl->state.battery_voltage <= 0) {
             if (_vehicle == ArduSub) {
