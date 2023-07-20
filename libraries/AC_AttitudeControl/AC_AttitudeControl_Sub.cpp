@@ -259,8 +259,8 @@ const AP_Param::GroupInfo AC_AttitudeControl_Sub::var_info[] = {
     AP_GROUPEND
 };
 
-AC_AttitudeControl_Sub::AC_AttitudeControl_Sub(AP_AHRS_View &ahrs, const AP_Vehicle::MultiCopter &aparm, AP_MotorsMulticopter& motors, float dt) :
-    AC_AttitudeControl(ahrs, aparm, motors, dt),
+AC_AttitudeControl_Sub::AC_AttitudeControl_Sub(AP_AHRS_View &ahrs, const AP_Vehicle::MultiCopter &aparm, AP_MotorsMulticopter& motors, float dt, const AP_InertialNav& inav) :
+    AC_AttitudeControl(ahrs, aparm, motors, dt, inav),
     _motors_multi(motors),
     _pid_rate_roll(AC_ATC_SUB_RATE_RP_P, AC_ATC_SUB_RATE_RP_I, AC_ATC_SUB_RATE_RP_D, 0.0f, AC_ATC_SUB_RATE_RP_IMAX, AC_ATC_SUB_RATE_RP_FILT_HZ, 0.0f, AC_ATC_SUB_RATE_RP_FILT_HZ, dt),
     _pid_rate_pitch(AC_ATC_SUB_RATE_RP_P, AC_ATC_SUB_RATE_RP_I, AC_ATC_SUB_RATE_RP_D, 0.0f, AC_ATC_SUB_RATE_RP_IMAX, AC_ATC_SUB_RATE_RP_FILT_HZ, 0.0f, AC_ATC_SUB_RATE_RP_FILT_HZ, dt),

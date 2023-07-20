@@ -547,7 +547,10 @@ void Copter::ten_hz_logging_loop()
     Log_Write_Heli();
 #endif
 
-    attitude_control->dobc_monitor_log();
+    // Call the log function for saving the DOBC
+    attitude_control->dobc_monitor_log_roll();
+    attitude_control->dobc_monitor_log_pitch();
+    attitude_control->dobc_monitor_log_yaw();
 #if WINCH_ENABLED == ENABLED
     if (should_log(MASK_LOG_ANY)) {
         g2.winch.write_log();

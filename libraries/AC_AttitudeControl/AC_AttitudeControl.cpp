@@ -1476,211 +1476,250 @@ void AC_AttitudeControl::set_use_SMC_alt(bool use_SMC_alt)
 }
 
 // Addition of Disturbance Observer Based Controller for Attitude Control Loops
-float AC_AttitudeControl::disturbance_observer_on_roll(float control_output, bool use_DOB)
+float AC_AttitudeControl::disturbance_observer_on_roll(float nu, bool use_DOB)
 {
-    _dob_monitor.roll_filtered = ToDeg(state_filtered_roll);
-    // System Setup
-    // Nominal System is basic 2nd order system
-    // float a0 = 1.0f;
+    // (Setting of the parameters) -------------------------------------
     float a0 = get_roll_a0();
     float a1 = get_roll_a1();
-    float MOI = get_roll_moi();
+    // float MOI = get_roll_moi();
     float b0 = get_roll_b0();
 
-    // Q-Filter Coefficient
-    // float tau = 0.25f;
-    float tau = get_roll_tau();
+    float state = wrap_PI(_ahrs.roll); // feedback roll angle
+    // ---------------------------------------------------
 
-    float temp = a0 / (tau * tau);
-    float state = wrap_PI(_ahrs.roll);
-    // A : Control Input Filtering (Q-Filter A)
+    // (Calculating the tau) -------------------------------------
+    Vector2f curr_vel = _inav.get_velocity_xy_cms() * 0.01; // m/s
+    float abs_vel = abs(curr_vel.y);
 
-    float p2_dot = -temp * control_filtered_roll - a1 / tau * p2_roll + temp * control_output;
-    p2_roll += p2_dot * _dt;
-    control_filtered_roll += p2_roll * _dt;
+    float tau = -0.002 * abs_vel + 0.055;
+    // ---------------------------------------------------
 
-    // Time-Domain Serialized Implementation
-    // B : Q_Filter B to State Filtering
-    float q2_dot = -temp * state_filtered_roll - a1 / tau * q2_roll + temp * state;
-    q2_roll += q2_dot * _dt;
+    // (Q-Filter A) -------------------------------------
+    float q2_dot_roll = -(a0 / (tau * tau)) * nu_prev_roll - a1 / tau * q2_roll + (a0 / (tau * tau)) * nu;
+    q2_roll = q2_roll + q2_dot_roll * _dt;
 
-    state_filtered_roll += q2_roll * _dt;
-    // state_filtered_roll = DOB_on_change(state_filtered_roll, 1);
-    state_filtered_roll = wrap_PI(state_filtered_roll);
-    // float control_DOB = 1/b0 * (q2_dot - a0 * state_filtered_roll - a1 * q2_roll);
-    float control_DOB = 1 / b0 * (MOI * q2_dot);
+    q1_dot_roll = q1_dot_roll + q2_dot_roll * _dt;
 
-    // Inverse Dyanmics
-    //  B-A = FeedForward Control to the disturbance
-    control_DOB -= control_filtered_roll;
+    nu_prev_roll = nu_prev_roll + q1_dot_roll * _dt; // Filtered nu
+    // ---------------------------------------------------
+
+    // (Q-Filter B) -------------------------------------
+    float p2_dot_roll = -(a0 / (tau * tau)) * state_prev_roll - a1 / tau * p2_roll + (a0 / (tau * tau)) * state;
+    p2_roll = p2_roll + p2_dot_roll * _dt;
+
+    p1_dot_roll = p1_dot_roll + p2_dot_roll * _dt;
+
+    state_prev_roll = wrap_PI(state_prev_roll); // check the angle wrap_pi
+
+    state_prev_roll = state_prev_roll + p1_dot_roll * _dt; // tranfer to inverse nominal model
+    // ---------------------------------------------------
+
+    // (Nominal model) -------------------------------------
+    float u_roll = state_prev_roll;
+
+    float a_1_roll = -0.002732f * pow(abs_vel, 3) + 0.02876f * pow(abs_vel, 2) + 0.3277f *  abs_vel + 12.88f;
+    float a_2_roll = 0.001708f * pow(abs_vel, 3) - 0.0383f  * pow(abs_vel, 2) + 0.34f * abs_vel + 2.455f;
+
+    float b_1_roll = 0.007158f * abs_vel + 0.1867f;
+    float b_2_roll = 0.02679f * pow(abs_vel, 3) - 0.5005f * pow(abs_vel, 2) - 0.5907f * abs_vel - 0.5018f;
+    float b_3_roll = 0.01259f * pow(abs_vel, 3) - 0.2848f * pow(abs_vel, 2) - 1.073f * abs_vel + 28.61f;
+
+    u_dot_roll = (u_roll - u_prev_roll) / _dt;
+    u2_dot_roll = (u_dot_roll - u_dot_prev_roll) / _dt;
+
+    y_roll = ((a_1_roll * y_roll_prev) + u2_dot_roll - u2_dot_prev_roll + b_1_roll * (u_dot_roll - u_dot_prev_roll) + b_2_roll * (u_roll - u_prev_roll) + (b_3_roll * _dt * u_roll)) / (a_1_roll + a_2_roll * _dt);
+
+    u_prev_roll = u_roll;
+    y_roll_prev = y_roll;
+    u_dot_prev_roll = u_dot_roll;
+    u2_dot_prev_roll = u2_dot_roll;
+    // ---------------------------------------------------
+
+    // (Output of the DOBC) -------------------------------------
+    float control_DOB = -nu_prev_roll + y_roll;
     control_DOB = constrain_float(control_DOB, -1.0f, 1.0f);
+    control_DOB = control_DOB * b0;
+    // ---------------------------------------------------
 
-    _dob_monitor.roll_control_in = control_output;
-    _dob_monitor.roll_control_filtered = control_filtered_roll;
+    // (Save the data) -------------------------------------
+    _dob_monitor.Q_A_out_roll = nu_prev_roll;
+    _dob_monitor.Q_B_out_roll = state_prev_roll;
     _dob_monitor.flagR = flag_last_R;
-    // this should be subtracted to original roll_control
+    // ---------------------------------------------------
 
-    counter_check++;
     if (use_DOB)
     {
         if (flag_last_R == false)
         {
-            state_filtered_roll = wrap_PI(_ahrs.roll);
+            state_prev_roll = wrap_PI(_ahrs.roll);
             flag_last_R = true;
         }
-
-        _dob_monitor.roll_control = control_DOB;
-
-        if (counter_check > 400)
-        {
-            counter_check = 0;
-            //   gcs().send_text(MAV_SEVERITY_CRITICAL, "dob roll_control");
-        }
-
+        // return control_DOB;
+        _dob_monitor.d_hat_roll = control_DOB;
         return control_DOB;
     }
+
     else
     {
         flag_last_R = false;
-        _dob_monitor.roll_control = 0.0f;
-        return 0.0f; // direct feed-through
+        _dob_monitor.d_hat_roll = 0.0f;
+        return 0.0f;
     }
 }
 
-float AC_AttitudeControl::disturbance_observer_on_pitch(float control_output, bool use_DOB)
+float AC_AttitudeControl::disturbance_observer_on_pitch(float nu, bool use_DOB)
 {
-    _dob_monitor.pitch_filtered = ToDeg(state_filtered_pitch);
-    // System Setup
-    // Nominal System is basic 2nd order system
-    // float a0 = 1.0f;
-    // float a1 = 2.0f;
-    // float MOI = 0.03872f;
-    // float b0 = 1.0f;
-
+    // (Setting of the parameters) -------------------------------------
     float a0 = get_pitch_a0();
     float a1 = get_pitch_a1();
-    float MOI = get_pitch_moi();
+    // float MOI = get_pitch_moi();
     float b0 = get_pitch_b0();
 
-    // Q-Filter Coefficient
-    // float tau = 0.25f;
-    float tau = get_pitch_tau();
+    float state = wrap_PI(_ahrs.pitch); // feedback pitch angle
+    // ---------------------------------------------------
 
-    float temp = a0 / (tau * tau);
-    float state = wrap_PI(_ahrs.pitch);
-    // A : Control Input Filtering (Q-Filter A)
-    float p2_dot = -temp * control_filtered_pitch - a1 / tau * p2_pitch + temp * control_output;
-    p2_pitch += p2_dot * _dt;
-    control_filtered_pitch += p2_pitch * _dt;
+    // (Calculating the tau) -------------------------------------
+    Vector2f curr_vel = _inav.get_velocity_xy_cms() * 0.01; // m/s
+    float abs_vel = abs(curr_vel.x);
 
-    // Time-Domain Serialized Implementation
-    // B : Q_Filter B for State Filtering
+    float tau = -0.002 * abs_vel + 0.055;
+    // ---------------------------------------------------
 
-    float q2_dot = -temp * state_filtered_pitch - a1 / tau * q2_pitch + temp * state;
-    q2_pitch += q2_dot * _dt;
+    // (Q-Filter A) -------------------------------------
+    float q2_dot_pitch = -(a0 / (tau * tau)) * nu_prev_pitch - a1 / tau * q2_pitch + (a0 / (tau * tau)) * nu;
+    q2_pitch = q2_pitch + q2_dot_pitch * _dt;
 
-    state_filtered_pitch += q2_pitch * _dt;
-    state_filtered_pitch = wrap_PI(state_filtered_pitch);
+    q1_dot_pitch = q1_dot_pitch + q2_dot_pitch * _dt;
 
-    // float control_DOB = 1/b0 * (q2_dot - a0 * state_filtered_pitch - a1 * q2_pitch);
-    float control_DOB = 1 / b0 * (MOI * q2_dot);
-    // Inverse Dyanmics
-    //  B-A = FeedForward Control to the disturbance
-    control_DOB -= control_filtered_pitch;
+    nu_prev_pitch = nu_prev_pitch + q1_dot_pitch * _dt; // Filtered nu
+    // ---------------------------------------------------
+
+    // (Q-Filter B) -------------------------------------
+    float p2_dot_pitch = -(a0 / (tau * tau)) * state_prev_pitch - a1 / tau * p2_pitch + (a0 / (tau * tau)) * state;
+    p2_pitch = p2_pitch + p2_dot_pitch * _dt;
+
+    p1_dot_pitch = p1_dot_pitch + p2_dot_pitch * _dt;
+
+    state_prev_pitch = wrap_PI(state_prev_pitch); // check the angle wrap_pi
+
+    state_prev_pitch = state_prev_pitch + p1_dot_pitch * _dt; // tranfer to inverse nominal model
+    // ---------------------------------------------------
+
+    // (Nominal model) -------------------------------------
+    float u_pitch = state_prev_pitch;
+
+    float a_1_pitch = -0.002732f * pow(abs_vel, 3) + 0.02876f * pow(abs_vel, 2) + 0.3277f *  abs_vel + 12.88f;
+    float a_2_pitch = 0.001708f * pow(abs_vel, 3) - 0.0383f  * pow(abs_vel, 2) + 0.34f * abs_vel + 2.455f;
+
+    float b_1_pitch = 0.007158f * abs_vel + 0.1867f;
+    float b_2_pitch = 0.02679f * pow(abs_vel, 3) - 0.5005f * pow(abs_vel, 2) - 0.5907f * abs_vel - 0.5018f;
+    float b_3_pitch = 0.01259f * pow(abs_vel, 3) - 0.2848f * pow(abs_vel, 2) - 1.073f * abs_vel + 28.61f;
+
+    u_dot_pitch = (u_pitch - u_prev_pitch) / _dt;
+    u2_dot_pitch = (u_dot_pitch - u_dot_prev_pitch) / _dt;
+
+    y_pitch = ((a_1_pitch * y_pitch_prev) + u2_dot_pitch - u2_dot_prev_pitch + b_1_pitch * (u_dot_pitch - u_dot_prev_pitch) + b_2_pitch * (u_pitch - u_prev_pitch) + (b_3_pitch * _dt * u_pitch)) / (a_1_pitch + a_2_pitch * _dt);
+
+    u_prev_pitch = u_pitch;
+    y_pitch_prev = y_pitch;
+    u_dot_prev_pitch = u_dot_pitch;
+    u2_dot_prev_pitch = u2_dot_pitch;
+    // ---------------------------------------------------
+
+    // (Output of the DOBC) -------------------------------------
+    float control_DOB = -nu_prev_pitch + y_pitch;
     control_DOB = constrain_float(control_DOB, -1.0f, 1.0f);
-    // this should be subtracted to original roll_control
+    control_DOB = control_DOB * b0;
+    // ---------------------------------------------------
 
-    _dob_monitor.pitch_control_in = control_output;
-    _dob_monitor.pitch_control_filtered = control_filtered_pitch;
+    // (Save the data) -------------------------------------
+    _dob_monitor.Q_A_out_pitch = nu_prev_pitch;
+    _dob_monitor.Q_B_out_pitch = state_prev_pitch;
     _dob_monitor.flagP = flag_last_P;
+    // ---------------------------------------------------
 
     if (use_DOB)
     {
         if (flag_last_P == false)
         {
-            state_filtered_pitch = wrap_PI(_ahrs.pitch);
+            state_prev_pitch = wrap_PI(_ahrs.pitch);
             flag_last_P = true;
         }
         // return control_DOB;
-        _dob_monitor.pitch_control = control_DOB;
+        _dob_monitor.d_hat_pitch = control_DOB;
         return control_DOB;
     }
 
     else
     {
         flag_last_P = false;
-        _dob_monitor.pitch_control = 0.0f;
+        _dob_monitor.d_hat_pitch = 0.0f;
         return 0.0f;
     }
 }
 
-float AC_AttitudeControl::disturbance_observer_on_yaw(float control_output, bool use_DOB)
+float AC_AttitudeControl::disturbance_observer_on_yaw(float nu, bool use_DOB)
 {
-    _dob_monitor.yaw_filtered = ToDeg(wrap_2PI(state_filtered_yaw));
-    // System Setup
-    // Nominal System is basic 2nd order system
-    // float a0 = 1.0f;
-    // float a1 = 2.0f;
-    // float b0 = 1.0f;
-    // float MOI = 0.02438f;
+    // (Setting of the parameters) -------------------------------------
     float a0 = get_yaw_a0();
     float a1 = get_yaw_a1();
-    float b0 = get_yaw_b0();
     float MOI = get_yaw_moi();
-
-    // Q-Filter Coefficient
-    // float tau = 0.25f;
+    float b0 = get_yaw_b0();
     float tau = get_yaw_tau();
 
-    float temp = a0 / (tau * tau);
-    float state = wrap_PI(_ahrs.yaw);
-    // A : Control Input Filtering (Q-Filter A)
-    float p2_dot = -temp * control_filtered_yaw - a1 / tau * p2_yaw + temp * control_output;
+    float state = wrap_PI(_ahrs.yaw); // feedback yaw angle
+    // ---------------------------------------------------
 
-    p2_yaw += p2_dot * _dt;
-    control_filtered_yaw += p2_yaw * _dt;
+    // (Q-Filter A) -------------------------------------
+    float q2_dot_yaw = -(a0 / (tau * tau)) * nu_prev_yaw - a1 / tau * q2_yaw + (a0 / (tau * tau)) * nu;
+    q2_yaw = q2_yaw + q2_dot_yaw * _dt;
 
-    // Time-Domain Serialized Implementation
-    // B : Q_Filter B to State Filtering
-    state_filtered_yaw = wrap_PI(state_filtered_yaw);
+    q1_dot_yaw = q1_dot_yaw + q2_dot_yaw * _dt;
 
-    float state_error = wrap_PI(state - state_filtered_yaw);
+    nu_prev_yaw = nu_prev_yaw + q1_dot_yaw * _dt; // Filtered nu
+    // ---------------------------------------------------
 
-    float q2_dot = -a1 / tau * q2_yaw + temp * state_error;
-    q2_yaw += q2_dot * _dt;
+    // (Q-Filter B) -------------------------------------
+    float p2_dot_yaw = -(a0 / (tau * tau)) * state_prev_yaw - a1 / tau * p2_yaw + (a0 / (tau * tau)) * state;
+    p2_yaw = p2_yaw + p2_dot_yaw * _dt;
 
-    state_filtered_yaw += q2_yaw * _dt;
-    // state_filtered_yaw = wrap_PI(state_filtered_yaw);
-    // float control_DOB = 1/b0 * (q2_dot - a0 * state_filtered_yaw - a1 * q2_yaw);
-    float control_DOB = 1 / b0 * (MOI * q2_dot);
-    // Inverse Dyanmics
-    //  B-A = FeedForward Control to the disturbance
-    control_DOB -= control_filtered_yaw;
+    p1_dot_yaw = p1_dot_yaw + p2_dot_yaw * _dt;
+
+    state_prev_yaw = wrap_PI(state_prev_yaw); // check the angle wrap_pi
+
+    state_prev_yaw = state_prev_yaw + p1_dot_yaw * _dt;
+    // ---------------------------------------------------
+
+    y_yaw = 1 / b0 * (MOI * p2_dot_yaw);
+
+    // (Output of the DOBC) -------------------------------------
+    float control_DOB = -nu_prev_yaw + y_yaw;
     control_DOB = constrain_float(control_DOB, -0.5f, 0.5f);
+    control_DOB = control_DOB * b0;
+    // ---------------------------------------------------
 
-    _dob_monitor.yaw_control_in = control_output;
-    _dob_monitor.yaw_control_filtered = control_filtered_yaw;
-    _dob_monitor.q2_yaw = q2_yaw;
-    _dob_monitor.q2_dot = q2_dot;
+    // (Save the data) -------------------------------------
+    _dob_monitor.Q_A_out_yaw = nu_prev_yaw;
+    _dob_monitor.Q_B_out_yaw = state_prev_yaw;
     _dob_monitor.flagY = flag_last_Y;
+    // ---------------------------------------------------
 
-    // this should be subtracted to the original yaw_control
     if (use_DOB)
     {
         if (flag_last_Y == false)
         {
-            state_filtered_yaw = wrap_PI(_ahrs.yaw);
+            state_prev_yaw = wrap_PI(_ahrs.yaw);
             flag_last_Y = true;
         }
-        _dob_monitor.yaw_control = control_DOB;
         // return control_DOB;
-        return 0.0f;
+        _dob_monitor.d_hat_yaw = control_DOB;
+        return control_DOB;
     }
 
     else
     {
         flag_last_Y = false;
-        _dob_monitor.yaw_control = 0.0f;
+        _dob_monitor.d_hat_yaw = 0.0f;
         return 0.0f;
     }
 }

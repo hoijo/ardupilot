@@ -11,6 +11,7 @@
 #include <AP_Motors/AP_Motors.h>
 #include <AC_PID/AC_PID.h>
 #include <AC_PID/AC_P.h>
+#include <AP_InertialNav/AP_InertialNav.h>  // Inertial Navigation library
 
 #define AC_ATTITUDE_CONTROL_ANGLE_P                     4.5f             // default angle P gain for roll, pitch and yaw
 
@@ -49,13 +50,13 @@
 // Initial parameter for DOBC
 #define ROLL_A0_DEFAULT 1.0f
 #define ROLL_A1_DEFAULT 2.0f
-#define ROLL_B0_DEFAULT 2.0f
+#define ROLL_B0_DEFAULT 1.0f
 #define ROLL_MOI_DEFAULT 0.054f
 #define ROLL_TAU_DEFAULT 0.25f
 
 #define PITCH_A0_DEFAULT 1.0f
 #define PITCH_A1_DEFAULT 2.0f
-#define PITCH_B0_DEFAULT 2.0f
+#define PITCH_B0_DEFAULT 1.0f
 #define PITCH_MOI_DEFAULT 0.054f
 #define PITCH_TAU_DEFAULT 0.25f
 
@@ -85,7 +86,7 @@ public:
     AC_AttitudeControl( AP_AHRS_View &ahrs,
                         const AP_Vehicle::MultiCopter &aparm,
                         AP_Motors& motors,
-                        float dt) :
+                        float dt, const AP_InertialNav& inav) :
         _p_angle_roll(AC_ATTITUDE_CONTROL_ANGLE_P),
         _p_angle_pitch(AC_ATTITUDE_CONTROL_ANGLE_P),
         _p_angle_yaw(AC_ATTITUDE_CONTROL_ANGLE_P),
@@ -96,7 +97,8 @@ public:
         _throttle_rpy_mix(AC_ATTITUDE_CONTROL_THR_MIX_DEFAULT),
         _ahrs(ahrs),
         _aparm(aparm),
-        _motors(motors)
+        _motors(motors),
+        _inav(inav)
         {
             AP_Param::setup_object_defaults(this, var_info);
         }
@@ -405,6 +407,8 @@ public:
 
 protected:
 
+    const AP_InertialNav&   _inav;
+
     // Update rate_target_ang_vel using attitude_error_rot_vec_rad
     Vector3f update_ang_vel_target_from_att_error(const Vector3f &attitude_error_rot_vec_rad);
 
@@ -637,40 +641,91 @@ protected:
     bool flag_last_P = false;
     bool flag_last_Y = false;
 
-    float control_filtered_roll = 0.0f;     // state p1
-    float state_filtered_roll = _ahrs.roll; // state q1
-    float p2_roll = 0.0f;
+    // Roll axis ------------------------------
+    // Q-filter (A)
+    float nu_prev_roll = 0.0f;
     float q2_roll = 0.0f;
+    float q1_dot_roll = 0.0f;
 
-    float control_filtered_pitch = 0.0f;      // state p1
-    float state_filtered_pitch = _ahrs.pitch; // state q1
-    float p2_pitch = 0.0f;
+    // Q-filter (B)
+    float state_prev_roll = _ahrs.roll;
+    float p2_roll = 0.0f;
+    float p1_dot_roll = 0.0f;
+
+    // Nominal model
+    float y_prev_roll = 0.0f;
+    float u_prev_roll = 0.0f;
+    float u_dot_roll = 0.0f;
+    float u_dot_prev_roll = 0.0f;
+    float u2_dot_roll = 0.0f;
+    float u2_dot_prev_roll = 0.0f;
+
+    float y_roll = 0.0f;
+    float y_roll_prev = 0.0f;
+    // ----------------------------------------
+
+    // pitch axis ------------------------------
+    // Q-filter (A)
+    float nu_prev_pitch = 0.0f;
     float q2_pitch = 0.0f;
+    float q1_dot_pitch = 0.0f;
 
-    float control_filtered_yaw = 0.0f;    // state p1
-    float state_filtered_yaw = _ahrs.yaw; // state q1
-    float p2_yaw = 0.0f;
+    // Q-filter (B)
+    float state_prev_pitch = _ahrs.pitch;
+    float p2_pitch = 0.0f;
+    float p1_dot_pitch = 0.0f;
+
+    // Nominal model
+    float y_prev_pitch = 0.0f;
+    float u_prev_pitch = 0.0f;
+    float u_dot_pitch = 0.0f;
+    float u_dot_prev_pitch = 0.0f;
+    float u2_dot_pitch = 0.0f;
+    float u2_dot_prev_pitch = 0.0f;
+
+    float y_pitch = 0.0f;
+    float y_pitch_prev = 0.0f;
+    // ----------------------------------------
+
+    // yaw axis ------------------------------
+    // Q-filter (A)
+    float nu_prev_yaw = 0.0f;
     float q2_yaw = 0.0f;
+    float q1_dot_yaw = 0.0f;
+
+    // Q-filter (B)
+    float state_prev_yaw = _ahrs.yaw;
+    float p2_yaw = 0.0f;
+    float p1_dot_yaw = 0.0f;
+
+    // Nominal model
+    float y_prev_yaw = 0.0f;
+    float u_prev_yaw = 0.0f;
+
+    float y_yaw = 0.0f;
+    // ----------------------------------------
+
 
     struct
     {
-        float roll_filtered;
-        float pitch_filtered;
-        float yaw_filtered;
-        float roll_control;
-        float pitch_control;
-        float yaw_control;
-        float roll_control_filtered;
-        float pitch_control_filtered;
-        float yaw_control_filtered;
+        // pitch axis
+        float Q_A_out_roll;
+        float Q_B_out_roll;
+        float d_hat_roll;
         uint8_t flagR;
+
+        // pitch axis
+        float Q_A_out_pitch;
+        float Q_B_out_pitch;
+        float d_hat_pitch;
         uint8_t flagP;
+
+        // yaw axis
+        float Q_A_out_yaw;
+        float Q_B_out_yaw;
+        float d_hat_yaw;
         uint8_t flagY;
-        float roll_control_in;
-        float pitch_control_in;
-        float yaw_control_in;
-        float q2_yaw;
-        float q2_dot;
+
     } _dob_monitor;
 
 
@@ -707,6 +762,9 @@ public:
     float control_monitor_rms_output_yaw(void) const;
 
     // dobc monitor
-    void dobc_monitor_log(void);
+    void dobc_monitor_log_roll(void);
+    void dobc_monitor_log_pitch(void);
+    void dobc_monitor_log_yaw(void);
+
 
 };

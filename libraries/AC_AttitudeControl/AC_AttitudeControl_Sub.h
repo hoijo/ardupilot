@@ -25,7 +25,7 @@
 
 class AC_AttitudeControl_Sub : public AC_AttitudeControl {
 public:
-    AC_AttitudeControl_Sub(AP_AHRS_View &ahrs, const AP_Vehicle::MultiCopter &aparm, AP_MotorsMulticopter& motors, float dt);
+    AC_AttitudeControl_Sub(AP_AHRS_View &ahrs, const AP_Vehicle::MultiCopter &aparm, AP_MotorsMulticopter& motors, float dt, const AP_InertialNav& inav);
 
     // empty destructor to suppress compiler warning
     virtual ~AC_AttitudeControl_Sub() {}
@@ -64,6 +64,8 @@ public:
     static const struct AP_Param::GroupInfo var_info[];
 
 protected:
+
+    // const AP_InertialNav&   _inav;
 
     // update_throttle_rpy_mix - updates thr_low_comp value towards the target
     void update_throttle_rpy_mix();

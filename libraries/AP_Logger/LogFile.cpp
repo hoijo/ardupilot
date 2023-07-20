@@ -428,16 +428,20 @@ void AP_Logger::Write_PID(uint8_t msg_type, const PID_Info &info)
 
 void AP_Logger::Write_RPM(const AP_RPM &rpm_sensor)
 {
-    float rpm1 = -1, rpm2 = -1;
+    float rpm1 = -1, rpm2 = -1, rpm3 = -1, rpm4 = -1;;
 
     rpm_sensor.get_rpm(0, rpm1);
     rpm_sensor.get_rpm(1, rpm2);
+    rpm_sensor.get_rpm(2, rpm3);
+    rpm_sensor.get_rpm(3, rpm4);
 
     const struct log_RPM pkt{
         LOG_PACKET_HEADER_INIT(LOG_RPM_MSG),
         time_us     : AP_HAL::micros64(),
         rpm1        : rpm1,
-        rpm2        : rpm2
+        rpm2        : rpm2,
+        rpm3        : rpm3,
+        rpm4        : rpm4
     };
     WriteBlock(&pkt, sizeof(pkt));
 }

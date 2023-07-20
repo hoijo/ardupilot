@@ -34,8 +34,8 @@ public:
     AC_AttitudeControl_Heli( AP_AHRS_View &ahrs,
                         const AP_Vehicle::MultiCopter &aparm,
                         AP_MotorsHeli& motors,
-                        float dt) :
-        AC_AttitudeControl(ahrs, aparm, motors, dt),
+                        float dt, const AP_InertialNav& inav) :
+        AC_AttitudeControl(ahrs, aparm, motors, dt, inav),
         _pid_rate_roll(AC_ATC_HELI_RATE_RP_P, AC_ATC_HELI_RATE_RP_I, AC_ATC_HELI_RATE_RP_D, AC_ATC_HELI_RATE_RP_FF, AC_ATC_HELI_RATE_RP_IMAX, AC_ATTITUDE_HELI_RATE_RP_FF_FILTER, AC_ATC_HELI_RATE_RP_FILT_HZ, 0.0f, dt),
         _pid_rate_pitch(AC_ATC_HELI_RATE_RP_P, AC_ATC_HELI_RATE_RP_I, AC_ATC_HELI_RATE_RP_D, AC_ATC_HELI_RATE_RP_FF, AC_ATC_HELI_RATE_RP_IMAX, AC_ATTITUDE_HELI_RATE_RP_FF_FILTER, AC_ATC_HELI_RATE_RP_FILT_HZ, 0.0f, dt),
         _pid_rate_yaw(AC_ATC_HELI_RATE_YAW_P, AC_ATC_HELI_RATE_YAW_I, AC_ATC_HELI_RATE_YAW_D, AC_ATC_HELI_RATE_YAW_FF, AC_ATC_HELI_RATE_YAW_IMAX, AC_ATTITUDE_HELI_RATE_Y_FF_FILTER, AC_ATC_HELI_RATE_YAW_FILT_HZ, 0.0f, dt)
@@ -75,12 +75,12 @@ public:
 
 	// use_leaky_i - controls whether we use leaky i term for body-frame to motor output stage
 	void use_leaky_i(bool leaky_i) override {  _flags_heli.leaky_i = leaky_i; }
-    
+
     // use_flybar_passthrough - controls whether we pass-through
     // control inputs to swash-plate and tail
-    void use_flybar_passthrough(bool passthrough, bool tail_passthrough) override {  
-        _flags_heli.flybar_passthrough = passthrough; 
-        _flags_heli.tail_passthrough = tail_passthrough; 
+    void use_flybar_passthrough(bool passthrough, bool tail_passthrough) override {
+        _flags_heli.flybar_passthrough = passthrough;
+        _flags_heli.tail_passthrough = tail_passthrough;
     }
 
     // do_piro_comp - controls whether piro-comp is active or not
@@ -100,12 +100,12 @@ public:
 
     // Command an euler roll, pitch and yaw angle with angular velocity feedforward and smoothing
     void input_euler_angle_roll_pitch_yaw(float euler_roll_angle_cd, float euler_pitch_angle_cd, float euler_yaw_angle_cd, bool slew_yaw) override;
-    
+
     // enable/disable inverted flight
     void set_inverted_flight(bool inverted) override {
         _inverted_flight = inverted;
     }
-    
+
     // user settable parameters
     static const struct AP_Param::GroupInfo var_info[];
 
@@ -133,7 +133,7 @@ private:
     //
     // throttle methods
     //
-    
+
     // pass through for roll and pitch
     float _passthrough_roll;
     float _passthrough_pitch;
@@ -159,5 +159,5 @@ private:
     AC_HELI_PID     _pid_rate_roll;
     AC_HELI_PID     _pid_rate_pitch;
     AC_HELI_PID     _pid_rate_yaw;
-    
+
 };

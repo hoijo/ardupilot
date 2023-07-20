@@ -60,19 +60,34 @@ void AC_AttitudeControl::control_monitor_log(void) const
 }
 
 // Log Additional Disturbance Observer based controller data
-void AC_AttitudeControl::dobc_monitor_log(void)
+void AC_AttitudeControl::dobc_monitor_log_roll(void)
 {
-    AP::logger().WriteStreaming("DOBC", "TimeUS,Roll,Pitch,Yaw,RollCTRL,PitchCTRL,YawCTRL,Qtd", "Qfffffff",
+    AP::logger().WriteStreaming("DOBC", "TimeUS,QAfOut,QBfOut,dHat", "Qfff",
                                            AP_HAL::micros64(),
-                                           (double)_dob_monitor.roll_filtered,
-                                           (double)_dob_monitor.pitch_filtered,
-                                           (double)_dob_monitor.yaw_filtered,
-                                           (double)_dob_monitor.roll_control,
-                                           (double)_dob_monitor.pitch_control,
-                                           (double)_dob_monitor.yaw_control,
-                                           (double)_dob_monitor.q2_dot
+                                           (double)_dob_monitor.Q_A_out_roll,
+                                           (double)_dob_monitor.Q_B_out_roll,
+                                           (double)_dob_monitor.d_hat_roll
                                           );
 }
+void AC_AttitudeControl::dobc_monitor_log_pitch(void)
+{
+    AP::logger().WriteStreaming("DOBC", "TimeUS,QAfOut,QBfOut,dHat", "Qfff",
+                                           AP_HAL::micros64(),
+                                           (double)_dob_monitor.Q_A_out_pitch,
+                                           (double)_dob_monitor.Q_B_out_pitch,
+                                           (double)_dob_monitor.d_hat_pitch
+                                          );
+}
+void AC_AttitudeControl::dobc_monitor_log_yaw(void)
+{
+    AP::logger().WriteStreaming("DOBC", "TimeUS,QAfOut,QBfOut,dHat", "Qfff",
+                                           AP_HAL::micros64(),
+                                           (double)_dob_monitor.Q_A_out_yaw,
+                                           (double)_dob_monitor.Q_B_out_yaw,
+                                           (double)_dob_monitor.d_hat_yaw
+                                          );
+}
+
 
 /*
   return current controller RMS filter value for roll
