@@ -50,13 +50,13 @@
 // Initial parameter for DOBC
 #define ROLL_A0_DEFAULT 1.0f
 #define ROLL_A1_DEFAULT 2.0f
-#define ROLL_B0_DEFAULT 1.0f
+#define ROLL_B0_DEFAULT 0.1f
 #define ROLL_MOI_DEFAULT 0.054f
 #define ROLL_TAU_DEFAULT 0.25f
 
 #define PITCH_A0_DEFAULT 1.0f
 #define PITCH_A1_DEFAULT 2.0f
-#define PITCH_B0_DEFAULT 1.0f
+#define PITCH_B0_DEFAULT 0.1f
 #define PITCH_MOI_DEFAULT 0.054f
 #define PITCH_TAU_DEFAULT 0.25f
 
@@ -68,7 +68,7 @@
 
 // Doublet command
 #define ROLL_CD_UP_DEFAULT 1000.0f
-#define ROLL_CD_DO_DEFAULT 1000.f
+#define ROLL_CD_DO_DEFAULT -1000.f
 #define PITCH_CD_UP_DEFAULT 0.0f
 #define PITCH_CD_DO_DEFAULT 0.0f
 #define YAW_CD_UP_DEFAULT 0.0f
@@ -533,6 +533,10 @@ public:
     bool doublet_arm = true;
     uint32_t doublet_timer = 0;
 
+    float doublelet_out_prev = 0.0f;
+
+    float u_dot_roll_f_prev = 0.0f;
+
   // Decide the Disturbance Observer Based Controller
     void set_use_DOB(bool use_DOB);
     bool get_use_DOB() { return _use_DOB; }
@@ -708,16 +712,28 @@ protected:
 
     struct
     {
-        // pitch axis
+        // roll axis
         float Q_A_out_roll;
         float Q_B_out_roll;
         float d_hat_roll;
+        float tau_roll;
+        float dt_roll;
+        float vel_roll;
+        float u_dot_roll;
+        float u2_dot_roll;
+        float y_roll;
         uint8_t flagR;
 
         // pitch axis
         float Q_A_out_pitch;
         float Q_B_out_pitch;
         float d_hat_pitch;
+        float tau_pitch;
+        float dt_pitch;
+        float vel_pitch;
+        float u_dot_pitch;
+        float u2_dot_pitch;
+        float y_pitch;
         uint8_t flagP;
 
         // yaw axis
@@ -762,9 +778,9 @@ public:
     float control_monitor_rms_output_yaw(void) const;
 
     // dobc monitor
-    void dobc_monitor_log_roll(void);
-    void dobc_monitor_log_pitch(void);
-    void dobc_monitor_log_yaw(void);
+    void dobc_monitor_log_roll(void) const;
+    void dobc_monitor_log_pitch(void) const;
+    void dobc_monitor_log_yaw(void) const;
 
 
 };

@@ -485,10 +485,17 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
             GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet motion off");
             doublet_arm = false;
         }
+
+        // LPF
+        float tau_doublet = 0.2;
+        float delta_t = 0.002;
+        euler_roll_angle_cd = (tau_doublet * doublelet_out_prev + euler_roll_angle_cd * delta_t) / (tau_doublet + delta_t);
+        doublelet_out_prev = euler_roll_angle_cd;
     }
     else
     {
         doublet_timer = 0;
+        doublelet_out_prev = 0;
         // doublet_arm = true;
     }
 
@@ -1475,76 +1482,162 @@ void AC_AttitudeControl::set_use_SMC_alt(bool use_SMC_alt)
     _use_SMC_alt = use_SMC_alt;
 }
 
-// Addition of Disturbance Observer Based Controller for Attitude Control Loops
+// Addition of Disturbance Observer Based Controller for Attitude Control Loops (DOBC / VDOBC)
 float AC_AttitudeControl::disturbance_observer_on_roll(float nu, bool use_DOB)
 {
-    // (Setting of the parameters) -------------------------------------
+    // // (Setting of the parameters) -------------------------------------
+    // float a0 = get_roll_a0();
+    // float a1 = get_roll_a1();
+    // // float MOI = get_roll_moi();
+    // float tau = get_roll_tau();
+    // float b0 = get_roll_b0();
+
+    // // float state = wrap_PI(_ahrs.roll);              // feedback roll angle
+    // float state = _ahrs.roll;              // feedback roll angle
+    // float dt_r = _dt;
+
+    // // ----------------- (Calculating the tau) ------------
+    // Vector2f curr_vel = _inav.get_velocity_xy_cms() * 0.01f;             // m/s
+    // float abs_vel = abs(curr_vel.y);
+    // abs_vel = constrain_float(abs_vel, 0.0f, 15.0f);
+
+    // // abs_vel = 0.0f;
+
+    // // float tau = -0.002f * abs_vel + 0.055f;
+
+    // // tau = tau + 0.01f; // add
+
+    // // float tau_roll = constrain_float(tau, 0.025f, 0.055f);
+    // float tau_roll = constrain_float(tau, 0.025f, 0.095f);
+    // // ---------------------------------------------------
+
+    // // (Q-Filter A) -------------------------------------
+    // float q2_dot_roll = -(a0 / (tau_roll * tau_roll)) * nu_prev_roll - a1 / tau_roll * q2_roll + (a0 / (tau_roll * tau_roll)) * nu;
+    // q2_roll = q2_roll + q2_dot_roll * dt_r;
+
+    // nu_prev_roll = nu_prev_roll + q2_roll * dt_r; // Filtered nu
+    // // ---------------------------------------------------
+
+    // // (Q-Filter B) -------------------------------------
+    // float p2_dot_roll = -(a0 / (tau_roll * tau_roll)) * state_prev_roll - a1 / tau_roll * p2_roll + (a0 / (tau_roll * tau_roll)) * state;
+    // p2_roll = p2_roll + p2_dot_roll * dt_r;
+
+    // state_prev_roll = state_prev_roll + p2_roll * dt_r; // tranfer to inverse nominal model
+    // // state_prev_roll = wrap_PI(state_prev_roll); // check the angle wrap_pi
+    // // ---------------------------------------------------
+
+    // // (Nominal model) -------------------------------------
+    // float u_roll = state_prev_roll;
+
+    // float a_1_roll = -0.002732f * (abs_vel * abs_vel * abs_vel) + 0.02876f * (abs_vel * abs_vel) + 0.3277f *  abs_vel + 12.88f;
+    // float a_2_roll = 0.001708f * (abs_vel * abs_vel * abs_vel) - 0.0383f  * (abs_vel * abs_vel) + 0.34f * abs_vel + 2.455f;
+
+    // float b_1_roll = 0.007158f * abs_vel + 0.1867f;
+    // float b_2_roll = 0.02679f * (abs_vel * abs_vel * abs_vel) - 0.5005f * (abs_vel * abs_vel) - 0.5907f * abs_vel - 0.5018f;
+    // float b_3_roll = 0.01259f * (abs_vel * abs_vel * abs_vel) - 0.2848f * (abs_vel * abs_vel) - 1.073f * abs_vel + 28.61f;
+
+    // // Calculation of the u_dot
+    // u_dot_roll = p2_roll;
+
+    // // u_dot LPF
+    // u2_dot_roll = p2_dot_roll;
+
+    // // Calculation of the out of the inverse nominal model output
+    // y_roll = ((a_1_roll * y_roll_prev) + u2_dot_roll - u2_dot_prev_roll + b_1_roll * (u_dot_roll - u_dot_prev_roll) + b_2_roll * (u_roll - u_prev_roll) + (b_3_roll * dt_r * u_roll)) / (a_1_roll + a_2_roll * dt_r);
+
+    // u_prev_roll = u_roll;
+    // y_roll_prev = y_roll;
+    // u_dot_prev_roll = u_dot_roll;
+    // u2_dot_prev_roll = u2_dot_roll;
+    // // ---------------------------------------------------
+
+    // // (Output of the DOBC) -------------------------------------
+    // float control_DOB = -nu_prev_roll + y_roll;
+    // control_DOB = constrain_float(control_DOB, -1.0f, 1.0f);
+    // control_DOB = control_DOB * b0;
+    // // ---------------------------------------------------
+
+    // // (Save the data) -------------------------------------
+    // _dob_monitor.Q_A_out_roll = nu_prev_roll;
+    // _dob_monitor.Q_B_out_roll = state_prev_roll;
+    // _dob_monitor.flagR = flag_last_R;
+    // _dob_monitor.tau_roll = tau_roll;
+    // _dob_monitor.dt_roll = dt_r;
+    // _dob_monitor.vel_roll = abs_vel;
+    // _dob_monitor.u_dot_roll = u_dot_roll;
+    // _dob_monitor.u2_dot_roll = u2_dot_roll;
+    // _dob_monitor.y_roll = y_roll;
+
+    // // ---------------------------------------------------
+    // if (use_DOB)
+    // {
+    //     if (flag_last_R == false)
+    //     {
+    //         // state_prev_roll = wrap_PI(_ahrs.roll);
+    //         state_prev_roll = _ahrs.roll;
+    //         flag_last_R = true;
+    //     }
+    //     // return control_DOB;
+    //     _dob_monitor.d_hat_roll = control_DOB;
+    //     return control_DOB;
+    // }
+    // else
+    // {
+    //     flag_last_R = false;
+    //     _dob_monitor.d_hat_roll = 0.0f;
+    //     return 0.0f;
+    // }
+
+
+    // ---------------------- ********************* ----------------------
+    // Conventional DOBC ------------------------- Case 2
     float a0 = get_roll_a0();
     float a1 = get_roll_a1();
-    // float MOI = get_roll_moi();
+    float MOI = get_roll_moi();
     float b0 = get_roll_b0();
+    float tau = get_roll_tau();
 
-    float state = wrap_PI(_ahrs.roll); // feedback roll angle
-    // ---------------------------------------------------
+    float state = _ahrs.roll; // [rad]
+
+    float dt_r = _dt; // 400 hz
 
     // (Calculating the tau) -------------------------------------
     Vector2f curr_vel = _inav.get_velocity_xy_cms() * 0.01; // m/s
     float abs_vel = abs(curr_vel.y);
-
-    float tau = -0.002 * abs_vel + 0.055;
-    // ---------------------------------------------------
+    abs_vel = constrain_float(abs_vel, 0.0f, 15.0f);
 
     // (Q-Filter A) -------------------------------------
     float q2_dot_roll = -(a0 / (tau * tau)) * nu_prev_roll - a1 / tau * q2_roll + (a0 / (tau * tau)) * nu;
-    q2_roll = q2_roll + q2_dot_roll * _dt;
+    q2_roll = q2_roll + q2_dot_roll * dt_r;
 
-    q1_dot_roll = q1_dot_roll + q2_dot_roll * _dt;
-
-    nu_prev_roll = nu_prev_roll + q1_dot_roll * _dt; // Filtered nu
+    nu_prev_roll = nu_prev_roll + q2_roll * dt_r; // Filtered nu
     // ---------------------------------------------------
 
     // (Q-Filter B) -------------------------------------
     float p2_dot_roll = -(a0 / (tau * tau)) * state_prev_roll - a1 / tau * p2_roll + (a0 / (tau * tau)) * state;
-    p2_roll = p2_roll + p2_dot_roll * _dt;
+    p2_roll = p2_roll + p2_dot_roll * dt_r;
 
-    p1_dot_roll = p1_dot_roll + p2_dot_roll * _dt;
-
+    state_prev_roll = state_prev_roll + p2_roll * dt_r; // tranfer to inverse nominal model
     state_prev_roll = wrap_PI(state_prev_roll); // check the angle wrap_pi
-
-    state_prev_roll = state_prev_roll + p1_dot_roll * _dt; // tranfer to inverse nominal model
-    // ---------------------------------------------------
-
-    // (Nominal model) -------------------------------------
-    float u_roll = state_prev_roll;
-
-    float a_1_roll = -0.002732f * pow(abs_vel, 3) + 0.02876f * pow(abs_vel, 2) + 0.3277f *  abs_vel + 12.88f;
-    float a_2_roll = 0.001708f * pow(abs_vel, 3) - 0.0383f  * pow(abs_vel, 2) + 0.34f * abs_vel + 2.455f;
-
-    float b_1_roll = 0.007158f * abs_vel + 0.1867f;
-    float b_2_roll = 0.02679f * pow(abs_vel, 3) - 0.5005f * pow(abs_vel, 2) - 0.5907f * abs_vel - 0.5018f;
-    float b_3_roll = 0.01259f * pow(abs_vel, 3) - 0.2848f * pow(abs_vel, 2) - 1.073f * abs_vel + 28.61f;
-
-    u_dot_roll = (u_roll - u_prev_roll) / _dt;
-    u2_dot_roll = (u_dot_roll - u_dot_prev_roll) / _dt;
-
-    y_roll = ((a_1_roll * y_roll_prev) + u2_dot_roll - u2_dot_prev_roll + b_1_roll * (u_dot_roll - u_dot_prev_roll) + b_2_roll * (u_roll - u_prev_roll) + (b_3_roll * _dt * u_roll)) / (a_1_roll + a_2_roll * _dt);
-
-    u_prev_roll = u_roll;
-    y_roll_prev = y_roll;
-    u_dot_prev_roll = u_dot_roll;
-    u2_dot_prev_roll = u2_dot_roll;
     // ---------------------------------------------------
 
     // (Output of the DOBC) -------------------------------------
-    float control_DOB = -nu_prev_roll + y_roll;
+    float Pn_QB = 1 / b0 * (MOI * p2_dot_roll);
+
+    float control_DOB = -nu_prev_roll + Pn_QB;
     control_DOB = constrain_float(control_DOB, -1.0f, 1.0f);
     control_DOB = control_DOB * b0;
-    // ---------------------------------------------------
 
     // (Save the data) -------------------------------------
     _dob_monitor.Q_A_out_roll = nu_prev_roll;
     _dob_monitor.Q_B_out_roll = state_prev_roll;
     _dob_monitor.flagR = flag_last_R;
+    _dob_monitor.tau_roll = tau;
+    _dob_monitor.dt_roll = dt_r;
+    _dob_monitor.vel_roll = abs_vel;
+    _dob_monitor.u_dot_roll = 0.0f;
+    _dob_monitor.u2_dot_roll = 0.0f;
+    _dob_monitor.y_roll = 0.0f;
     // ---------------------------------------------------
 
     if (use_DOB)
@@ -1558,7 +1651,6 @@ float AC_AttitudeControl::disturbance_observer_on_roll(float nu, bool use_DOB)
         _dob_monitor.d_hat_roll = control_DOB;
         return control_DOB;
     }
-
     else
     {
         flag_last_R = false;
@@ -1567,75 +1659,158 @@ float AC_AttitudeControl::disturbance_observer_on_roll(float nu, bool use_DOB)
     }
 }
 
+// (DOBC / VDOBC)
 float AC_AttitudeControl::disturbance_observer_on_pitch(float nu, bool use_DOB)
 {
+//     // (Setting of the parameters) -------------------------------------
+//     float a0 = get_pitch_a0();
+//     float a1 = get_pitch_a1();
+//     float b0 = get_pitch_b0();
+//     float tau = get_pitch_tau();
+//     float state = _ahrs.pitch;              // feedback pitch angle
+//     float dt_r = _dt;
+
+//     // ----------------- (Calculating the tau) ------------
+//     Vector2f curr_vel = _inav.get_velocity_xy_cms() * 0.01f;             // m/s
+//     float abs_vel = abs(curr_vel.x);
+//     abs_vel = constrain_float(abs_vel, 0.0f, 15.0f);
+
+//     // float tau = -0.002f * abs_vel + 0.055f;
+
+//     // tau = tau + 0.01f; // add
+
+//     // float tau_roll = constrain_float(tau, 0.025f, 0.055f);
+//     float tau_pitch = constrain_float(tau, 0.025f, 0.095f);
+//     // ---------------------------------------------------
+
+//     // (Q-Filter A) -------------------------------------
+//     float q2_dot_pitch = -(a0 / (tau_pitch * tau_pitch)) * nu_prev_pitch - a1 / tau_pitch * q2_pitch + (a0 / (tau_pitch * tau_pitch)) * nu;
+//     q2_pitch = q2_pitch + q2_dot_pitch * dt_r;
+
+//     nu_prev_pitch = nu_prev_pitch + q2_pitch * dt_r; // Filtered nu
+//     // ---------------------------------------------------
+
+//     // (Q-Filter B) -------------------------------------
+//     float p2_dot_pitch = -(a0 / (tau_pitch * tau_pitch)) * state_prev_pitch - a1 / tau_pitch * p2_pitch + (a0 / (tau_pitch * tau_pitch)) * state;
+//     p2_pitch = p2_pitch + p2_dot_pitch * dt_r;
+
+//     state_prev_pitch = state_prev_pitch + p2_pitch * dt_r; // tranfer to inverse nominal model
+//     // ---------------------------------------------------
+
+//     // (Nominal model) -------------------------------------
+//     float u_pitch = state_prev_pitch;
+
+//     float a_1_pitch = -0.002732f * (abs_vel * abs_vel * abs_vel) + 0.02876f * (abs_vel * abs_vel) + 0.3277f *  abs_vel + 12.88f;
+//     float a_2_pitch = 0.001708f * (abs_vel * abs_vel * abs_vel) - 0.0383f  * (abs_vel * abs_vel) + 0.34f * abs_vel + 2.455f;
+
+//     float b_1_pitch = 0.007158f * abs_vel + 0.1867f;
+//     float b_2_pitch = 0.02679f * (abs_vel * abs_vel * abs_vel) - 0.5005f * (abs_vel * abs_vel) - 0.5907f * abs_vel - 0.5018f;
+//     float b_3_pitch = 0.01259f * (abs_vel * abs_vel * abs_vel) - 0.2848f * (abs_vel * abs_vel) - 1.073f * abs_vel + 28.61f;
+
+//     // Calculation of the u_dot
+//     u_dot_pitch = p2_pitch;
+
+//     // u_dot LPF
+//     u2_dot_pitch = p2_dot_pitch;
+
+//     // Calculation of the out of the inverse nominal model output
+//     y_pitch = ((a_1_pitch * y_pitch_prev) + u2_dot_pitch - u2_dot_prev_pitch + b_1_pitch * (u_dot_pitch - u_dot_prev_pitch) + b_2_pitch * (u_pitch - u_prev_pitch) + (b_3_pitch * dt_r * u_pitch)) / (a_1_pitch + a_2_pitch * dt_r);
+
+//     u_prev_pitch = u_pitch;
+//     y_pitch_prev = y_pitch;
+//     u_dot_prev_pitch = u_dot_pitch;
+//     u2_dot_prev_pitch = u2_dot_pitch;
+//     // ---------------------------------------------------
+
+//     // (Output of the DOBC) -------------------------------------
+//     float control_DOB = -nu_prev_pitch + y_pitch;
+//     control_DOB = constrain_float(control_DOB, -1.0f, 1.0f);
+//     control_DOB = control_DOB * b0;
+//     // ---------------------------------------------------
+
+//     // (Save the data) -------------------------------------
+//     _dob_monitor.Q_A_out_pitch = nu_prev_pitch;
+//     _dob_monitor.Q_B_out_pitch = state_prev_pitch;
+//     _dob_monitor.flagP = flag_last_P;
+//     _dob_monitor.tau_pitch = tau_pitch;
+//     _dob_monitor.dt_roll = dt_r;
+//     _dob_monitor.vel_pitch = abs_vel;
+//     _dob_monitor.u_dot_pitch = u_dot_pitch;
+//     _dob_monitor.u2_dot_pitch = u2_dot_pitch;
+//     _dob_monitor.y_pitch = y_pitch;
+
+//     // ---------------------------------------------------
+//     if (use_DOB)
+//     {
+//         if (flag_last_P == false)
+//         {
+//             // state_prev_roll = wrap_PI(_ahrs.pitch);
+//             state_prev_pitch = _ahrs.pitch;
+//             flag_last_P = true;
+//         }
+//         // return control_DOB;
+//         _dob_monitor.d_hat_pitch = control_DOB;
+//         return control_DOB;
+//     }
+//     else
+//     {
+//         flag_last_P = false;
+//         _dob_monitor.d_hat_pitch = 0.0f;
+//         return 0.0f;
+//     }
+
+
+
+    // ---------------------- ********************* ----------------------
+    // Conventional DOBC ------------------------- Case 2
     // (Setting of the parameters) -------------------------------------
     float a0 = get_pitch_a0();
     float a1 = get_pitch_a1();
-    // float MOI = get_pitch_moi();
+    float MOI = get_pitch_moi();
     float b0 = get_pitch_b0();
+    float tau = get_pitch_tau();
 
-    float state = wrap_PI(_ahrs.pitch); // feedback pitch angle
-    // ---------------------------------------------------
+    float state = _ahrs.pitch; // [rad]
+
+    float dt_r = _dt; // 400 hz
 
     // (Calculating the tau) -------------------------------------
     Vector2f curr_vel = _inav.get_velocity_xy_cms() * 0.01; // m/s
     float abs_vel = abs(curr_vel.x);
-
-    float tau = -0.002 * abs_vel + 0.055;
-    // ---------------------------------------------------
+    abs_vel = constrain_float(abs_vel, 0.0f, 15.0f);
 
     // (Q-Filter A) -------------------------------------
     float q2_dot_pitch = -(a0 / (tau * tau)) * nu_prev_pitch - a1 / tau * q2_pitch + (a0 / (tau * tau)) * nu;
-    q2_pitch = q2_pitch + q2_dot_pitch * _dt;
+    q2_pitch = q2_pitch + q2_dot_pitch * dt_r;
 
-    q1_dot_pitch = q1_dot_pitch + q2_dot_pitch * _dt;
-
-    nu_prev_pitch = nu_prev_pitch + q1_dot_pitch * _dt; // Filtered nu
+    nu_prev_pitch = nu_prev_pitch + q2_pitch * dt_r; // Filtered nu
     // ---------------------------------------------------
 
     // (Q-Filter B) -------------------------------------
     float p2_dot_pitch = -(a0 / (tau * tau)) * state_prev_pitch - a1 / tau * p2_pitch + (a0 / (tau * tau)) * state;
-    p2_pitch = p2_pitch + p2_dot_pitch * _dt;
+    p2_pitch = p2_pitch + p2_dot_pitch * dt_r;
 
-    p1_dot_pitch = p1_dot_pitch + p2_dot_pitch * _dt;
-
+    state_prev_pitch = state_prev_pitch + p2_pitch * dt_r; // tranfer to inverse nominal model
     state_prev_pitch = wrap_PI(state_prev_pitch); // check the angle wrap_pi
-
-    state_prev_pitch = state_prev_pitch + p1_dot_pitch * _dt; // tranfer to inverse nominal model
-    // ---------------------------------------------------
-
-    // (Nominal model) -------------------------------------
-    float u_pitch = state_prev_pitch;
-
-    float a_1_pitch = -0.002732f * pow(abs_vel, 3) + 0.02876f * pow(abs_vel, 2) + 0.3277f *  abs_vel + 12.88f;
-    float a_2_pitch = 0.001708f * pow(abs_vel, 3) - 0.0383f  * pow(abs_vel, 2) + 0.34f * abs_vel + 2.455f;
-
-    float b_1_pitch = 0.007158f * abs_vel + 0.1867f;
-    float b_2_pitch = 0.02679f * pow(abs_vel, 3) - 0.5005f * pow(abs_vel, 2) - 0.5907f * abs_vel - 0.5018f;
-    float b_3_pitch = 0.01259f * pow(abs_vel, 3) - 0.2848f * pow(abs_vel, 2) - 1.073f * abs_vel + 28.61f;
-
-    u_dot_pitch = (u_pitch - u_prev_pitch) / _dt;
-    u2_dot_pitch = (u_dot_pitch - u_dot_prev_pitch) / _dt;
-
-    y_pitch = ((a_1_pitch * y_pitch_prev) + u2_dot_pitch - u2_dot_prev_pitch + b_1_pitch * (u_dot_pitch - u_dot_prev_pitch) + b_2_pitch * (u_pitch - u_prev_pitch) + (b_3_pitch * _dt * u_pitch)) / (a_1_pitch + a_2_pitch * _dt);
-
-    u_prev_pitch = u_pitch;
-    y_pitch_prev = y_pitch;
-    u_dot_prev_pitch = u_dot_pitch;
-    u2_dot_prev_pitch = u2_dot_pitch;
     // ---------------------------------------------------
 
     // (Output of the DOBC) -------------------------------------
-    float control_DOB = -nu_prev_pitch + y_pitch;
+    float Pn_QB = 1 / b0 * (MOI * p2_dot_pitch);
+
+    float control_DOB = -nu_prev_pitch + Pn_QB;
     control_DOB = constrain_float(control_DOB, -1.0f, 1.0f);
     control_DOB = control_DOB * b0;
-    // ---------------------------------------------------
 
     // (Save the data) -------------------------------------
     _dob_monitor.Q_A_out_pitch = nu_prev_pitch;
     _dob_monitor.Q_B_out_pitch = state_prev_pitch;
     _dob_monitor.flagP = flag_last_P;
+    _dob_monitor.tau_pitch = tau;
+    _dob_monitor.dt_pitch = dt_r;
+    _dob_monitor.vel_pitch = abs_vel;
+    _dob_monitor.u_dot_pitch = 0.0f;
+    _dob_monitor.u2_dot_pitch = 0.0f;
+    _dob_monitor.y_pitch = 0.0f;
     // ---------------------------------------------------
 
     if (use_DOB)
@@ -1649,7 +1824,6 @@ float AC_AttitudeControl::disturbance_observer_on_pitch(float nu, bool use_DOB)
         _dob_monitor.d_hat_pitch = control_DOB;
         return control_DOB;
     }
-
     else
     {
         flag_last_P = false;
