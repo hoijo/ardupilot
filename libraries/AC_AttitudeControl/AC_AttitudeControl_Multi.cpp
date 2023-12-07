@@ -341,23 +341,64 @@ void AC_AttitudeControl_Multi::rate_controller_run()
 
     Vector3f gyro_latest = _ahrs.get_gyro_latest();
 
-    // origin roll code
+    // ***************************************************************** Roll axis
+
+    // // origin roll code
     // _motors.set_roll(get_rate_roll_pid().update_all(_ang_vel_body.x, gyro_latest.x, _motors.limit.roll) + _actuator_sysid.x);
     // _motors.set_roll_ff(get_rate_roll_pid().get_ff());
 
     // PDOBC roll code
+    // float control_cmd_roll = get_rate_roll_pid().update_all(_ang_vel_body.x, gyro_latest.x, _motors.limit.roll) + _actuator_sysid.x;
+    // _motors.set_roll(angular_control_roll_DOB(control_cmd_roll));
+    // _motors.set_roll_ff(get_rate_roll_pid().get_ff());
+
+    // INDI roll code
+    // float control_cmd_roll = get_rate_roll_pid().update_all(_ang_vel_body.x, gyro_latest.x, _motors.limit.roll) + _actuator_sysid.x;
+    // float control_indi_roll = indi_roll(control_cmd_roll, control_cmd_roll_prev);
+
+    // control_cmd_roll_prev = control_indi_roll;
+
+    // control_cmd_roll_prev = 0.9f * control_cmd_roll_prev2 + 0.1f * control_indi_roll;
+    // control_cmd_roll_prev2 = control_cmd_roll_prev;
+
+    // _motors.set_roll(control_indi_roll);
+    // _motors.set_roll_ff(get_rate_roll_pid().get_ff());
+
+    // bool check_the = _use_INDI;
+
+    // For check the INDI ( But this code is implemented beacause of the base controller output and INDI)
     float control_cmd_roll = get_rate_roll_pid().update_all(_ang_vel_body.x, gyro_latest.x, _motors.limit.roll) + _actuator_sysid.x;
-    _motors.set_roll(angular_control_roll_DOB(control_cmd_roll));
+    float control_roll_out = indi_check_roll(control_cmd_roll, control_cmd_roll_prev);
+    control_cmd_roll_prev = control_roll_out;
+    _motors.set_roll(control_roll_out);
     _motors.set_roll_ff(get_rate_roll_pid().get_ff());
 
+    // ***************************************************************** Pitch axis
+
     // origin pitch code
-    // _motors.set_pitch(get_rate_pitch_pid().update_all(_ang_vel_body.y, gyro_latest.y, _motors.limit.pitch) + _actuator_sysid.y);
+    _motors.set_pitch(get_rate_pitch_pid().update_all(_ang_vel_body.y, gyro_latest.y, _motors.limit.pitch) + _actuator_sysid.y);
+    _motors.set_pitch_ff(get_rate_pitch_pid().get_ff());
+
+    // // PDOBC pitch code
+    // float control_cmd_pitch = get_rate_pitch_pid().update_all(_ang_vel_body.y, gyro_latest.y, _motors.limit.pitch) + _actuator_sysid.y;
+    // _motors.set_pitch(angular_control_pitch_DOB(control_cmd_pitch));
+    // _motors.set_pitch_ff(get_rate_roll_pid().get_ff());
+
+    // // INDI pitch code
+    // float control_cmd_pitch = get_rate_pitch_pid().update_all(_ang_vel_body.y, gyro_latest.y, _motors.limit.pitch) + _actuator_sysid.y;
+    // control_cmd_pitch_prev = indi_pitch(control_cmd_pitch, control_cmd_pitch_prev);
+    // _motors.set_pitch(control_cmd_pitch_prev);
     // _motors.set_pitch_ff(get_rate_pitch_pid().get_ff());
 
-    // PDOBC pitch code
-    float control_cmd_pitch = get_rate_pitch_pid().update_all(_ang_vel_body.y, gyro_latest.y, _motors.limit.pitch) + _actuator_sysid.y;
-    _motors.set_pitch(angular_control_pitch_DOB(control_cmd_pitch));
-    _motors.set_pitch_ff(get_rate_roll_pid().get_ff());
+    // // For check the INDI ( But this code is implemented beacause of the base controller output and INDI)
+    // float control_cmd_pitch = get_rate_pitch_pid().update_all(_ang_vel_body.y, gyro_latest.y, _motors.limit.pitch) + _actuator_sysid.y;
+    // float control_pitch_out = indi_check_pitch(control_cmd_pitch, control_cmd_pitch_prev);
+    // control_cmd_pitch_prev = control_pitch_out;
+    // _motors.set_pitch(control_pitch_out);
+    // _motors.set_pitch_ff(get_rate_pitch_pid().get_ff());
+
+
+    // ***************************************************************** Yaw axis
 
     // origin yaw code
     _motors.set_yaw(get_rate_yaw_pid().update_all(_ang_vel_body.z, gyro_latest.z, _motors.limit.yaw) + _actuator_sysid.z);
@@ -367,6 +408,20 @@ void AC_AttitudeControl_Multi::rate_controller_run()
     // float control_cmd_yaw = get_rate_yaw_pid().update_all(_ang_vel_body.z, gyro_latest.z, _motors.limit.yaw) + _actuator_sysid.z;
     // _motors.set_yaw(angular_control_yaw_DOB(control_cmd_yaw));
     // _motors.set_yaw_ff(get_rate_yaw_pid().get_ff() * _feedforward_scalar);
+
+    // // INDI yaw code
+    // float control_cmd_yaw = get_rate_yaw_pid().update_all(_ang_vel_body.z, gyro_latest.z, _motors.limit.yaw) + _actuator_sysid.z;
+    // control_cmd_yaw_prev = indi_yaw(control_cmd_yaw, control_cmd_yaw_prev);
+    // _motors.set_yaw(control_cmd_yaw_prev);
+    // _motors.set_yaw_ff(get_rate_yaw_pid().get_ff());
+
+    // // For check the INDI ( But this code is implemented beacause of the base controller output and INDI)
+    // float control_cmd_yaw = get_rate_yaw_pid().update_all(_ang_vel_body.z, gyro_latest.z, _motors.limit.yaw) + _actuator_sysid.z;
+    // float control_yaw_out = indi_check_yaw(control_cmd_yaw, control_cmd_yaw_prev);
+    // control_cmd_yaw_prev = control_yaw_out;
+    // _motors.set_yaw(control_yaw_out);
+    // _motors.set_yaw_ff(get_rate_yaw_pid().get_ff());
+
 
     _sysid_ang_vel_body.zero();
     _actuator_sysid.zero();

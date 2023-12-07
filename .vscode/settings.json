@@ -1,4 +1,21 @@
 {
     "cSpell.language": "en-GB",
-    "astyle.astylerc": "${workspaceFolder}/Tools/CodeStyle/astylerc"
+    "astyle.astylerc": "${workspaceFolder}/Tools/CodeStyle/astylerc",
+    "cmake.sourceDirectory": "/home/hoijo/ardupilot/libraries/AP_HAL_ESP32/targets/esp-idf",
+    "files.associations": {
+        "*.repos": "yaml",
+        "*.world": "xml",
+        "*.xacro": "xml",
+        "*.cpp": "cpp",
+        "future": "cpp",
+        "system_error": "cpp",
+        "regex": "cpp",
+        "*.ipp": "cpp",
+        "*.tcc": "cpp",
+        "tuple": "cpp",
+        "mutex": "cpp",
+        "streambuf": "cpp",
+        "jacobi": "cpp",
+        "random": "cpp"
+    }
 }

@@ -13,6 +13,10 @@
 #include <AC_PID/AC_P.h>
 #include <AP_InertialNav/AP_InertialNav.h>  // Inertial Navigation library
 
+// for INDI
+#include <Filter/Filter.h>                     // Filter library
+#include <Filter/LowPassFilter2p.h>
+
 #define AC_ATTITUDE_CONTROL_ANGLE_P                     4.5f             // default angle P gain for roll, pitch and yaw
 
 #define AC_ATTITUDE_ACCEL_RP_CONTROLLER_MIN_RADSS       radians(40.0f)   // minimum body-frame acceleration limit for the stability controller (for roll and pitch axis)
@@ -74,10 +78,18 @@
 #define YAW_CD_UP_DEFAULT 0.0f
 #define YAW_CD_DO_DEFAULT 0.0f
 
-#define D_T1_DEFAULT 2000
-#define D_T2_DEFAULT 3000
-#define D_T3_DEFAULT 4000
-#define D_T4_DEFAULT 10000
+#define D_T1_DEFAULT 2000.0f
+#define D_T2_DEFAULT 3000.0f
+#define D_T3_DEFAULT 4000.0f
+#define D_T4_DEFAULT 10000.0f
+
+// 2nd filter for INDI
+#define SAM_RATE_INDI 400.0f
+#define CUT_FREQ_INDI 8.0f
+
+// INDI nu multiplier roll
+#define INDI_R_M 1.0f
+#define INDI_R_SIGN 1.0f
 
 
 class AC_AttitudeControl {
@@ -554,20 +566,180 @@ public:
     float angular_control_yaw_DOB(float output);
 
 
-        // ------------------------------------------------- about smc
-   // switch the smc att
-       bool _use_SMC = true;
+    // ------------------------------------------------- about smc
+    // switch the smc att
+    bool _use_SMC = true;
     // switch the smc alt
     bool _use_SMC_alt = true;
 
-
-        // Decide the SMC
+    // Decide the SMC
     void set_use_SMC(bool use_SMC);
     bool get_use_SMC() {return _use_SMC;}
 
     // Decide the SMC alt
     void set_use_SMC_alt(bool use_SMC_alt);
     bool get_use_SMC_alt() {return _use_SMC_alt;}
+
+    // -------------------------------------------------- about INDI
+    void init_second_order_low_pass(float cutoff_freq, float sampling_freq);
+    float tau_indi = 0.0f;
+    float tau_sample_time = 0.0f;
+
+    bool _use_INDI = true;
+    void set_use_INDI(bool use_INDI);
+    bool get_use_INDI() { return _use_INDI;}
+
+    float indi_inner_roll(float control_output, float control_output_prev, bool use_INDI);
+    float indi_inner_pitch(float control_output, float control_output_prev, bool use_INDI);
+    float indi_inner_yaw(float control_output, float control_output_prev, bool use_INDI);
+
+    float indi_roll(float output, float output_prev);
+    float indi_pitch(float output, float output_prev);
+    float indi_yaw(float output, float output_prev);
+
+    // check
+    float indi_inner_check_roll(float control_output, float control_output_prev, bool use_INDI);
+    float indi_inner_check_pitch(float control_output, float control_output_prev, bool use_INDI);
+    float indi_inner_check_yaw(float control_output, float control_output_prev, bool use_INDI);
+
+    float indi_check_roll(float output, float output_prev);
+    float indi_check_pitch(float output, float output_prev);
+    float indi_check_yaw(float output, float output_prev);
+
+    float sensor_q_prev = 0.0f;
+    float sensor_r_prev = 0.0f;
+
+    // 재정리
+    // 각가속도 계산
+    float filter_p_acc_diff = 0.0f;
+    float filter_q_acc_diff = 0.0f;
+    float filter_r_acc_diff = 0.0f;
+
+    float filter_p_now = 0.0f;
+    float filter_p_prev = 0.0f;
+
+    float p_actu_now_pre = 0.0f;
+
+    float filter_q_now = 0.0f;
+    float filter_q_prev = 0.0f;
+
+    float filter_r_now = 0.0f;
+    float filter_r_prev = 0.0f;
+
+    // 단순 차분용 변수
+    float sensor_p_pre = 0.0f;
+    float sensor_q_pre = 0.0f;
+    float sensor_r_pre = 0.0f;
+
+    // 구동기 필터링 계산
+    float filte_p_actu_now = 0.0f;
+    float filte_p_actu_prev = 0.0f;
+
+    float filte_q_actu_now = 0.0f;
+    float filte_q_actu_prev = 0.0f;
+
+    float filte_r_actu_now = 0.0f;
+    float filte_r_actu_prev = 0.0f;
+
+    float control_cmd_roll_prev = 0.0f;
+    float control_cmd_roll_prev2 = 0.0f;
+
+    float control_cmd_pitch_prev = 0.0f;
+    float control_cmd_pitch_prev2 = 0.0f;
+
+    float control_cmd_yaw_prev = 0.0f;
+    float control_cmd_yaw_prev2 = 0.0f;
+
+    bool flag_last_indi_roll = false;
+    bool flag_last_indi_pitch = false;
+    bool flag_last_indi_yaw = false;
+
+    // Test for z transform
+    // roll
+    float z_u_prev_1_roll = 0.0f;
+    float z_u_prev_2_roll = 0.0f;
+
+    float z_y_prev_1_roll = 0.0f;
+    float z_y_prev_2_roll = 0.0f;
+
+    // pitch
+    float z_u_prev_1_pitch = 0.0f;
+    float z_u_prev_2_pitch = 0.0f;
+
+    float z_y_prev_1_pitch = 0.0f;
+    float z_y_prev_2_pitch = 0.0f;
+
+    // yaw
+    float z_u_prev_1_yaw = 0.0f;
+    float z_u_prev_2_yaw = 0.0f;
+
+    float z_y_prev_1_yaw = 0.0f;
+    float z_y_prev_2_yaw = 0.0f;
+
+    struct
+    {
+        // roll axis
+        float p_raw;
+        float filter_p_now;
+        float p_acc_diff;
+        float filter_p_acc_diff;
+        float accel_p;
+        float sensor_p_dot_z_tranform;
+        float nu_p;
+        float nu_pr;
+        float nu_f;
+        float delta_u_p;
+        float indi_out_p;
+        float indi_roll_flag;
+
+        // pitch axis
+        float q_raw;
+        float filter_q_now;
+        float q_acc_diff;
+        float filter_q_acc_diff;
+        float accel_q;
+        float sensor_q_dot_z_tranform;
+        float nu_q;
+        float delta_u_q;
+        float indi_out_q;
+        float indi_pitch_flag;
+
+        // yaw axis
+        float r_raw;
+        float filter_r_now;
+        float r_acc_diff;
+        float filter_r_acc_diff;
+        float accel_r;
+        float sensor_r_dot_z_tranform;
+        float nu_r;
+        float delta_u_r;
+        float indi_out_r;
+        float indi_yaw_flag;
+
+        // float anglular_yaw;
+        // float angular_acc_yaw;
+        // float angular_acc_yaw_f;
+        // float nu_prev_yaw;
+        // float nu_prev_yaw_f;
+        // float delta_u_yaw;
+        // float u_cmd_yaw;
+        // uint8_t flag_last_indi_yaw;
+
+    } _indi_monitor;
+
+    // 2nd Parameter for INDI
+    AP_Float sam_rate;
+    AP_Float cut_freq;
+
+    float get_sam_rate() { return sam_rate; }
+    float get_cut_freq() { return cut_freq; }
+
+    // INDI roll multiplier
+    AP_Float indi_r_m;
+    float get_indi_r_m() { return indi_r_m; }
+
+    AP_Float indi_r_sign;
+    float get_indi_r_sign() {return indi_r_sign;}
 
 
 
@@ -708,8 +880,6 @@ protected:
 
     float y_yaw = 0.0f;
     // ----------------------------------------
-
-
     struct
     {
         // roll axis
@@ -743,7 +913,6 @@ protected:
         uint8_t flagY;
 
     } _dob_monitor;
-
 
 protected:
     /*
@@ -781,6 +950,9 @@ public:
     void dobc_monitor_log_roll(void) const;
     void dobc_monitor_log_pitch(void) const;
     void dobc_monitor_log_yaw(void) const;
+
+    // log a INDI message
+    void indi_log(void) const;
 
 
 };

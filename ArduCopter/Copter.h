@@ -1002,21 +1002,26 @@ private:
 public:
     void failsafe_check();      // failsafe.cpp
 
+    // *********************************************** Hoijo
     // switch DOBC on /off
     void radio_set_use_DOB();
+    bool flag_DOB_last = false;
 
     // doublet on off
     void doublet_on_switch();
+    bool flag_doublet_last = false;
 
     // switch SMC on / off
     void radio_set_use_SMC();
+    bool flag_SMC_last = false;
+
     // switch SMC alt on / off
     void radio_set_use_SMC_alt();
-
-    bool flag_DOB_last = false;
-    bool flag_doublet_last = false;
-    bool flag_SMC_last = false;
     bool flag_SMC_alt_last = false;
+
+    // switch INDI on / off
+    void radio_set_use_INDI();
+    bool flag_INDI_last = false;
 };
 
 extern Copter copter;

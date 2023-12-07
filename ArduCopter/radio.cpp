@@ -110,8 +110,10 @@ void Copter::read_radio()
         return;
     }
 
+    // ***************************************** Hoijo
     radio_set_use_DOB();
     doublet_on_switch();
+    radio_set_use_INDI();
     // radio_set_use_SMC();
     // radio_set_use_SMC_alt();
 
@@ -188,6 +190,30 @@ void Copter::doublet_on_switch()
             GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet on : ch9");
         else
             GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet off : ch9");
+    }
+}
+
+void Copter::radio_set_use_INDI()
+{
+    // static uint32_t last_dob_time;
+    // const uint32_t now_dob_time = AP_HAL::millis();
+
+    if (RC_Channels::rc_channel(CH_10)->get_radio_in() > 1600)
+    {
+        attitude_control->set_use_INDI(true);
+    }
+    else
+    {
+        attitude_control->set_use_INDI(false);
+    }
+
+    if (flag_INDI_last != attitude_control->get_use_INDI())
+    {
+        flag_INDI_last = attitude_control->get_use_INDI();
+        if (attitude_control->get_use_INDI())
+            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "INDI is On : ch10");
+        else
+            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "INDI is Off : ch10");
     }
 }
 

@@ -250,78 +250,101 @@ const AP_Param::GroupInfo AC_AttitudeControl::var_info[] = {
     AP_GROUPINFO("YAW_TAU", 35, AC_AttitudeControl, yaw_tau, YAW_TAU_DEFAULT),
 
 
+    //******************** 2nd filter parameter setting for INDI
+    // @Description: sampling rare (Hz)
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("SAM_RATE", 36, AC_AttitudeControl, sam_rate, SAM_RATE_INDI),
 
+    // @Description: cut of frequency (Hz)
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("CUT_FREQ", 37, AC_AttitudeControl, cut_freq, CUT_FREQ_INDI),
 
-
-    // @Param: roll_cd_up
+    // @Param: INID_roll_nu_multiplier
     // @DisplayName: HOIJO
     // @Description: HOIJO
     // @Range: 0.0 10.0
     // @User: Advanced
-    AP_GROUPINFO("ROLL_CD_UP", 36, AC_AttitudeControl, roll_cd_up, ROLL_CD_UP_DEFAULT),
+    AP_GROUPINFO("INDI_R_M", 38, AC_AttitudeControl, indi_r_m, INDI_R_M),
 
-    // @Param: roll_cd_down
+    // @Param: INID_roll gyro sign
     // @DisplayName: HOIJO
     // @Description: HOIJO
     // @Range: 0.0 10.0
     // @User: Advanced
-    AP_GROUPINFO("ROLL_CD_DO", 37, AC_AttitudeControl, roll_cd_do, ROLL_CD_DO_DEFAULT),
+    AP_GROUPINFO("INDI_R_SIGN", 39, AC_AttitudeControl, indi_r_sign, INDI_R_SIGN),
 
-    // @Param: pitch_cd_up
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
-    // @Range: 0.0 10.0
-    // @User: Advanced
-    AP_GROUPINFO("PITCH_CD_UP", 38, AC_AttitudeControl, pitch_cd_up, PITCH_CD_UP_DEFAULT),
 
-    // @Param: pitch_cd_down
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
-    // @Range: 0.0 10.0
-    // @User: Advanced
-    AP_GROUPINFO("PITCH_CD_DO", 39, AC_AttitudeControl, pitch_cd_do, PITCH_CD_DO_DEFAULT),
+    // // @Param: roll_cd_up
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: Advanced
+    // AP_GROUPINFO("ROLL_CD_UP", 36, AC_AttitudeControl, roll_cd_up, ROLL_CD_UP_DEFAULT),
 
-    // @Param: yaw_cd_up
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
-    // @Range: 0.0 10.0
-    // @User: AdvancedROLL_CD_UP_DEFAULT
-    AP_GROUPINFO("YAW_CD_UP", 40, AC_AttitudeControl, yaw_cd_up, YAW_CD_UP_DEFAULT),
+    // // @Param: roll_cd_down
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: Advanced
+    // AP_GROUPINFO("ROLL_CD_DO", 37, AC_AttitudeControl, roll_cd_do, ROLL_CD_DO_DEFAULT),
 
-    // @Param: yaw_cd_down
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
-    // @Range: 0.0 10.0
-    // @User: Advanced
-    AP_GROUPINFO("YAW_CD_DO", 41, AC_AttitudeControl, yaw_cd_do, YAW_CD_DO_DEFAULT),
+    // // @Param: pitch_cd_up
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: Advanced
+    // AP_GROUPINFO("PITCH_CD_UP", 38, AC_AttitudeControl, pitch_cd_up, PITCH_CD_UP_DEFAULT),
 
-    // @Param: double_t1
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
-    // @Range: 0.0 10.0
-    // @User: Advanced
-    AP_GROUPINFO("D_T1", 42, AC_AttitudeControl, d_t1, D_T1_DEFAULT),
+    // // @Param: pitch_cd_down
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: Advanced
+    // AP_GROUPINFO("PITCH_CD_DO", 39, AC_AttitudeControl, pitch_cd_do, PITCH_CD_DO_DEFAULT),
 
-    // @Param: double_t2
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
-    // @Range: 0.0 10.0
-    // @User: Advanced
-    AP_GROUPINFO("D_T2", 43, AC_AttitudeControl, d_t2, D_T2_DEFAULT),
+    // // @Param: yaw_cd_up
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: AdvancedROLL_CD_UP_DEFAULT
+    // AP_GROUPINFO("YAW_CD_UP", 40, AC_AttitudeControl, yaw_cd_up, YAW_CD_UP_DEFAULT),
 
-    // @Param: double_t1
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
-    // @Range: 0.0 10.0
-    // @User: Advanced
-    AP_GROUPINFO("D_T3", 44, AC_AttitudeControl, d_t3, D_T3_DEFAULT),
+    // // @Param: yaw_cd_down
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: Advanced
+    // AP_GROUPINFO("YAW_CD_DO", 41, AC_AttitudeControl, yaw_cd_do, YAW_CD_DO_DEFAULT),
 
-    // @Param: double_t4
-    // @DisplayName: HOIJO
-    // @Description: HOIJO
-    // @Range: 0.0 10.0
-    // @User: Advanced
-    AP_GROUPINFO("D_T4", 45, AC_AttitudeControl, d_t4, D_T4_DEFAULT),
+    // // @Param: double_t1
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: Advanced
+    // AP_GROUPINFO("D_T1", 42, AC_AttitudeControl, d_t1, D_T1_DEFAULT),
+
+    // // @Param: double_t2
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: Advanced
+    // AP_GROUPINFO("D_T2", 43, AC_AttitudeControl, d_t2, D_T2_DEFAULT),
+
+    // // @Param: double_t1
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: Advanced
+    // AP_GROUPINFO("D_T3", 44, AC_AttitudeControl, d_t3, D_T3_DEFAULT),
+
+    // // @Param: double_t4
+    // // @DisplayName: HOIJO
+    // // @Description: HOIJO
+    // // @Range: 0.0 10.0
+    // // @User: Advanced
+    // AP_GROUPINFO("D_T4", 45, AC_AttitudeControl, d_t4, D_T4_DEFAULT),
 
     AP_GROUPEND};
 
@@ -358,7 +381,14 @@ void AC_AttitudeControl::relax_attitude_controllers()
 
     // Reset the I terms
     reset_rate_controller_I_terms();
+
+    // ***************************** INDI
+    // init_second_order_low_pass(get_sam_rate(), get_cut_freq());
 }
+
+// void AC_AttitudeControl::init_second_order_low_pass(float cutoff_freq, float sampling_freq)
+// {
+// }
 
 void AC_AttitudeControl::reset_rate_controller_I_terms()
 {
@@ -1458,6 +1488,8 @@ bool AC_AttitudeControl::pre_arm_checks(const char *param_prefix,
     return true;
 }
 
+// Controller SWITCH
+
 // Set Function for the Disturbance Observer Based Controller
 void AC_AttitudeControl::set_use_DOB(bool use_DOB)
 {
@@ -1481,6 +1513,14 @@ void AC_AttitudeControl::set_use_SMC_alt(bool use_SMC_alt)
 {
     _use_SMC_alt = use_SMC_alt;
 }
+
+// INDI
+void AC_AttitudeControl::set_use_INDI(bool use_INDI)
+{
+    _use_INDI = use_INDI;
+}
+
+
 
 // Addition of Disturbance Observer Based Controller for Attitude Control Loops (DOBC / VDOBC)
 float AC_AttitudeControl::disturbance_observer_on_roll(float nu, bool use_DOB)
@@ -1760,7 +1800,6 @@ float AC_AttitudeControl::disturbance_observer_on_pitch(float nu, bool use_DOB)
 //     }
 
 
-
     // ---------------------- ********************* ----------------------
     // Conventional DOBC ------------------------- Case 2
     // (Setting of the parameters) -------------------------------------
@@ -1898,6 +1937,7 @@ float AC_AttitudeControl::disturbance_observer_on_yaw(float nu, bool use_DOB)
     }
 }
 
+// ---------------------------------------------------------------
 float AC_AttitudeControl::angular_control_roll_DOB(float output)
 {
     output = constrain_float(output, -1.0f, 1.0f);
@@ -1926,4 +1966,462 @@ float AC_AttitudeControl::angular_control_yaw_DOB(float output)
     output -= control_DOB;
     // Constrain output
     return constrain_float(output, -1.0f, 1.0f);
+}
+
+
+
+
+
+
+// float AC_AttitudeControl::indi_inner_roll(float nu, float nu_prev, bool use_INDI)
+// {
+//     // 1. 각속도 받고
+//     float sensor_p = (_ahrs.get_gyro_latest().x);
+
+//     // 1.1 각속도 필터링
+//     static LowPassFilter2pFloat low_pass_filter_acc(get_sam_rate(), get_cut_freq());
+//     filter_p_now = low_pass_filter_acc.apply(sensor_p);
+
+//     // 2. 각가속도 미분하기
+//     float accel_p = (filter_p_now - filter_p_prev) * get_sam_rate();
+//     filter_p_prev = filter_p_now;
+
+//     // 3. 구동기 필터링
+//     static LowPassFilter2pFloat low_pass_filter_actu(get_sam_rate(), get_cut_freq());
+//     filte_p_actu_now = low_pass_filter_actu.apply(nu_prev);
+
+//     // G 가져오기
+//     float MOI = get_roll_moi();
+
+//     // 5. Update the For each axis: delta_command = 1/control_effectiveness * (angular_acceleration_reference – angular_acceleration)
+//     float delta_u = MOI * (nu - accel_p);
+
+//     float delta_u_c = constrain_float(delta_u, -0.8f, 0.8f);
+
+//     // 6. Add delta_commands to commands and bound to allowable values
+//     float u_cmd = filte_p_actu_now + delta_u_c;
+
+//     float u_cmd_contraint = constrain_float(u_cmd, -1.0f, 1.0f);
+
+//     // Saving the data
+//     _indi_monitor.p = sensor_p;
+//     _indi_monitor.p_f = filter_p_now;
+//     _indi_monitor.acc_roll = accel_p;
+//     _indi_monitor.nu_state = nu;
+//     _indi_monitor.nu_prev_roll = nu_prev;
+//     _indi_monitor.nu_prev_roll_f = filte_p_actu_now;
+//     _indi_monitor.delta_u_roll = delta_u_c;
+//     _indi_monitor.u_cmd_roll = u_cmd;
+//     _indi_monitor.u_cmd_roll_constraint = u_cmd_contraint;
+
+//     // INDI on /off
+//     if (use_INDI) //use_INDI
+//     {
+//         _indi_monitor.indi_roll_flag = 1.0f;
+//         if (flag_last_indi_roll == false)
+//         {
+//             flag_last_indi_roll = true;
+//         }
+//         return u_cmd_contraint;
+//     }
+//     else
+//     {
+//         _indi_monitor.indi_roll_flag = 0.0f;
+//         flag_last_indi_roll = false;
+//         return nu;
+//     }
+//     // // ******** Test : z transform saving ********
+//     // float sensor_p_dot_z_tranform = 5.714 * z_u_prev_1_roll - 5.714 * z_u_prev_2_roll + 1.824 * z_y_prev_1_roll - 0.838 * z_y_prev_2_roll;
+
+//     // z_u_prev_2_roll = z_u_prev_1_roll;
+//     // z_u_prev_1_roll = sensor_p;
+
+//     // z_y_prev_2_roll = z_y_prev_1_roll;
+//     // z_y_prev_1_roll = sensor_p_dot_z_tranform;
+// }
+
+// float AC_AttitudeControl::indi_inner_pitch(float nu, float nu_prev, bool use_INDI)
+// {
+//     // INDI ---------------------------------------------------------
+//     // craete an instance with 500Hz sample rate and 30Hz cutoff
+//     static LowPassFilter2pFloat low_pass_filter_INDI(get_sam_rate(), get_cut_freq());
+
+//     // **** Update the status
+//     float MOI = get_pitch_moi();
+
+//     // Feedback the angular velocity
+//     float sensor_q = _ahrs.get_gyro().y;
+
+//     // Calculating the angular acc
+//     float accel_q = (sensor_q - sensor_q_prev) / _dt;
+//     sensor_q_prev = sensor_q;
+
+//     // 2nd filter for acc / actuator
+//     const float filtered_value_acc = low_pass_filter_INDI.apply(accel_q);
+//     const float filtered_value_actu = low_pass_filter_INDI.apply(nu_prev);
+
+//     // *****  delta_u = inv(G) * (nu - accel)
+//     float delta_u = MOI * (nu - filtered_value_acc);
+
+//     // *** Final actuator output
+//     float u_cmd = delta_u + filtered_value_actu;
+
+//     // Saving the data
+//     _indi_monitor.anglular_pitch = sensor_q;
+//     _indi_monitor.angular_acc_pitch = accel_q;
+//     _indi_monitor.angular_acc_pitch_f = filtered_value_acc;
+//     _indi_monitor.nu_prev_pitch = nu_prev;
+//     _indi_monitor.nu_prev_pitch_f = filtered_value_actu;
+//     _indi_monitor.delta_u_pitch = delta_u;
+//     _indi_monitor.u_cmd_pitch = u_cmd;
+//     _indi_monitor.flag_last_indi_pitch = flag_last_indi_pitch;
+
+//     // INDI on /off
+//     if (use_INDI) //use_INDI
+//     {
+//         if (flag_last_indi_pitch == false)
+//         {
+//             flag_last_indi_pitch = true;
+//         }
+//         return u_cmd;
+//     }
+//     else
+//     {
+//         flag_last_indi_pitch = false;
+//         return nu;
+//     }
+// }
+
+// float AC_AttitudeControl::indi_inner_yaw(float nu, float nu_prev, bool use_INDI)
+// {
+//     // INDI ---------------------------------------------------------
+//     // craete an instance with 500Hz sample rate and 30Hz cutoff
+//     static LowPassFilter2pFloat low_pass_filter_INDI(get_sam_rate(), get_cut_freq());
+
+//     // **** Update the status
+//     float MOI = get_yaw_moi();
+
+//     // Feedback the angular velocity
+//     float sensor_r = _ahrs.get_gyro().z;
+
+//     // Calculating the angular acc
+//     float accel_r = (sensor_r - sensor_r_prev) / _dt;
+//     sensor_r_prev = sensor_r;
+
+//     // 2nd filter for acc / actuator
+//     const float filtered_value_acc = low_pass_filter_INDI.apply(accel_r);
+//     const float filtered_value_actu = low_pass_filter_INDI.apply(nu_prev);
+
+//     // *****  delta_u = inv(G) * (nu - accel)
+//     float delta_u = MOI * (nu - filtered_value_acc);
+
+//     // *** Final actuator output
+//     float u_cmd = delta_u + filtered_value_actu;
+
+//     // Saving the data
+//     _indi_monitor.anglular_yaw = sensor_r;
+//     _indi_monitor.angular_acc_yaw = accel_r;
+//     _indi_monitor.angular_acc_yaw_f = filtered_value_acc;
+//     _indi_monitor.nu_prev_yaw = nu_prev;
+//     _indi_monitor.nu_prev_yaw_f = filtered_value_actu;
+//     _indi_monitor.delta_u_yaw = delta_u;
+//     _indi_monitor.u_cmd_yaw = u_cmd;
+//     _indi_monitor.flag_last_indi_yaw = flag_last_indi_yaw;
+
+//     // INDI on /off
+//     if (use_INDI) //use_INDI
+//     {
+//         if (flag_last_indi_yaw == false)
+//         {
+//             flag_last_indi_yaw = true;
+//         }
+//         return u_cmd;
+//     }
+//     else
+//     {
+//         flag_last_indi_yaw = false;
+//         return nu;
+//     }
+// }
+
+// // ---------------------------------------------------------------
+// float AC_AttitudeControl::indi_roll(float output, float output_prev)
+// {
+//     // output = constrain_float(output, -1.0f, 1.0f);
+//     float control_INDI = indi_inner_roll(output, output_prev, _use_INDI);
+
+//     // Constrain output
+//     return constrain_float(control_INDI, -1.0f, 1.0f);
+// }
+
+// float AC_AttitudeControl::indi_pitch(float output, float output_prev)
+// {
+//     output = constrain_float(output, -1.0f, 1.0f);
+//     float control_INDI = indi_inner_pitch(output, output_prev, _use_INDI);
+
+//     // Constrain output
+//     return constrain_float(control_INDI, -1.0f, 1.0f);
+// }
+
+// float AC_AttitudeControl::indi_yaw(float output, float output_prev)
+// {
+//     output = constrain_float(output, -1.0f, 1.0f);
+//     float control_INDI = indi_inner_yaw(output, output_prev, _use_INDI);
+
+//     // Constrain output
+//     return constrain_float(control_INDI, -1.0f, 1.0f);
+// }
+
+
+float AC_AttitudeControl::indi_inner_check_roll(float nu, float nu_prev, bool use_INDI)
+{
+    // ********************* 단순 차분 방식의 각가속도 계산
+    // 원본 각속도
+    float sensor_p = (_ahrs.get_gyro_latest().x) * get_indi_r_sign();
+
+    float p_acc_diff = (sensor_p - sensor_p_pre) / _dt;
+    sensor_p_pre = sensor_p;
+
+    // ********************* 필터링된 단순 차분 방식의 각가속도 계산
+    static LowPassFilter2pFloat low_pass_filter_acc1(get_sam_rate(), get_cut_freq());
+    filter_p_acc_diff = low_pass_filter_acc1.apply(p_acc_diff);
+
+    // ********************* 필터링된 각속도 미분하여 각가속도 획득
+    // 필터링된 각속도
+    static LowPassFilter2pFloat low_pass_filter_acc(get_sam_rate(), get_cut_freq());
+    filter_p_now = low_pass_filter_acc.apply(sensor_p);
+
+    float accel_p = (filter_p_now - filter_p_prev) * get_sam_rate();
+    filter_p_prev = filter_p_now;
+
+    // ********************* z변환을 이용한 각가속도 계산
+    float sensor_p_dot_z_tranform = 5.714 * z_u_prev_1_roll - 5.714 * z_u_prev_2_roll + 1.824 * z_y_prev_1_roll - 0.838 * z_y_prev_2_roll;
+
+    z_u_prev_2_roll = z_u_prev_1_roll;
+    z_u_prev_1_roll = sensor_p;
+
+    z_y_prev_2_roll = z_y_prev_1_roll;
+    z_y_prev_1_roll = sensor_p_dot_z_tranform;
+
+    // ********************* indi 동작
+    // 필터링된 이전 모멘트
+    static LowPassFilter2pFloat low_pass_filter_actu(get_sam_rate(), get_cut_freq());
+    filte_p_actu_now = low_pass_filter_actu.apply(p_actu_now_pre);
+    p_actu_now_pre = nu;
+
+    // G 가져오기
+    float MOI = get_roll_moi();
+
+    // 증분식 생성
+    float delta_u = MOI * ((nu * get_indi_r_m()) - accel_p);
+    // float delta_u = MOI * ((nu * get_indi_r_m()) - sensor_p_dot_z_tranform);
+
+    // 최종 indi
+    float u_cmd = filte_p_actu_now + delta_u;
+
+    // Saving the data
+    _indi_monitor.p_raw        = sensor_p;
+    _indi_monitor.filter_p_now = filter_p_now;
+
+    _indi_monitor.p_acc_diff   = p_acc_diff;
+    _indi_monitor.filter_p_acc_diff = filter_p_acc_diff;
+    _indi_monitor.accel_p      = accel_p;
+    _indi_monitor.sensor_p_dot_z_tranform = sensor_p_dot_z_tranform;
+
+    _indi_monitor.nu_p            = nu;
+    _indi_monitor.nu_pr           = p_actu_now_pre;
+    _indi_monitor.nu_f           = filte_p_actu_now;
+    _indi_monitor.delta_u_p      = delta_u;
+    _indi_monitor.indi_out_p     = u_cmd;
+
+    // INDI on /off
+    if (use_INDI) //use_INDI
+    {
+        _indi_monitor.indi_roll_flag = 1.0f;
+        if (flag_last_indi_roll == false)
+        {
+            flag_last_indi_roll = true;
+        }
+        return u_cmd;
+    }
+    else
+    {
+        _indi_monitor.indi_roll_flag = 0.0f;
+        flag_last_indi_roll = false;
+        return nu;
+    }
+}
+
+float AC_AttitudeControl::indi_inner_check_pitch(float nu, float nu_prev, bool use_INDI)
+{
+    // ********************* 단순 차분 방식의 각가속도 계산
+    // 원본 각속도
+    float sensor_q = (_ahrs.get_gyro_latest().y);
+
+    float q_acc_diff = (sensor_q - sensor_q_pre) / _dt;
+    sensor_q_pre = sensor_q;
+
+    // ********************* 필터링된 단순 차분 방식의 각가속도 계산
+    static LowPassFilter2pFloat low_pass_filter_acc1(get_sam_rate(), get_cut_freq());
+    filter_q_acc_diff = low_pass_filter_acc1.apply(q_acc_diff);
+
+    // ********************* 필터링된 각속도 미분하여 각가속도 획득
+    // 필터링된 각속도
+    static LowPassFilter2pFloat low_pass_filter_acc(get_sam_rate(), get_cut_freq());
+    filter_q_now = low_pass_filter_acc.apply(sensor_q);
+
+    float accel_q = (filter_q_now - filter_q_prev) * get_sam_rate();
+    filter_q_prev = filter_q_now;
+
+    // ********************* z변환을 이용한 각가속도 계산
+    float sensor_q_dot_z_tranform = 5.714 * z_u_prev_1_pitch - 5.714 * z_u_prev_2_pitch + 1.824 * z_y_prev_1_pitch - 0.838 * z_y_prev_2_pitch;
+
+    z_u_prev_2_pitch = z_u_prev_1_pitch;
+    z_u_prev_1_pitch = sensor_q;
+
+    z_y_prev_2_pitch = z_y_prev_1_pitch;
+    z_y_prev_1_pitch = sensor_q_dot_z_tranform;
+
+    // ********************* indi 동작
+    // 필터링된 이전 모멘트
+    static LowPassFilter2pFloat low_pass_filter_actu(get_sam_rate(), get_cut_freq());
+    filte_q_actu_now = low_pass_filter_actu.apply(nu_prev);
+
+    // G 가져오기
+    float MOI = get_pitch_moi();
+
+    // 증분식 생성
+    float delta_u = MOI * (nu - accel_q);
+
+    // 최종 indi
+    float u_cmd = filte_q_actu_now + delta_u;
+
+    // Saving the data
+    _indi_monitor.q_raw        = sensor_q;
+    _indi_monitor.filter_q_now = filter_q_now;
+
+    _indi_monitor.q_acc_diff   = q_acc_diff;
+    _indi_monitor.filter_q_acc_diff = filter_q_acc_diff;
+    _indi_monitor.accel_q      = accel_q;
+    _indi_monitor.sensor_q_dot_z_tranform = sensor_q_dot_z_tranform;
+
+    _indi_monitor.nu_q           = nu;
+    _indi_monitor.delta_u_q      = delta_u;
+    _indi_monitor.indi_out_q     = u_cmd;
+
+    // INDI on /off
+        if (use_INDI) //use_INDI
+        {
+            if (flag_last_indi_pitch == false)
+            {
+                flag_last_indi_pitch = true;
+            }
+            return u_cmd;
+        }
+        else
+        {
+            flag_last_indi_pitch = false;
+            return nu;
+        }
+}
+
+float AC_AttitudeControl::indi_inner_check_yaw(float nu, float nu_prev, bool use_INDI)
+{
+    // ********************* 단순 차분 방식의 각가속도 계산
+    // 원본 각속도
+    float sensor_r = (_ahrs.get_gyro_latest().z);
+
+    float r_acc_diff = (sensor_r - sensor_r_pre) / _dt;
+    sensor_r_pre = sensor_r;
+
+    // ********************* 필터링된 단순 차분 방식의 각가속도 계산
+    static LowPassFilter2pFloat low_pass_filter_acc1(get_sam_rate(), get_cut_freq());
+    filter_r_acc_diff = low_pass_filter_acc1.apply(r_acc_diff);
+
+    // ********************* 필터링된 각속도 미분하여 각가속도 획득
+    // 필터링된 각속도
+    static LowPassFilter2pFloat low_pass_filter_acc(get_sam_rate(), get_cut_freq());
+    filter_r_now = low_pass_filter_acc.apply(sensor_r);
+
+    float accel_r = (filter_r_now - filter_r_prev) * get_sam_rate();
+    filter_r_prev = filter_r_now;
+
+    // ********************* z변환을 이용한 각가속도 계산
+    float sensor_r_dot_z_tranform = 5.714 * z_u_prev_1_yaw - 5.714 * z_u_prev_2_yaw + 1.824 * z_y_prev_1_yaw - 0.838 * z_y_prev_2_yaw;
+
+    z_u_prev_2_yaw = z_u_prev_1_yaw;
+    z_u_prev_1_yaw = sensor_r;
+
+    z_y_prev_2_yaw = z_y_prev_1_yaw;
+    z_y_prev_1_yaw = sensor_r_dot_z_tranform;
+
+    // ********************* indi 동작
+    // 필터링된 이전 모멘트
+    static LowPassFilter2pFloat low_pass_filter_actu(get_sam_rate(), get_cut_freq());
+    filte_r_actu_now = low_pass_filter_actu.apply(nu_prev);
+
+    // G 가져오기
+    float MOI = get_yaw_moi();
+
+    // 증분식 생성
+    float delta_u = MOI * (nu - accel_r);
+
+    // 최종 indi
+    float u_cmd = filte_r_actu_now + delta_u;
+
+    // Saving the data
+    _indi_monitor.r_raw        = sensor_r;
+    _indi_monitor.filter_r_now = filter_r_now;
+
+    _indi_monitor.r_acc_diff   = r_acc_diff;
+    _indi_monitor.filter_r_acc_diff = filter_r_acc_diff;
+    _indi_monitor.accel_r      = accel_r;
+    _indi_monitor.sensor_r_dot_z_tranform = sensor_r_dot_z_tranform;
+
+    _indi_monitor.nu_r           = nu;
+    _indi_monitor.delta_u_r      = delta_u;
+    _indi_monitor.indi_out_r     = u_cmd;
+
+    // INDI on /off
+    if (use_INDI) //use_INDI
+    {
+        if (flag_last_indi_yaw == false)
+        {
+            flag_last_indi_yaw = true;
+        }
+        return u_cmd;
+    }
+    else
+    {
+        flag_last_indi_yaw = false;
+        return nu;
+    }
+}
+
+
+float AC_AttitudeControl::indi_check_roll(float output, float output_prev)
+{
+    // output = constrain_float(output, -1.0f, 1.0f);
+    float control_roll = indi_inner_check_roll(output, output_prev, _use_INDI);
+
+    // Constrain output
+    return constrain_float(control_roll, -1.0f, 1.0f);
+}
+
+float AC_AttitudeControl::indi_check_pitch(float output, float output_prev)
+{
+    // output = constrain_float(output, -1.0f, 1.0f);
+    float control_pitch = indi_inner_check_pitch(output, output_prev, _use_INDI);
+
+    // Constrain output
+    return constrain_float(control_pitch, -1.0f, 1.0f);
+}
+
+float AC_AttitudeControl::indi_check_yaw(float output, float output_prev)
+{
+    // output = constrain_float(output, -1.0f, 1.0f);
+    float control_yaw = indi_inner_check_yaw(output, output_prev, _use_INDI);
+
+    // Constrain output
+    return constrain_float(control_yaw, -1.0f, 1.0f);
 }
