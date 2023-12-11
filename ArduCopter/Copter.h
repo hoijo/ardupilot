@@ -68,6 +68,7 @@
 #include <AC_Sprayer/AC_Sprayer.h>          // Crop sprayer library
 #include <AP_ADSB/AP_ADSB.h>                // ADS-B RF based collision avoidance module library
 #include <AP_Proximity/AP_Proximity.h>      // ArduPilot proximity sensor library
+#include <AC_INDI_Control/AC_INDI_Control.h> // INDI code implementation
 
 // Configuration
 #include "defines.h"
@@ -460,6 +461,9 @@ private:
     AC_PosControl *pos_control;
     AC_WPNav *wp_nav;
     AC_Loiter *loiter_nav;
+
+    // INDI header
+    AC_INDI_Control *indi_control;
 
 #if MODE_CIRCLE_ENABLED == ENABLED
     AC_Circle *circle_nav;
@@ -1002,22 +1006,10 @@ private:
 public:
     void failsafe_check();      // failsafe.cpp
 
-    // *********************************************** Hoijo
-    // switch DOBC on /off
-    void radio_set_use_DOB();
-    bool flag_DOB_last = false;
-
+    // Function : controller on/off (hoijo)
     // doublet on off
     void doublet_on_switch();
     bool flag_doublet_last = false;
-
-    // switch SMC on / off
-    void radio_set_use_SMC();
-    bool flag_SMC_last = false;
-
-    // switch SMC alt on / off
-    void radio_set_use_SMC_alt();
-    bool flag_SMC_alt_last = false;
 
     // switch INDI on / off
     void radio_set_use_INDI();

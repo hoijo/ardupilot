@@ -111,11 +111,8 @@ void Copter::read_radio()
     }
 
     // ***************************************** Hoijo
-    radio_set_use_DOB();
     doublet_on_switch();
-    radio_set_use_INDI();
-    // radio_set_use_SMC();
-    // radio_set_use_SMC_alt();
+    // radio_set_use_INDI();
 
     // No radio input this time
     if (failsafe.radio)
@@ -148,30 +145,6 @@ void Copter::read_radio()
     set_failsafe_radio(true);
 }
 
-void Copter::radio_set_use_DOB()
-{
-    // static uint32_t last_dob_time;
-    // const uint32_t now_dob_time = AP_HAL::millis();
-
-    if (RC_Channels::rc_channel(CH_8)->get_radio_in() > 1600)
-    {
-        attitude_control->set_use_DOB(true);
-    }
-    else
-    {
-        attitude_control->set_use_DOB(false);
-    }
-
-    if (flag_DOB_last != attitude_control->get_use_DOB())
-    {
-        flag_DOB_last = attitude_control->get_use_DOB();
-        if (attitude_control->get_use_DOB())
-            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "DOBC is On : ch8");
-        else
-            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "DOBC is Off : ch8");
-    }
-}
-
 void Copter::doublet_on_switch()
 {
     if (RC_Channels::rc_channel(CH_9)->get_radio_in() > 1600)
@@ -193,6 +166,7 @@ void Copter::doublet_on_switch()
     }
 }
 
+// For INDI radio on/off code
 void Copter::radio_set_use_INDI()
 {
     // static uint32_t last_dob_time;
@@ -200,71 +174,23 @@ void Copter::radio_set_use_INDI()
 
     if (RC_Channels::rc_channel(CH_10)->get_radio_in() > 1600)
     {
-        attitude_control->set_use_INDI(true);
+        indi_control->set_use_INDI(true);
     }
     else
     {
-        attitude_control->set_use_INDI(false);
+        indi_control->set_use_INDI(false);
     }
 
-    if (flag_INDI_last != attitude_control->get_use_INDI())
+    if (flag_INDI_last != indi_control->get_use_INDI())
     {
-        flag_INDI_last = attitude_control->get_use_INDI();
-        if (attitude_control->get_use_INDI())
+        flag_INDI_last = indi_control->get_use_INDI();
+        if (indi_control->get_use_INDI())
             GCS_SEND_TEXT(MAV_SEVERITY_INFO, "INDI is On : ch10");
         else
             GCS_SEND_TEXT(MAV_SEVERITY_INFO, "INDI is Off : ch10");
     }
 }
 
-// void Copter::radio_set_use_SMC()
-// {
-//     // static uint32_t last_smc_time;
-//     // const uint32_t now_smc_time = AP_HAL::millis();
-
-//     if (RC_Channels::rc_channel(CH_9)->get_radio_in() > 1600)
-//     {
-//         attitude_control->set_use_SMC(true);
-//     }
-//     else
-//     {
-//         attitude_control->set_use_SMC(false);
-//     }
-
-//     if (flag_SMC_last != attitude_control->get_use_SMC())
-//     {
-//         flag_SMC_last = attitude_control->get_use_SMC();
-//         if (attitude_control->get_use_SMC())
-//             GCS_SEND_TEXT(MAV_SEVERITY_INFO, "SMC att is On : ch9");
-//         else
-//             GCS_SEND_TEXT(MAV_SEVERITY_INFO, "SMC att is Off : ch9");
-//     }
-// }
-
-// void Copter::radio_set_use_SMC_alt()
-// {
-//     // static uint32_t last_smc_alt_time;
-//     // const uint32_t now_smc_alt_time = AP_HAL::millis();
-
-//     if (RC_Channels::rc_channel(CH_10)->get_radio_in() > 1600)
-//     {
-//         attitude_control->set_use_SMC_alt(true);
-//     }
-//     else
-//     {
-//         attitude_control->set_use_SMC_alt(false);
-//     }
-
-//     if (flag_SMC_last != attitude_control->get_use_SMC_alt())
-//     {
-//         flag_SMC_last = attitude_control->get_use_SMC_alt();
-//         if (attitude_control->get_use_SMC_alt())
-
-//             GCS_SEND_TEXT(MAV_SEVERITY_INFO, "SMC alt is On : ch10");
-//         else
-//             GCS_SEND_TEXT(MAV_SEVERITY_INFO, "SMC alt is Off : ch10");
-//     }
-// }
 
 #define FS_COUNTER 3 // radio failsafe kicks in after 3 consecutive throttle values below failsafe_throttle_value
 void Copter::set_throttle_and_failsafe(uint16_t throttle_pwm)

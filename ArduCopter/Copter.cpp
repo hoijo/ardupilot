@@ -276,6 +276,8 @@ void Copter::fast_loop()
     // check if we've landed or crashed
     update_land_and_crash_detectors();
 
+    indi_control->calculate_torque_thrust_est();
+
 #if HAL_MOUNT_ENABLED
     // camera mount's fast update
     camera_mount.update_fast();
@@ -515,13 +517,11 @@ void Copter::fourhundred_hz_logging()
     if (should_log(MASK_LOG_ATTITUDE_FAST) && !copter.flightmode->logs_attitude())
     {
         Log_Write_Attitude();
-
-        // // Call the log function for saving the DOBC
-        // attitude_control->dobc_monitor_log_roll();
-        // attitude_control->dobc_monitor_log_pitch();
-        // attitude_control->dobc_monitor_log_yaw();
+        // indi log saving function On/Off
+        if (indi_control->get_use_INDI()) {
+            indi_control->write_log();
+        }   
     }
-    attitude_control->indi_log();
 }
 
 // ten_hz_logging_loop

@@ -129,6 +129,9 @@ public:
     const Vector3f     &get_gyro(uint8_t i) const { return _gyro[i]; }
     const Vector3f     &get_gyro(void) const { return get_gyro(_primary_gyro); }
 
+    // get angular acceleration in rad/sec/sec (hoijo)
+    const Vector3f &get_ang_accel(uint8_t i) const {return _ang_accel[i];};
+
     // set gyro offsets in radians/sec
     const Vector3f &get_gyro_offsets(uint8_t i) const { return _gyro_offset[i]; }
     const Vector3f &get_gyro_offsets(void) const { return get_gyro_offsets(_primary_gyro); }
@@ -175,6 +178,12 @@ public:
     // get observed sensor rates, including any internal sampling multiplier
     uint16_t get_gyro_rate_hz(uint8_t instance) const { return uint16_t(_gyro_raw_sample_rates[instance] * _gyro_over_sampling[instance]); }
     uint16_t get_accel_rate_hz(uint8_t instance) const { return uint16_t(_accel_raw_sample_rates[instance] * _accel_over_sampling[instance]); }
+
+    // INDI angular acceleration (hoijo)
+    Vector3f _ang_accel[INS_MAX_INSTANCES];
+    LowPassFilterVector3f _ang_accel_filter[INS_MAX_INSTANCES];
+    AP_Float _ang_accel_filter_cuttoff;
+    Vector3f _gyro_prev[INS_MAX_INSTANCES];
 
     // FFT support access
 #if HAL_WITH_DSP
