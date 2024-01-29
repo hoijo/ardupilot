@@ -9,10 +9,6 @@
 
 #include "AC_INDI_Control.h"
 
-// rpm hall sensor
-#include <AP_RPM/AP_RPM.h>
-
-
 extern const AP_HAL::HAL& hal;
 
 
@@ -503,49 +499,31 @@ void AC_INDI_Control::control_allocation(void)
 // get current rotation speed of each motor in rad/s
 void AC_INDI_Control::get_motor_speed(void) 
 {
-     // _rotor_RPM available to the RSC output
     const AP_RPM *rpm = AP_RPM::get_singleton();
-    if (rpm != nullptr) {
-        if (!rpm->get_rpm(0, rpm1)) {
+
+    if (!rpm->get_rpm(0, rpm_indi_1)) {
             // No valid RPM data
-            rpm1 = -1;
-        }
-    } else {
-        // No RPM because pointer is null
-        rpm1 = -1;
+            rpm_indi_1 = -10;
+    }
+    if (!rpm->get_rpm(1, rpm_indi_2)) {
+            // No valid RPM data
+            rpm_indi_2 = -10;
+    }
+    if (!rpm->get_rpm(2, rpm_indi_3)) {
+            // No valid RPM data
+            rpm_indi_3 = -10;
+    }
+    if (!rpm->get_rpm(3, rpm_indi_4)) {
+            // No valid RPM data
+            rpm_indi_4 = -10;
     }
 
-    if (rpm != nullptr) {
-        if (!rpm->get_rpm(1, rpm2)) {
-            // No valid RPM data
-            rpm2 = -1;
-        }
-    } else {
-        // No RPM because pointer is null
-        rpm2 = -1;
-    }
+    motor_speed_rpm[0] = rpm_indi_1;
+    motor_speed_rpm[1] = rpm_indi_2;
+    motor_speed_rpm[2] = rpm_indi_3;
+    motor_speed_rpm[3] = rpm_indi_4;
 
-    if (rpm != nullptr) {
-        if (!rpm->get_rpm(2, rpm3)) {
-            // No valid RPM data
-            rpm3 = -1;
-        }
-    } else {
-        // No RPM because pointer is null
-        rpm3 = -1;
-    }
 
-    if (rpm != nullptr) {
-        if (!rpm->get_rpm(3, rpm4)) {
-            // No valid RPM data
-            rpm4 = -1;
-        }
-    } else {
-        // No RPM because pointer is null
-        rpm4 = -1;
-    }
-
-    float motor_speed_hz[4] = {0.0f, 0.0f, 0.0f, 0.0f}; // somehow firs element of this variable assigned nan value at start
 
 // #ifdef HAVE_AP_BLHELI_SUPPORT
 //     // get motor rotation speed telemetry
@@ -576,13 +554,10 @@ void AC_INDI_Control::get_motor_speed(void)
 //     }
 // #endif
 
-    motor_speed_hz[0] = rpm1;
-    motor_speed_hz[1] = rpm2;
-    motor_speed_hz[2] = rpm3;
-    motor_speed_hz[3] = rpm4;
-
+ 
     for (uint8_t i=0; i < 4; i++) {
-        _motor_speed_meas_radps[i] = motor_speed_hz[i] * M_2PI;
+        motor_speed_hz[i]          = motor_speed_rpm[i] * 0.016667;
+        _motor_speed_meas_radps[i] = motor_speed_rpm[i] * 0.10472;
     }    
 }
 
@@ -681,7 +656,6 @@ void AC_INDI_Control::write_log(void)
                         double(velocity.y),
                         double(velocity.z));
 
-
     const Vector3f &lin_accel_target = get_lin_accel_target();
     const Vector3f acc_flt = _ahrs.get_accel_ef_blended() + Vector3f(0, 0, GRAVITY_MSS);
     AP::logger().Write("IND2",
@@ -763,7 +737,27 @@ void AC_INDI_Control::write_log(void)
                     double(_torque_est_body_Nm.x),
                     double(_torque_est_body_Nm.y),
                     double(_torque_est_body_Nm.z));
+
+    AP::logger().Write("IND6",
+                    "TimeUS,rp1,rp2,rp3,rp4,rpr1,rpr2,rpr3,rpr4,rph1,rph2,rph3,rph4",
+                    "s------------",
+                    "F000000000000",
+                    "Qffffffffffff",
+                    AP_HAL::micros64(),
+                    double(rpm_indi_1),
+                    double(rpm_indi_2),
+                    double(rpm_indi_3),
+                    double(rpm_indi_4),
+                    double(_motor_speed_meas_radps[0]),
+                    double(_motor_speed_meas_radps[1]),
+                    double(_motor_speed_meas_radps[2]),
+                    double(_motor_speed_meas_radps[3]),
+                    double(motor_speed_hz[0]),
+                    double(motor_speed_hz[1]),
+                    double(motor_speed_hz[2]),
+                    double(motor_speed_hz[3]));
 }
+
 
 AC_INDI_Control *AC_INDI_Control::_singleton = nullptr;
 

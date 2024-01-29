@@ -87,6 +87,7 @@ Vector3f AP_AHRS_View::get_gyro_latest(void) const {
     return rot_view * ahrs.get_gyro_latest();
 }
 
+// Calculating the angular acceleration for INDI (hoijo)
 Vector3f AP_AHRS_View::get_ang_accel_latest(void) const
 {
     const uint8_t primary_gyro = ahrs.get_primary_gyro_index();

@@ -219,7 +219,11 @@ void AP_RPM::update(void)
         }
     }
 
-    if (enabled(0) || enabled(1) || enabled(2) || enabled(3)) {
+    // if (enabled(0) || enabled(1) || enabled(2) || enabled(3)) {
+    //     AP::logger().Write_RPM(*this);
+    // }
+
+    if (enabled(0) || enabled(1)) {
         AP::logger().Write_RPM(*this);
     }
 }

@@ -1004,7 +1004,7 @@ private:
     void exit_mode(Mode *&old_flightmode, Mode *&new_flightmode);
 
 public:
-    void failsafe_check();      // failsafe.cpp
+    void failsafe_check();  // failsafe.cpp
 
     // Function : controller on/off (hoijo)
     // doublet on off

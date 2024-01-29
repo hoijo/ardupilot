@@ -8,6 +8,9 @@
 #include <Filter/LowPassFilter2p.h>
 #include <Filter/LowPassFilter.h>
 
+// rpm hall sensor
+#include <AP_RPM/AP_RPM.h>
+
 class AC_INDI_Control
 {
 public:
@@ -81,7 +84,7 @@ public:
 
     // INDI on/off switch
     void set_use_INDI(bool use_INDI);
-    bool& get_use_INDI() { return _use_INDI;}
+    bool get_use_INDI() { return _use_INDI;}
 
 protected:
 
@@ -117,6 +120,8 @@ protected:
     // references to inertial nav and ahrs libraries
     AP_AHRS_View &        _ahrs;
     const AP_InertialNav&       _inav;
+
+    // AP_RPM rpm_indi;
 
     // Parameters 
     AP_Int8     enable_chan;
@@ -171,21 +176,24 @@ protected:
     float _motor_cmd_scaled[4];                 // scaled motor command 0-1 !!!NOT USED
     float _motor_speed_meas_radps[4];           // current motor speed in rad/s
 
+    float motor_speed_hz[4];
+    float motor_speed_rpm[4];
+
+
     LowPassFilterVector3f _torque_est_filter;
     LowPassFilter2pFloat _spec_thrust_est_filter;
     LowPassFilterVector3f _spec_thrust_cmd_filter;
     LowPassFilterFloat _yaw_rate_filter;
 private:
     static AC_INDI_Control *_singleton;
-
-    float rpm1 = 0.0f;
-    float rpm2 = 0.0f;
-    float rpm3 = 0.0f;
-    float rpm4 = 0.0f;
-
 public:
     // INDI on/off switch
     bool _use_INDI = true;
+
+    float rpm_indi_1 = 0.0f;
+    float rpm_indi_2 = 0.0f;
+    float rpm_indi_3 = 0.0f;
+    float rpm_indi_4 = 0.0f;
 
 };
 

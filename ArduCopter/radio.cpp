@@ -112,7 +112,7 @@ void Copter::read_radio()
 
     // ***************************************** Hoijo
     doublet_on_switch();
-    // radio_set_use_INDI();
+    radio_set_use_INDI();
 
     // No radio input this time
     if (failsafe.radio)
@@ -169,9 +169,6 @@ void Copter::doublet_on_switch()
 // For INDI radio on/off code
 void Copter::radio_set_use_INDI()
 {
-    // static uint32_t last_dob_time;
-    // const uint32_t now_dob_time = AP_HAL::millis();
-
     if (RC_Channels::rc_channel(CH_10)->get_radio_in() > 1600)
     {
         indi_control->set_use_INDI(true);
