@@ -90,7 +90,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: kg
     // @Range: 0.01 10
     // @User: Standard
-    AP_GROUPINFO("_MASS",                           11, AC_INDI_Control, _mass_kg, 0.6f),
+    AP_GROUPINFO("_MASS",                           11, AC_INDI_Control, _mass_kg, 1.75f),
 
     // @Param: _MOI_XY
     // @DisplayName: Moment of inertia of vehicle  in x-y axis in kg.m² 
@@ -114,7 +114,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: m
     // @Range: 0.01 1
     // @User: Standard
-    AP_GROUPINFO("_ARM_LEN",                      14, AC_INDI_Control, _arm_length_m, 0.125f),
+    AP_GROUPINFO("_ARM_LEN",                      14, AC_INDI_Control, _arm_length_m, 0.25f),
 
     // @Param: _THR_COEF
     // @DisplayName: Thrust coefficent in N/(rad/s)²
@@ -345,15 +345,19 @@ Vector3f AC_INDI_Control::calculate_att_error(Quaternion target, Quaternion meas
     att_cur_quat = measurment;
 
     Vector3f e_cur_z, e_des_z;    
-    
+
+    // ---------------------------------------------------------------------   
     Matrix3f att_cur_matrix;
     att_cur_quat.rotation_matrix(att_cur_matrix);
 
     e_cur_z = att_cur_matrix.colz();
 
+    // ---------------------------------------------------------------------
     Matrix3f att_target_rot_matrix;
     _att_target_quat.rotation_matrix(att_target_rot_matrix);
     e_des_z = att_target_rot_matrix.colz();
+
+    // ---------------------------------------------------------------------
 
     // the cross product of the desired and target thrust vector defines the rotation vector
     Vector3f thrust_correction_vec_cross = e_cur_z % e_des_z;
@@ -468,11 +472,17 @@ void AC_INDI_Control::control_allocation(void)
     // inverse of control allocation matrix for quad-x frame type
     // motor order start from top right and increase counter clockwise
     // defines relation between torque command and thrust command to the required thrust per motor
+    // float inv_control_alloc_G1[4][4] = {
+    //     {-a,  a,  b,  -1.0f},
+    //     {-a, -a, -b,  -1.0f},
+    //     { a, -a,  b,  -1.0f},
+    //     { a,  a, -b,  -1.0f}};
+
     float inv_control_alloc_G1[4][4] = {
         {-a,  a,  b,  -1.0f},
-        {-a, -a, -b,  -1.0f},
-        { a, -a,  b,  -1.0f},
-        { a,  a, -b,  -1.0f}};
+        {a, -a, b,  -1.0f},
+        { a, a,  -b,  -1.0f},
+        {-a, -a, -b,  -1.0f}};
 
     // torque and thrust command from attitude and positon controller 
     float cmds[4] = {_torque_cmd_body_Nm.x, _torque_cmd_body_Nm.y, _torque_cmd_body_Nm.z,_total_thrust_cmd_body_N};
@@ -579,10 +589,16 @@ void AC_INDI_Control::calculate_torque_thrust_est(void)
 
     // control allocation matrix for quad-x frame type
     // motor order start from top right and increase counter clockwise
+    // float control_alloc_G1[4][4] = {
+    //     {   -l,    -l,     l,     l},
+    //     {    l,    -l,    -l,     l},
+    //     {    k,    -k,     k,    -k},
+    //     {-1.0f, -1.0f, -1.0f, -1.0f}};
+
     float control_alloc_G1[4][4] = {
-        {   -l,    -l,     l,     l},
-        {    l,    -l,    -l,     l},
-        {    k,    -k,     k,    -k},
+        {   -l,    l,     l,     -l},
+        {    l,    -l,    l,     -l},
+        {    k,    k,     -k,    -k},
         {-1.0f, -1.0f, -1.0f, -1.0f}};
 
     // calculate square of measured motor speed
@@ -738,7 +754,19 @@ void AC_INDI_Control::write_log(void)
                     double(_torque_est_body_Nm.y),
                     double(_torque_est_body_Nm.z));
 
+    // log scaled torque (to the mixer)
     AP::logger().Write("IND6",
+                    "TimeUS,SCAX,SCAY,SCAZ",
+                    "s---",
+                    "F000",
+                    "Qfff",
+                    AP_HAL::micros64(),
+                    _torque_cmd_scaled.x,
+                    _torque_cmd_scaled.y,
+                    _torque_cmd_scaled.z);
+
+    // log rpm, rpm[rad/s], rpm[Hz]
+    AP::logger().Write("IND7",
                     "TimeUS,rp1,rp2,rp3,rp4,rpr1,rpr2,rpr3,rpr4,rph1,rph2,rph3,rph4",
                     "s------------",
                     "F000000000000",
