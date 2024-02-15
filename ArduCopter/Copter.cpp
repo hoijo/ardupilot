@@ -276,7 +276,7 @@ void Copter::fast_loop()
     // check if we've landed or crashed
     update_land_and_crash_detectors();
 
-    // INDI control (hoijo) ****************************
+    // INDI thrust control (hoijo) ****************************
     indi_control->calculate_torque_thrust_est();
 
 #if HAL_MOUNT_ENABLED
@@ -520,7 +520,7 @@ void Copter::fourhundred_hz_logging()
         Log_Write_Attitude();
     }
 
-    // *** indi log saving function On/Off
+    // *** INDI log saving function On/Off (hoijo)
     if (indi_control->get_use_INDI()) {
         indi_control->write_log();
     } 

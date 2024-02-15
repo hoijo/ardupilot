@@ -435,6 +435,7 @@ void AC_INDI_Control::indi_angular_accel(void)
         0.0f, 0.0f, _moment_inertia_z_kgm2
     );
 
+    // Differ origin INID, I calculate the torque cmd
     _torque_cmd_body_Nm = _torque_est_body_Nm + moment_of_inertia_xyz * (_ang_acc_target_radpss - ang_acc_flt);
 
     // mechanical yaw is not considered in arducopter current control allocation 

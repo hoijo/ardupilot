@@ -648,13 +648,14 @@ void AC_PosControl::update_xy_controller()
     accel_to_lean_angles(_accel_target.x, _accel_target.y, _roll_target, _pitch_target);
     calculate_yaw_and_rate_yaw();
 
-    if (AP::indi_control().get_use_INDI()) {
-        AP::indi_control().run_pos_vel_xy_controller(Vector3f(_pos_target.x * 0.01f, _pos_target.y * 0.01f, _pos_target.z * 0.01f),
-                                                    curr_pos * 0.01f, 
-                                                    _vel_desired * 0.01f, 
-                                                    Vector3f(_inav.get_velocity_xy_cms().x * 0.01f, _inav.get_velocity_xy_cms().y * 0.01f, _inav.get_velocity_z_up_cms() * 0.01f),
-                                                    _accel_desired * 0.01f);
-    }
+    // // INDI pos control x-y axis (hoijo)
+    // if (AP::indi_control().get_use_INDI()) {
+    //     AP::indi_control().run_pos_vel_xy_controller(Vector3f(_pos_target.x * 0.01f, _pos_target.y * 0.01f, _pos_target.z * 0.01f),
+    //                                                 curr_pos * 0.01f, 
+    //                                                 _vel_desired * 0.01f, 
+    //                                                 Vector3f(_inav.get_velocity_xy_cms().x * 0.01f, _inav.get_velocity_xy_cms().y * 0.01f, _inav.get_velocity_z_up_cms() * 0.01f),
+    //                                                 _accel_desired * 0.01f);
+    // }
 
 }
 
@@ -973,7 +974,7 @@ void AC_PosControl::update_z_controller()
     // ** send throttle to attitude controller with angle boost
     _attitude_control.set_throttle_out(thr_out, true, POSCONTROL_THROTTLE_CUTOFF_FREQ_HZ);
 
-    // // INDI pose Z
+    // // INDI pose Z-axis (hoijo)
     // if (AP::indi_control().get_use_INDI()) {
     //     // limit acceleration using maximum lean angles
     //     float angle_max = MIN(_attitude_control.get_althold_lean_angle_max_cd(), get_lean_angle_max_cd());

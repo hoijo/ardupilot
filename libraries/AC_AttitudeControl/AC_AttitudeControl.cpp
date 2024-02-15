@@ -878,7 +878,7 @@ void AC_AttitudeControl::attitude_controller_run_quat()
         _ang_vel_body += ang_vel_body_feedforward;
     }
 
-    // INDI ON -> attitude controller
+    // INDI ON -> attitude controller (hoijo)
     if (AP::indi_control().get_use_INDI()) {
         _ang_vel_body = AP::indi_control().run_attitude_controller(_attitude_target, attitude_body);
         _ang_vel_body += ang_vel_body_feedforward;
