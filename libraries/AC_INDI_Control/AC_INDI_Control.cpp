@@ -529,11 +529,19 @@ void AC_INDI_Control::get_motor_speed(void)
             rpm_indi_4 = -10;
     }
 
-    motor_speed_rpm[0] = rpm_indi_1;
-    motor_speed_rpm[1] = rpm_indi_2;
-    motor_speed_rpm[2] = rpm_indi_3;
-    motor_speed_rpm[3] = rpm_indi_4;
+    // motor_speed_rpm[0] = rpm_indi_1;
+    // motor_speed_rpm[1] = rpm_indi_2;
+    // motor_speed_rpm[2] = rpm_indi_3;
+    // motor_speed_rpm[3] = rpm_indi_4;
 
+    // M1 - RPM4
+    motor_speed_rpm[0] = rpm_indi_4;
+    // M2 - RPM3
+    motor_speed_rpm[1] = rpm_indi_3;
+    // M3 - RPM2
+    motor_speed_rpm[2] = rpm_indi_2;
+    // M4 - RPM1
+    motor_speed_rpm[3] = rpm_indi_1;
 
 
 // #ifdef HAVE_AP_BLHELI_SUPPORT
@@ -773,10 +781,10 @@ void AC_INDI_Control::write_log(void)
                     "F000000000000",
                     "Qffffffffffff",
                     AP_HAL::micros64(),
-                    double(rpm_indi_1),
-                    double(rpm_indi_2),
-                    double(rpm_indi_3),
-                    double(rpm_indi_4),
+                    double(motor_speed_rpm[0]),
+                    double(motor_speed_rpm[1]),
+                    double(motor_speed_rpm[2]),
+                    double(motor_speed_rpm[3]),
                     double(_motor_speed_meas_radps[0]),
                     double(_motor_speed_meas_radps[1]),
                     double(_motor_speed_meas_radps[2]),

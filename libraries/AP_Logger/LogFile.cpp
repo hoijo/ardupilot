@@ -435,13 +435,14 @@ void AP_Logger::Write_RPM(const AP_RPM &rpm_sensor)
     rpm_sensor.get_rpm(2, rpm3);
     rpm_sensor.get_rpm(3, rpm4);
 
+    // For quadrotor, rpm order must be met with motor number (hoijo)
     const struct log_RPM pkt{
         LOG_PACKET_HEADER_INIT(LOG_RPM_MSG),
         time_us     : AP_HAL::micros64(),
-        rpm1        : rpm1,
-        rpm2        : rpm2,
-        rpm3        : rpm3,
-        rpm4        : rpm4
+        rpm1        : rpm4,
+        rpm2        : rpm3,
+        rpm3        : rpm2,
+        rpm4        : rpm1
     };
     WriteBlock(&pkt, sizeof(pkt));
 }

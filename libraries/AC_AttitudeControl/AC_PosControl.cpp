@@ -998,7 +998,6 @@ void AC_PosControl::update_z_controller()
     // }
 
     // Check for vertical controller health
-
     // _speed_down_cms is checked to be non-zero when set
     float error_ratio = _pid_vel_z.get_error() / _vel_max_down_cms;
     _vel_z_control_ratio += _dt * 0.1f * (0.5 - error_ratio);
