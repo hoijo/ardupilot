@@ -93,6 +93,11 @@ Vector3f AP_AHRS_View::get_ang_accel_latest(void) const
     const uint8_t primary_gyro = ahrs.get_primary_gyro_index();
     return AP::ins().get_ang_accel(primary_gyro);
 }
+Vector3f AP_AHRS_View::get_ang_accel_no_f_latest(void) const
+{
+    const uint8_t primary_gyro_no_f = ahrs.get_primary_gyro_index();
+    return AP::ins().get_ang_accel_no_f(primary_gyro_no_f);
+}
 
 // rotate a 2D vector from earth frame to body frame
 Vector2f AP_AHRS_View::earth_to_body2D(const Vector2f &ef) const

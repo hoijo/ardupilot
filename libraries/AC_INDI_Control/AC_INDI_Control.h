@@ -110,6 +110,9 @@ protected:
     // set mixer input from the torque and thrust command 
     void scale_torque_cmd(void);
 
+    // z transform 400hz for angular acceleration using angular velocity
+    void z_transform_acc(void);
+
     // allocate torque and thrust cmd to the each motor thrust
     void control_allocation(void);
 
@@ -184,6 +187,30 @@ protected:
     LowPassFilter2pFloat _spec_thrust_est_filter;
     LowPassFilterVector3f _spec_thrust_cmd_filter;
     LowPassFilterFloat _yaw_rate_filter;
+
+    // Angular acc of z transform
+    float p_dot_z_transform = 0.0f;
+    float q_dot_z_transform = 0.0f;
+    float r_dot_z_transform = 0.0f;
+
+    // roll axis
+    float p_u_prev_1 = 0.0f;
+    float p_u_prev_2 = 0.0f;
+    float p_y_prev_1 = 0.0f;
+    float p_y_prev_2 = 0.0f;
+
+    // pitch axis
+    float q_u_prev_1 = 0.0f;
+    float q_u_prev_2 = 0.0f;
+    float q_y_prev_1 = 0.0f;
+    float q_y_prev_2 = 0.0f;
+
+    // yaw axis
+    float r_u_prev_1 = 0.0f;
+    float r_u_prev_2 = 0.0f;
+    float r_y_prev_1 = 0.0f;
+    float r_y_prev_2 = 0.0f;
+
 private:
     static AC_INDI_Control *_singleton;
 public:

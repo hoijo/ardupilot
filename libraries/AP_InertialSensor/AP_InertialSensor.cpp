@@ -1676,7 +1676,8 @@ void AP_InertialSensor::update(void)
     // TODO: investigate how precise delta_time is
     for (uint8_t i=0; i<INS_MAX_INSTANCES; i++) {
         _ang_accel_filter[i].set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _ang_accel_filter_cuttoff);
-        _ang_accel[i] = _ang_accel_filter[i].apply((_gyro[i] - _gyro_prev[i])/AP::scheduler().get_loop_period_s());
+        _ang_accel_no_f[i] = (_gyro[i] - _gyro_prev[i])/AP::scheduler().get_loop_period_s();
+        _ang_accel[i] = _ang_accel_filter[i].apply(_ang_accel_no_f[i]);
         _gyro_prev[i] = _gyro[i];
     }
 

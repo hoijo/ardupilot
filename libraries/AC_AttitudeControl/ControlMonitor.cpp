@@ -57,126 +57,15 @@ void AC_AttitudeControl::control_monitor_log(void) const
                                            (double)safe_sqrt(_control_monitor.rms_pitch_D),
                                            (double)safe_sqrt(_control_monitor.rms_yaw));
 
-        // AP::logger().WriteStreaming("DOBC", "TimeUS,QAfOut,QBfOut,dHat,tau,dt,vel,uDot,u2Dot,yroll", "Qfffffffff",
-        //                                    AP_HAL::micros64(),
-        //                                    (double)_dob_monitor.Q_A_out_roll,
-        //                                    (double)_dob_monitor.Q_B_out_roll,
-        //                                    (double)_dob_monitor.d_hat_roll,
-        //                                    (double)_dob_monitor.tau_roll,
-        //                                    (double)_dob_monitor.dt_roll,
-        //                                    (double)_dob_monitor.vel_roll,
-        //                                    (double)_dob_monitor.u_dot_roll,
-        //                                    (double)_dob_monitor.u2_dot_roll,
-        //                                    (double)_dob_monitor.y_roll
-        //                                   );
+    
+    AP::logger().WriteStreaming("BASE", "TimeUS,roll_o,pitch_o,yaw_o", "Qfff",
+                                           AP_HAL::micros64(),
+                                           (double)_pid_control_out.pid_roll_out,
+                                           (double)_pid_control_out.pid_pitch_out,
+                                           (double)_pid_control_out.pid_yaw_out);
 
-    // AP::logger().WriteStreaming("DOBR", "TimeUS,QAfOut,QBfOut,dHat,tauy,dt,vel,uDot,u2Dot,yroll", "Qfffffffff",
-    //                                        AP_HAL::micros64(),
-    //                                        (double)_dob_monitor.Q_A_out_roll,
-    //                                        (double)_dob_monitor.Q_B_out_roll,
-    //                                        (double)_dob_monitor.d_hat_roll,
-    //                                        (double)_dob_monitor.tau_roll,
-    //                                        (double)_dob_monitor.dt_roll,
-    //                                        (double)_dob_monitor.vel_roll,
-    //                                        (double)_dob_monitor.u_dot_roll,
-    //                                        (double)_dob_monitor.u2_dot_roll,
-    //                                        (double)_dob_monitor.y_roll
-    //                                       );
-
-    // AP::logger().WriteStreaming("DOBP", "TimeUS,QAfOut,QBfOut,dHat,taup,dt,vel,uDot,u2Dot,ypitch", "Qfffffffff",
-    //                                        AP_HAL::micros64(),
-    //                                        (double)_dob_monitor.Q_A_out_pitch,
-    //                                        (double)_dob_monitor.Q_B_out_pitch,
-    //                                        (double)_dob_monitor.d_hat_pitch,
-    //                                        (double)_dob_monitor.tau_pitch,
-    //                                        (double)_dob_monitor.dt_pitch,
-    //                                        (double)_dob_monitor.vel_pitch,
-    //                                        (double)_dob_monitor.u_dot_pitch,
-    //                                        (double)_dob_monitor.u2_dot_pitch,
-    //                                        (double)_dob_monitor.y_pitch
-    //                                       );
-
-    // AP::logger().WriteStreaming("NDIR", "TimeUS,p,pdot,pdotf,nu,nuf,del,ucmd", "Qfffffff",
-    //                                        AP_HAL::micros64(),
-    //                                        (double)_indi_monitor.anglular_roll,
-    //                                        (double)_indi_monitor.angular_acc_roll,
-    //                                        (double)_indi_monitor.angular_acc_roll_f,
-    //                                        (double)_indi_monitor.nu_prev_roll,
-    //                                        (double)_indi_monitor.nu_prev_roll_f,
-    //                                        (double)_indi_monitor.delta_u_roll,
-    //                                        (double)_indi_monitor.u_cmd_roll
-    //                                       );
-
-    // AP::logger().WriteStreaming("NDIP", "TimeUS,q,qdot,qdotf,nu,nuf,del,ucmd", "Qfffffff",
-    //                                        AP_HAL::micros64(),
-    //                                        (double)_indi_monitor.anglular_pitch,
-    //                                        (double)_indi_monitor.angular_acc_pitch,
-    //                                        (double)_indi_monitor.angular_acc_pitch_f,
-    //                                        (double)_indi_monitor.nu_prev_pitch,
-    //                                        (double)_indi_monitor.nu_prev_pitch_f,
-    //                                        (double)_indi_monitor.delta_u_pitch,
-    //                                        (double)_indi_monitor.u_cmd_pitch
-    //                                       );
-
-    // AP::logger().WriteStreaming("NDIY", "TimeUS,r,rdot,rdotf,nu,nuf,del,ucmd", "Qfffffff",
-    //                                        AP_HAL::micros64(),
-    //                                        (double)_indi_monitor.anglular_yaw,
-    //                                        (double)_indi_monitor.angular_acc_yaw,
-    //                                        (double)_indi_monitor.angular_acc_yaw_f,
-    //                                        (double)_indi_monitor.nu_prev_yaw,
-    //                                        (double)_indi_monitor.nu_prev_yaw_f,
-    //                                        (double)_indi_monitor.delta_u_yaw,
-    //                                        (double)_indi_monitor.u_cmd_yaw
-    //                                       );
 }
 
-// // Log Additional Disturbance Observer based controller data
-// void AC_AttitudeControl::dobc_monitor_log_roll(void) const
-// {
-//     AP::logger().WriteStreaming("DOBCR", "TimeUS,QAfOut,QBfOut,dHat,tau,dt,vel,uDot,u2Dot,yroll", "Qfffffffff",
-//                                            AP_HAL::micros64(),
-//                                            (double)_dob_monitor.Q_A_out_roll,
-//                                            (double)_dob_monitor.Q_B_out_roll,
-//                                            (double)_dob_monitor.d_hat_roll,
-//                                            (double)_dob_monitor.tau_roll,
-//                                            (double)_dob_monitor.dt_roll,
-//                                            (double)_dob_monitor.vel_roll,
-//                                            (double)_dob_monitor.u_dot_roll,
-//                                            (double)_dob_monitor.u2_dot_roll,
-//                                            (double)_dob_monitor.y_roll
-//                                           );
-
-//     AP::logger().WriteStreaming("DOBCP", "TimeUS,QAfOut,QBfOut,dHat,tau,dt,vel,uDot,u2Dot,ypitch", "Qfffffffff",
-//                                            AP_HAL::micros64(),
-//                                            (double)_dob_monitor.Q_A_out_pitch,
-//                                            (double)_dob_monitor.Q_B_out_pitch,
-//                                            (double)_dob_monitor.d_hat_pitch,
-//                                            (double)_dob_monitor.tau_pitch,
-//                                            (double)_dob_monitor.dt_pitch,
-//                                            (double)_dob_monitor.vel_pitch,
-//                                            (double)_dob_monitor.u_dot_pitch,
-//                                            (double)_dob_monitor.u2_dot_pitch,
-//                                            (double)_dob_monitor.y_pitch
-//                                           );
-// }
-// void AC_AttitudeControl::dobc_monitor_log_pitch(void) const
-// {
-//     AP::logger().WriteStreaming("DOBC", "TimeUS,QAfOut,QBfOut,dHat", "Qfff",
-//                                            AP_HAL::micros64(),
-//                                            (double)_dob_monitor.Q_A_out_pitch,
-//                                            (double)_dob_monitor.Q_B_out_pitch,
-//                                            (double)_dob_monitor.d_hat_pitch
-//                                           );
-// }
-// void AC_AttitudeControl::dobc_monitor_log_yaw(void) const
-// {
-//     AP::logger().WriteStreaming("DOBC", "TimeUS,QAfOut,QBfOut,dHat", "Qfff",
-//                                            AP_HAL::micros64(),
-//                                            (double)_dob_monitor.Q_A_out_yaw,
-//                                            (double)_dob_monitor.Q_B_out_yaw,
-//                                            (double)_dob_monitor.d_hat_yaw
-//                                           );
-// }
 
 
 /*

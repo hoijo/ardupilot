@@ -131,6 +131,7 @@ public:
 
     // get angular acceleration in rad/sec/sec (hoijo)
     const Vector3f &get_ang_accel(uint8_t i) const {return _ang_accel[i];};
+    const Vector3f &get_ang_accel_no_f(uint8_t i) const {return _ang_accel_no_f[i];};
 
     // set gyro offsets in radians/sec
     const Vector3f &get_gyro_offsets(uint8_t i) const { return _gyro_offset[i]; }
@@ -181,6 +182,7 @@ public:
 
     // INDI angular acceleration (hoijo)
     Vector3f _ang_accel[INS_MAX_INSTANCES];
+    Vector3f _ang_accel_no_f[INS_MAX_INSTANCES];
     LowPassFilterVector3f _ang_accel_filter[INS_MAX_INSTANCES];
     AP_Float _ang_accel_filter_cuttoff;
     Vector3f _gyro_prev[INS_MAX_INSTANCES];

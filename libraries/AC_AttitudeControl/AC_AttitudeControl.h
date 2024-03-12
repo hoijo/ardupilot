@@ -608,4 +608,12 @@ public:
     float control_monitor_rms_output_pitch_D(void) const;
     float control_monitor_rms_output_pitch(void) const;
     float control_monitor_rms_output_yaw(void) const;
+
+    // For check the basic pid controller out
+    struct {
+        float pid_roll_out;
+        float pid_pitch_out;
+        float pid_yaw_out;
+    } _pid_control_out;
+
 };

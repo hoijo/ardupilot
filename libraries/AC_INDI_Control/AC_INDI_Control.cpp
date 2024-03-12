@@ -90,7 +90,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: kg
     // @Range: 0.01 10
     // @User: Standard
-    AP_GROUPINFO("_MASS",                           11, AC_INDI_Control, _mass_kg, 1.75f),
+    AP_GROUPINFO("_MASS",                           11, AC_INDI_Control, _mass_kg, 2.0f),
 
     // @Param: _MOI_XY
     // @DisplayName: Moment of inertia of vehicle  in x-y axis in kg.m² 
@@ -98,7 +98,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: kg.m²
     // @Range: 0.001 1
     // @User: Standard
-    AP_GROUPINFO("_MOI_XY",                         12, AC_INDI_Control, _moment_inertia_xy_kgm2, 3.544e-3f),
+    AP_GROUPINFO("_MOI_XY",                         12, AC_INDI_Control, _moment_inertia_xy_kgm2, 3.5e-3f),
 
     // @Param: _MOI_Z
     // @DisplayName: Moment of inertia of vehicle in z axis in kg.m² 
@@ -106,7 +106,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: kg.m²
     // @Range: 0.001 1
     // @User: Standard
-    AP_GROUPINFO("_MOI_Z",                          13, AC_INDI_Control, _moment_inertia_z_kgm2, 6.935e-3f),
+    AP_GROUPINFO("_MOI_Z",                          13, AC_INDI_Control, _moment_inertia_z_kgm2, 5.1e-3f),
 
     // @Param: _ARM_LEN
     // @DisplayName: Distance to motor in m
@@ -421,6 +421,7 @@ void AC_INDI_Control::run_angvel_controller(Vector3f target, Vector3f measurment
 
     indi_angular_accel();
     scale_torque_cmd();
+    z_transform_acc();
 }
 
 // torque increment based on angular acceleration difference
@@ -454,9 +455,36 @@ void AC_INDI_Control::scale_torque_cmd(void)
 
     z_scale *= 0.1f;    
 
+    xy_scale = 1.0f;
+    z_scale = 1.0f;
+
     _torque_cmd_scaled.x = _torque_cmd_body_Nm.x * xy_scale;
     _torque_cmd_scaled.y = _torque_cmd_body_Nm.y * xy_scale;
     _torque_cmd_scaled.z = _torque_cmd_body_Nm.z * z_scale;
+}
+
+void AC_INDI_Control::z_transform_acc(void)
+{
+    const Vector3f &ang_vel_z = _ahrs.get_gyro();
+
+    // angular acceleration of z transform
+    p_dot_z_transform = 5.714f * p_u_prev_1 - 5.714 * p_u_prev_2 + 1.824 * p_y_prev_1 - 0.838 * p_y_prev_2;
+    p_u_prev_2 = p_u_prev_1;
+    p_u_prev_1 = double(ang_vel_z.x);
+    p_y_prev_2 = p_y_prev_1;
+    p_y_prev_1 = p_dot_z_transform;
+
+    q_dot_z_transform = 5.714f * q_u_prev_1 - 5.714 * q_u_prev_2 + 1.824 * q_y_prev_1 - 0.838 * q_y_prev_2;
+    q_u_prev_2 = q_u_prev_1;
+    q_u_prev_1 = double(ang_vel_z.y);
+    q_y_prev_2 = q_y_prev_1;
+    q_y_prev_1 = q_dot_z_transform;
+
+    r_dot_z_transform = 5.714f * r_u_prev_1 - 5.714 * r_u_prev_2 + 1.824 * r_y_prev_1 - 0.838 * r_y_prev_2;
+    r_u_prev_2 = r_u_prev_1;
+    r_u_prev_1 = double(ang_vel_z.z);
+    r_y_prev_2 = r_y_prev_1;
+    r_y_prev_1 = r_dot_z_transform;
 }
 
 // NOT USED: Arducopter control allocation used at the moment.
@@ -705,6 +733,7 @@ void AC_INDI_Control::write_log(void)
     const Vector3f &ang_vel_target = get_ang_vel_target();
     const Vector3f &ang_acc_target = get_ang_acc_target();
     const Vector3f &ang_vel = _ahrs.get_gyro();
+
     AP::logger().Write("IND3",
                         "TimeUS,TPX,TPY,TPZ,PX,PY,PZ,TVX,TVY,TVZ,VX,VY,VZ",
                         "sddddddEEEEEE",
@@ -793,8 +822,22 @@ void AC_INDI_Control::write_log(void)
                     double(motor_speed_hz[1]),
                     double(motor_speed_hz[2]),
                     double(motor_speed_hz[3]));
-}
 
+    const Vector3f ang_acc_no_f = _ahrs.get_ang_accel_no_f_latest();
+    // angular acceleration of z transform
+    AP::logger().Write("IND8",
+                    "TimeUS,accp,accq,accr,AXNF,AYNF,AZNF",
+                    "s------",
+                    "F000000",
+                    "QfffFFF",
+                    AP_HAL::micros64(),
+                    double(p_dot_z_transform),
+                    double(q_dot_z_transform),
+                    double(r_dot_z_transform),
+                    double(ang_acc_no_f.x),
+                    double(ang_acc_no_f.y),
+                    double(ang_acc_no_f.z));
+}
 
 AC_INDI_Control *AC_INDI_Control::_singleton = nullptr;
 

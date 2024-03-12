@@ -521,10 +521,10 @@ void Copter::fourhundred_hz_logging()
     }
 
     // *** INDI log saving function On/Off (hoijo)
-    if (indi_control->get_use_INDI()) {
-        indi_control->write_log();
-    } 
-    // indi_control->write_log(); 
+    // if (indi_control->get_use_INDI()) {
+    //     indi_control->write_log();
+    // } 
+    indi_control->write_log(); 
 }
 
 // ten_hz_logging_loop
