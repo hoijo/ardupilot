@@ -50,6 +50,7 @@ public:
     // INDI for angulare acceleration (hoijo)
     Vector3f get_ang_accel_latest(void) const;
     Vector3f get_ang_accel_no_f_latest(void) const;
+    Vector3f get_ang_accel_gyro_f_latest(void) const;
 
     // return a DCM rotation matrix representing our current attitude in this view
     const Matrix3f &get_rotation_body_to_ned(void) const {

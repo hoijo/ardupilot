@@ -66,6 +66,9 @@ public:
     const Vector3f& get_ang_acc_target() const { return _ang_acc_target_radpss; }
     const Vector3f& get_torque_cmd() const { return _torque_cmd_body_Nm; }
 
+    const Vector3f& get_ang_err() const { return _error_att_save; }
+
+    const Vector3f& get_ang_acc_z_transform() const { return _angular_acc_z; }
 
     // get P controllers
     AC_P& get_pos_xy_p() { return _p_pos_xy; }
@@ -155,6 +158,7 @@ protected:
     AP_Float    _spec_thrust_est_filter_cutoff; // rpm filter cutoff frequency for specific thrust estimation in Hz
     AP_Float    _spec_thrust_cmd_filter_cutoff; // specific thrust command filter cutoff frequency in Hz
     AP_Float    _yaw_rate_filter_cutoff;        // torque command filter cutoff frequency in Hz
+    AP_Int32    _ang_acc_sel;                   // Select angular acc
 
     Vector3f    _pos_target_neu_m;              // position target in NEU frame in m
     Vector3f    _vel_target_neu_mps;            // velocity target in NEU frame in m/s
@@ -174,13 +178,18 @@ protected:
     Vector3f    _torque_cmd_body_Nm;            // torque command in body frame in Nm
     Vector3f    _torque_cmd_scaled ;            // scaled torque command between -1 ~ +1
     Vector3f    _torque_est_body_Nm;            // estimated torque from motor speed in body frame in Nm
+
+    Vector3f    _error_att_save;                 // For saving
+    Vector3f    _error_ang_vel_save;             // For saving
+
+    Vector3f    _ang_acc_;
     
     float _motor_cmd_radps[4];                  // motor command in rad/s   !!!NOT USED
     float _motor_cmd_scaled[4];                 // scaled motor command 0-1 !!!NOT USED
     float _motor_speed_meas_radps[4];           // current motor speed in rad/s
 
-    float motor_speed_hz[4];
-    float motor_speed_rpm[4];
+    float _motor_speed_hz[4];
+    float _motor_speed_rpm[4];
 
 
     LowPassFilterVector3f _torque_est_filter;
@@ -189,27 +198,29 @@ protected:
     LowPassFilterFloat _yaw_rate_filter;
 
     // Angular acc of z transform
-    float p_dot_z_transform = 0.0f;
-    float q_dot_z_transform = 0.0f;
-    float r_dot_z_transform = 0.0f;
+    float _p_dot_z_transform = 0.0f;
+    float _q_dot_z_transform = 0.0f;
+    float _r_dot_z_transform = 0.0f;
 
     // roll axis
-    float p_u_prev_1 = 0.0f;
-    float p_u_prev_2 = 0.0f;
-    float p_y_prev_1 = 0.0f;
-    float p_y_prev_2 = 0.0f;
+    float _p_u_prev_1 = 0.0f;
+    float _p_u_prev_2 = 0.0f;
+    float _p_y_prev_1 = 0.0f;
+    float _p_y_prev_2 = 0.0f;
 
     // pitch axis
-    float q_u_prev_1 = 0.0f;
-    float q_u_prev_2 = 0.0f;
-    float q_y_prev_1 = 0.0f;
-    float q_y_prev_2 = 0.0f;
+    float _q_u_prev_1 = 0.0f;
+    float _q_u_prev_2 = 0.0f;
+    float _q_y_prev_1 = 0.0f;
+    float _q_y_prev_2 = 0.0f;
 
     // yaw axis
-    float r_u_prev_1 = 0.0f;
-    float r_u_prev_2 = 0.0f;
-    float r_y_prev_1 = 0.0f;
-    float r_y_prev_2 = 0.0f;
+    float _r_u_prev_1 = 0.0f;
+    float _r_u_prev_2 = 0.0f;
+    float _r_y_prev_1 = 0.0f;
+    float _r_y_prev_2 = 0.0f;
+
+    Vector3f _angular_acc_z;
 
 private:
     static AC_INDI_Control *_singleton;
@@ -217,10 +228,10 @@ public:
     // INDI on/off switch
     bool _use_INDI = true;
 
-    float rpm_indi_1 = 0.0f;
-    float rpm_indi_2 = 0.0f;
-    float rpm_indi_3 = 0.0f;
-    float rpm_indi_4 = 0.0f;
+    float _rpm_indi_1 = 0.0f;
+    float _rpm_indi_2 = 0.0f;
+    float _rpm_indi_3 = 0.0f;
+    float _rpm_indi_4 = 0.0f;
 
 };
 

@@ -343,9 +343,8 @@ void AC_AttitudeControl_Multi::rate_controller_run()
     Vector3f gyro_latest = _ahrs.get_gyro_latest();
 
     // INDI inner loop
+    AP::indi_control().run_angvel_controller(_ang_vel_body, gyro_latest, Vector3f(0.0f, 0.0f, 0.0f));
     if (AP::indi_control().get_use_INDI()) {
-        AP::indi_control().run_angvel_controller(_ang_vel_body, gyro_latest, Vector3f(0.0f, 0.0f, 0.0f));
-        
         _motors.set_roll(AP::indi_control().get_torque_cmd_scaled().x + _actuator_sysid.x);
         _motors.set_pitch(AP::indi_control().get_torque_cmd_scaled().y + _actuator_sysid.y);
         _motors.set_yaw(AP::indi_control().get_torque_cmd_scaled().z + _actuator_sysid.z);

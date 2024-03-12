@@ -170,6 +170,14 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Range: 2 20
     // @User: Standard    
     AP_GROUPINFO("_YAW_FILT",                     21, AC_INDI_Control, _yaw_rate_filter_cutoff, 3.0f),
+
+    // @Param: _ACC_SEL
+    // @DisplayName: Selection of the angular acceleration
+    // @Description: 1: gyro - diff - filt - ang_acc / 2: gyro - filt - diff - ang_acc / 3: no filter / 4 : z transform
+    // @Units: Hz
+    // @Range: 2 20
+    // @User: Standard    
+    AP_GROUPINFO("_ACC_SEL",                     22, AC_INDI_Control, _ang_acc_sel, 1),
     
     AP_GROUPEND
 };
@@ -399,10 +407,9 @@ Vector3f AC_INDI_Control::calculate_att_error(Quaternion target, Quaternion meas
 // run attitude controller
 Vector3f AC_INDI_Control::run_attitude_controller(Quaternion target, Quaternion measurment)
 {   
-    Vector3f error_att;
-    error_att = calculate_att_error(target, measurment);
+    _error_att_save = calculate_att_error(target, measurment);
 
-    return Vector3f(_p_angle_x.get_p(error_att.x), _p_angle_y.get_p(error_att.y), _p_angle_z.get_p(error_att.z));
+    return Vector3f(_p_angle_x.get_p(_error_att_save.x), _p_angle_y.get_p(_error_att_save.y), _p_angle_z.get_p(_error_att_save.z));
 }
 
 // run angular velocity controller
@@ -413,22 +420,50 @@ void AC_INDI_Control::run_angvel_controller(Vector3f target, Vector3f measurment
     _ang_vel_target_radps = target;
     error_ang_vel = _ang_vel_target_radps - measurment;
 
+    _error_ang_vel_save = error_ang_vel;
+
     _ang_acc_target_radpss.x = _p_ang_rate_x.get_p(error_ang_vel.x);
     _ang_acc_target_radpss.y = _p_ang_rate_y.get_p(error_ang_vel.y);
     _ang_acc_target_radpss.z = _p_ang_rate_z.get_p(error_ang_vel.z);
 
     _ang_acc_target_radpss += ang_acc_desired;
 
+    z_transform_acc();
     indi_angular_accel();
     scale_torque_cmd();
-    z_transform_acc();
 }
 
 // torque increment based on angular acceleration difference
 // conceptually this function behaves like an integrator
 void AC_INDI_Control::indi_angular_accel(void)
 {
-    const Vector3f ang_acc_flt = _ahrs.get_ang_accel_latest();
+    switch (_ang_acc_sel)
+    {
+        // Vector3f ang_acc_;
+    case 1:
+        // angular acc from Inertial_sensor_class (deferential and filter)
+         _ang_acc_ = _ahrs.get_ang_accel_latest();
+        break;
+    
+    case 2:
+        // angular acc from Inertial_sensor_class (first gyro filter and deferential)
+         _ang_acc_ = _ahrs.get_ang_accel_gyro_f_latest();
+        break;
+
+    case 3:
+        // angular acc from Inertial_sensor_class (no filter)
+         _ang_acc_ = _ahrs.get_ang_accel_no_f_latest();
+        break;
+
+    case 4:
+        // angular acc from z transform
+         _ang_acc_ = get_ang_acc_z_transform();
+        break;
+    
+    default:
+        break;
+    }
+
 
     Matrix3f moment_of_inertia_xyz (
         _moment_inertia_xy_kgm2, 0.0f, 0.0f,
@@ -437,7 +472,7 @@ void AC_INDI_Control::indi_angular_accel(void)
     );
 
     // Differ origin INID, I calculate the torque cmd
-    _torque_cmd_body_Nm = _torque_est_body_Nm + moment_of_inertia_xyz * (_ang_acc_target_radpss - ang_acc_flt);
+    _torque_cmd_body_Nm = _torque_est_body_Nm + moment_of_inertia_xyz * (_ang_acc_target_radpss - _ang_acc_);
 
     // mechanical yaw is not considered in arducopter current control allocation 
     // filter body z axis torque command to compansate for the mechanicaly yaw
@@ -468,23 +503,27 @@ void AC_INDI_Control::z_transform_acc(void)
     const Vector3f &ang_vel_z = _ahrs.get_gyro();
 
     // angular acceleration of z transform
-    p_dot_z_transform = 5.714f * p_u_prev_1 - 5.714 * p_u_prev_2 + 1.824 * p_y_prev_1 - 0.838 * p_y_prev_2;
-    p_u_prev_2 = p_u_prev_1;
-    p_u_prev_1 = double(ang_vel_z.x);
-    p_y_prev_2 = p_y_prev_1;
-    p_y_prev_1 = p_dot_z_transform;
+    _p_dot_z_transform = 5.714f * _p_u_prev_1 - 5.714 * _p_u_prev_2 + 1.824 * _p_y_prev_1 - 0.838 * _p_y_prev_2;
+    _p_u_prev_2 = _p_u_prev_1;
+    _p_u_prev_1 = double(ang_vel_z.x);
+    _p_y_prev_2 = _p_y_prev_1;
+    _p_y_prev_1 = _p_dot_z_transform;
 
-    q_dot_z_transform = 5.714f * q_u_prev_1 - 5.714 * q_u_prev_2 + 1.824 * q_y_prev_1 - 0.838 * q_y_prev_2;
-    q_u_prev_2 = q_u_prev_1;
-    q_u_prev_1 = double(ang_vel_z.y);
-    q_y_prev_2 = q_y_prev_1;
-    q_y_prev_1 = q_dot_z_transform;
+    _q_dot_z_transform = 5.714f * _q_u_prev_1 - 5.714 * _q_u_prev_2 + 1.824 * _q_y_prev_1 - 0.838 * _q_y_prev_2;
+    _q_u_prev_2 = _q_u_prev_1;
+    _q_u_prev_1 = double(ang_vel_z.y);
+    _q_y_prev_2 = _q_y_prev_1;
+    _q_y_prev_1 = _q_dot_z_transform;
 
-    r_dot_z_transform = 5.714f * r_u_prev_1 - 5.714 * r_u_prev_2 + 1.824 * r_y_prev_1 - 0.838 * r_y_prev_2;
-    r_u_prev_2 = r_u_prev_1;
-    r_u_prev_1 = double(ang_vel_z.z);
-    r_y_prev_2 = r_y_prev_1;
-    r_y_prev_1 = r_dot_z_transform;
+    _r_dot_z_transform = 5.714f * _r_u_prev_1 - 5.714 * _r_u_prev_2 + 1.824 * _r_y_prev_1 - 0.838 * _r_y_prev_2;
+    _r_u_prev_2 = _r_u_prev_1;
+    _r_u_prev_1 = double(ang_vel_z.z);
+    _r_y_prev_2 = _r_y_prev_1;
+    _r_y_prev_1 = _r_dot_z_transform;
+
+    _angular_acc_z.x = _p_dot_z_transform;
+    _angular_acc_z.y = _q_dot_z_transform;
+    _angular_acc_z.z = _r_dot_z_transform;
 }
 
 // NOT USED: Arducopter control allocation used at the moment.
@@ -540,21 +579,21 @@ void AC_INDI_Control::get_motor_speed(void)
 {
     const AP_RPM *rpm = AP_RPM::get_singleton();
 
-    if (!rpm->get_rpm(0, rpm_indi_1)) {
+    if (!rpm->get_rpm(0, _rpm_indi_1)) {
             // No valid RPM data
-            rpm_indi_1 = -10;
+            _rpm_indi_1 = -10;
     }
-    if (!rpm->get_rpm(1, rpm_indi_2)) {
+    if (!rpm->get_rpm(1, _rpm_indi_2)) {
             // No valid RPM data
-            rpm_indi_2 = -10;
+            _rpm_indi_2 = -10;
     }
-    if (!rpm->get_rpm(2, rpm_indi_3)) {
+    if (!rpm->get_rpm(2, _rpm_indi_3)) {
             // No valid RPM data
-            rpm_indi_3 = -10;
+            _rpm_indi_3 = -10;
     }
-    if (!rpm->get_rpm(3, rpm_indi_4)) {
+    if (!rpm->get_rpm(3, _rpm_indi_4)) {
             // No valid RPM data
-            rpm_indi_4 = -10;
+            _rpm_indi_4 = -10;
     }
 
     // motor_speed_rpm[0] = rpm_indi_1;
@@ -563,13 +602,13 @@ void AC_INDI_Control::get_motor_speed(void)
     // motor_speed_rpm[3] = rpm_indi_4;
 
     // M1 - RPM4
-    motor_speed_rpm[0] = rpm_indi_4;
+    _motor_speed_rpm[0] = _rpm_indi_4;
     // M2 - RPM3
-    motor_speed_rpm[1] = rpm_indi_3;
+    _motor_speed_rpm[1] = _rpm_indi_3;
     // M3 - RPM2
-    motor_speed_rpm[2] = rpm_indi_2;
+    _motor_speed_rpm[2] = _rpm_indi_2;
     // M4 - RPM1
-    motor_speed_rpm[3] = rpm_indi_1;
+    _motor_speed_rpm[3] = _rpm_indi_1;
 
 
 // #ifdef HAVE_AP_BLHELI_SUPPORT
@@ -603,8 +642,8 @@ void AC_INDI_Control::get_motor_speed(void)
 
  
     for (uint8_t i=0; i < 4; i++) {
-        motor_speed_hz[i]          = motor_speed_rpm[i] * 0.016667;
-        _motor_speed_meas_radps[i] = motor_speed_rpm[i] * 0.10472;
+        _motor_speed_hz[i]          = _motor_speed_rpm[i] * 0.016667;
+        _motor_speed_meas_radps[i]  = _motor_speed_rpm[i] * 0.10472;
     }    
 }
 
@@ -753,23 +792,18 @@ void AC_INDI_Control::write_log(void)
                         double(ang_vel.y),
                         double(ang_vel.z));
 
-
-    const Vector3f ang_acc_flt = _ahrs.get_ang_accel_latest();
     AP::logger().Write("IND4",
-                        "TimeUS,TAX,TAY,TAZ,DAX,DAY,DAZ,AX,AY,AZ",
-                        "sLLLLLLLLL",
-                        "F000000000",
-                        "Qfffffffff",
+                        "TimeUS,TAX,TAY,TAZ,DAX,DAY,DAZ",
+                        "sLLLLLL",
+                        "F000000",
+                        "Qffffff",
                         AP_HAL::micros64(),
                         double(ang_acc_target.x),
                         double(ang_acc_target.y),
                         double(ang_acc_target.z),
                         double(_ang_acc_desired_radpss.x),
                         double(_ang_acc_desired_radpss.y),
-                        double(_ang_acc_desired_radpss.z),
-                        double(ang_acc_flt.x),
-                        double(ang_acc_flt.y),
-                        double(ang_acc_flt.z));
+                        double(_ang_acc_desired_radpss.z));
 
 
     // log commanded and estimated specific thrust and torque values
@@ -810,33 +844,62 @@ void AC_INDI_Control::write_log(void)
                     "F000000000000",
                     "Qffffffffffff",
                     AP_HAL::micros64(),
-                    double(motor_speed_rpm[0]),
-                    double(motor_speed_rpm[1]),
-                    double(motor_speed_rpm[2]),
-                    double(motor_speed_rpm[3]),
+                    double(_motor_speed_rpm[0]),
+                    double(_motor_speed_rpm[1]),
+                    double(_motor_speed_rpm[2]),
+                    double(_motor_speed_rpm[3]),
                     double(_motor_speed_meas_radps[0]),
                     double(_motor_speed_meas_radps[1]),
                     double(_motor_speed_meas_radps[2]),
                     double(_motor_speed_meas_radps[3]),
-                    double(motor_speed_hz[0]),
-                    double(motor_speed_hz[1]),
-                    double(motor_speed_hz[2]),
-                    double(motor_speed_hz[3]));
+                    double(_motor_speed_hz[0]),
+                    double(_motor_speed_hz[1]),
+                    double(_motor_speed_hz[2]),
+                    double(_motor_speed_hz[3]));
 
-    const Vector3f ang_acc_no_f = _ahrs.get_ang_accel_no_f_latest();
+
+    // angular acc from Inertial_sensor_class
+    const Vector3f ang_acc_flt     = _ahrs.get_ang_accel_latest();
+    // angular acc from Inertial_sensor_class (first gyro filter and deferential)
+    const Vector3f ang_acc_gyro_f  = _ahrs.get_ang_accel_gyro_f_latest();
+    // angular acc from Inertial_sensor_class (no filter)
+    const Vector3f ang_acc_no_f    = _ahrs.get_ang_accel_no_f_latest();
+    // angular acc from z transform
+    const Vector3f ang_acc_z_trans = get_ang_acc_z_transform();
+
     // angular acceleration of z transform
     AP::logger().Write("IND8",
-                    "TimeUS,accp,accq,accr,AXNF,AYNF,AZNF",
-                    "s------",
-                    "F000000",
-                    "QfffFFF",
+                    "TimeUS,accx,accy,accz,acgx,acgy,acgz,acnx,acny,acnz,aczx,aczy,aczz",
+                    "sLLLLLLLLLLLL",
+                    "F000000000000",
+                    "Qffffffffffff",
                     AP_HAL::micros64(),
-                    double(p_dot_z_transform),
-                    double(q_dot_z_transform),
-                    double(r_dot_z_transform),
+                    double(ang_acc_flt.x),
+                    double(ang_acc_flt.y),
+                    double(ang_acc_flt.z),
+                    double(ang_acc_gyro_f.x),
+                    double(ang_acc_gyro_f.y),
+                    double(ang_acc_gyro_f.z),
                     double(ang_acc_no_f.x),
                     double(ang_acc_no_f.y),
-                    double(ang_acc_no_f.z));
+                    double(ang_acc_no_f.z),
+                    double(ang_acc_z_trans.x),
+                    double(ang_acc_z_trans.y),
+                    double(ang_acc_z_trans.z));
+
+    const Vector3f &ang_err_log = get_ang_err();
+    AP::logger().Write("IND9",
+                    "TimeUS,Euex,Euey,Euez,Avex,Avey,Avez",
+                    "srrrEEE",
+                    "F000000",
+                    "Qffffff",
+                    AP_HAL::micros64(),
+                    double(ang_err_log.x),
+                    double(ang_err_log.y),
+                    double(ang_err_log.z),
+                    double(_error_ang_vel_save.x),
+                    double(_error_ang_vel_save.y),
+                    double(_error_ang_vel_save.z));
 }
 
 AC_INDI_Control *AC_INDI_Control::_singleton = nullptr;
