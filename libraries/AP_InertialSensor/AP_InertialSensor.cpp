@@ -1678,8 +1678,8 @@ void AP_InertialSensor::update(void)
         // gyro filter
         _ang_vel_filter[i].set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _ang_accel_filter_cuttoff);
         _gyro_f[i] = _ang_vel_filter[i].apply(_gyro[i]);
-        _gyro_prev_f[i] = _gyro_f[i];
         _ang_accel_gyro_f[i] = (_gyro_f[i] - _gyro_prev_f[i])/AP::scheduler().get_loop_period_s();
+        _gyro_prev_f[i] = _gyro_f[i];
 
         // angular acc (no filtering)
         _ang_accel_no_f[i] = (_gyro[i] - _gyro_prev[i])/AP::scheduler().get_loop_period_s();

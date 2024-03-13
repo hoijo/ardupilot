@@ -857,7 +857,6 @@ void AC_INDI_Control::write_log(void)
                     double(_motor_speed_hz[2]),
                     double(_motor_speed_hz[3]));
 
-
     // angular acc from Inertial_sensor_class
     const Vector3f ang_acc_flt     = _ahrs.get_ang_accel_latest();
     // angular acc from Inertial_sensor_class (first gyro filter and deferential)
@@ -869,17 +868,24 @@ void AC_INDI_Control::write_log(void)
 
     // angular acceleration of z transform
     AP::logger().Write("IND8",
-                    "TimeUS,accx,accy,accz,acgx,acgy,acgz,acnx,acny,acnz,aczx,aczy,aczz",
-                    "sLLLLLLLLLLLL",
-                    "F000000000000",
-                    "Qffffffffffff",
+                    "TimeUS,accx,accy,accz,acgx,acgy,acgz",
+                    "sLLLLLL",
+                    "F000000",
+                    "Qffffff",
                     AP_HAL::micros64(),
                     double(ang_acc_flt.x),
                     double(ang_acc_flt.y),
                     double(ang_acc_flt.z),
                     double(ang_acc_gyro_f.x),
                     double(ang_acc_gyro_f.y),
-                    double(ang_acc_gyro_f.z),
+                    double(ang_acc_gyro_f.z));
+
+    AP::logger().Write("IND9",
+                    "TimeUS,acnx,acny,acnz,aczx,aczy,aczz",
+                    "sLLLLLL",
+                    "F000000",
+                    "Qffffff",
+                    AP_HAL::micros64(),
                     double(ang_acc_no_f.x),
                     double(ang_acc_no_f.y),
                     double(ang_acc_no_f.z),
@@ -888,7 +894,7 @@ void AC_INDI_Control::write_log(void)
                     double(ang_acc_z_trans.z));
 
     const Vector3f &ang_err_log = get_ang_err();
-    AP::logger().Write("IND9",
+    AP::logger().Write("IN10",
                     "TimeUS,Euex,Euey,Euez,Avex,Avey,Avez",
                     "srrrEEE",
                     "F000000",
