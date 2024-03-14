@@ -183,6 +183,9 @@ protected:
     Vector3f    _error_ang_vel_save;             // For saving
 
     Vector3f    _ang_acc_;
+    float       _ang_acc_check_x;
+    float       _ang_acc_check_y;
+    float       _ang_acc_check_z;
     
     float _motor_cmd_radps[4];                  // motor command in rad/s   !!!NOT USED
     float _motor_cmd_scaled[4];                 // scaled motor command 0-1 !!!NOT USED

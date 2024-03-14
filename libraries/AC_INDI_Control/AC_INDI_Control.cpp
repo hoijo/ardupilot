@@ -464,6 +464,10 @@ void AC_INDI_Control::indi_angular_accel(void)
         break;
     }
 
+    _ang_acc_check_x = _ang_acc_.x;
+    _ang_acc_check_y = _ang_acc_.y;
+    _ang_acc_check_z = _ang_acc_.z;
+
 
     Matrix3f moment_of_inertia_xyz (
         _moment_inertia_xy_kgm2, 0.0f, 0.0f,
@@ -477,6 +481,7 @@ void AC_INDI_Control::indi_angular_accel(void)
     // mechanical yaw is not considered in arducopter current control allocation 
     // filter body z axis torque command to compansate for the mechanicaly yaw
     // this render rotor inertia information(_motor_moment_inertia_kgm2) unneccessary 
+    
     _yaw_rate_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _yaw_rate_filter_cutoff);
     _yaw_rate_filter.apply(_torque_cmd_body_Nm.z);
     _torque_cmd_body_Nm.z = _yaw_rate_filter.get();
@@ -487,11 +492,13 @@ void AC_INDI_Control::scale_torque_cmd(void)
 {
     float xy_scale = 2.0f / (4.0f * sq(_throttle2motor_speed) * _thrust_coefficient * _arm_length_m * HALF_SQRT_2);
     float z_scale = 2.0f / (4.0f * sq(_throttle2motor_speed) * _torque_coefficient );
-
-    z_scale *= 0.1f;    
-
+    
+    // ******
     xy_scale = 1.0f;
     z_scale = 1.0f;
+    // z_scale *= 0.1f; 
+    z_scale = 1.0f;  
+    // ******
 
     _torque_cmd_scaled.x = _torque_cmd_body_Nm.x * xy_scale;
     _torque_cmd_scaled.y = _torque_cmd_body_Nm.y * xy_scale;
@@ -775,7 +782,7 @@ void AC_INDI_Control::write_log(void)
 
     AP::logger().Write("IND3",
                         "TimeUS,TPX,TPY,TPZ,PX,PY,PZ,TVX,TVY,TVZ,VX,VY,VZ",
-                        "sddddddEEEEEE",
+                        "sddddddkkkkkk",
                         "F000000000000",
                         "Qffffffffffff",
                         AP_HAL::micros64(),
@@ -785,25 +792,25 @@ void AC_INDI_Control::write_log(void)
                         double(_ahrs.roll_sensor*0.01f),
                         double(_ahrs.pitch_sensor*0.01f),
                         double(wrap_180(_ahrs.yaw_sensor*0.01f)),
-                        double(ang_vel_target.x),
-                        double(ang_vel_target.y),
-                        double(ang_vel_target.z),
-                        double(ang_vel.x),
-                        double(ang_vel.y),
-                        double(ang_vel.z));
+                        double(ang_vel_target.x) * RAD_TO_DEG,
+                        double(ang_vel_target.y) * RAD_TO_DEG,
+                        double(ang_vel_target.z) * RAD_TO_DEG,
+                        double(ang_vel.x) * RAD_TO_DEG,
+                        double(ang_vel.y) * RAD_TO_DEG,
+                        double(ang_vel.z) * RAD_TO_DEG);
 
     AP::logger().Write("IND4",
                         "TimeUS,TAX,TAY,TAZ,DAX,DAY,DAZ",
-                        "sLLLLLL",
+                        "seeeeee",
                         "F000000",
                         "Qffffff",
                         AP_HAL::micros64(),
-                        double(ang_acc_target.x),
-                        double(ang_acc_target.y),
-                        double(ang_acc_target.z),
-                        double(_ang_acc_desired_radpss.x),
-                        double(_ang_acc_desired_radpss.y),
-                        double(_ang_acc_desired_radpss.z));
+                        double(ang_acc_target.x) * RAD_TO_DEG,
+                        double(ang_acc_target.y) * RAD_TO_DEG,
+                        double(ang_acc_target.z) * RAD_TO_DEG,
+                        double(_ang_acc_desired_radpss.x) * RAD_TO_DEG,
+                        double(_ang_acc_desired_radpss.y) * RAD_TO_DEG,
+                        double(_ang_acc_desired_radpss.z) * RAD_TO_DEG);
 
 
     // log commanded and estimated specific thrust and torque values
@@ -869,43 +876,46 @@ void AC_INDI_Control::write_log(void)
     // angular acceleration of z transform
     AP::logger().Write("IND8",
                     "TimeUS,accx,accy,accz,acgx,acgy,acgz",
-                    "sLLLLLL",
+                    "seeeeee",
                     "F000000",
                     "Qffffff",
                     AP_HAL::micros64(),
-                    double(ang_acc_flt.x),
-                    double(ang_acc_flt.y),
-                    double(ang_acc_flt.z),
-                    double(ang_acc_gyro_f.x),
-                    double(ang_acc_gyro_f.y),
-                    double(ang_acc_gyro_f.z));
+                    double(ang_acc_flt.x) * RAD_TO_DEG,
+                    double(ang_acc_flt.y) * RAD_TO_DEG,
+                    double(ang_acc_flt.z) * RAD_TO_DEG,
+                    double(ang_acc_gyro_f.x) * RAD_TO_DEG,
+                    double(ang_acc_gyro_f.y) * RAD_TO_DEG,
+                    double(ang_acc_gyro_f.z) * RAD_TO_DEG);
 
     AP::logger().Write("IND9",
-                    "TimeUS,acnx,acny,acnz,aczx,aczy,aczz",
-                    "sLLLLLL",
-                    "F000000",
-                    "Qffffff",
+                    "TimeUS,acnx,acny,acnz,aczx,aczy,aczz,actx,acty,actz",
+                    "seeeeeeeee",
+                    "F000000000",
+                    "Qfffffffff",
                     AP_HAL::micros64(),
-                    double(ang_acc_no_f.x),
-                    double(ang_acc_no_f.y),
-                    double(ang_acc_no_f.z),
-                    double(ang_acc_z_trans.x),
-                    double(ang_acc_z_trans.y),
-                    double(ang_acc_z_trans.z));
+                    double(ang_acc_no_f.x) * RAD_TO_DEG,
+                    double(ang_acc_no_f.y) * RAD_TO_DEG,
+                    double(ang_acc_no_f.z) * RAD_TO_DEG,
+                    double(ang_acc_z_trans.x) * RAD_TO_DEG,
+                    double(ang_acc_z_trans.y) * RAD_TO_DEG,
+                    double(ang_acc_z_trans.z) * RAD_TO_DEG,
+                    double(_ang_acc_check_x) * RAD_TO_DEG,
+                    double(_ang_acc_check_y) * RAD_TO_DEG,
+                    double(_ang_acc_check_z) * RAD_TO_DEG);
 
     const Vector3f &ang_err_log = get_ang_err();
     AP::logger().Write("IN10",
                     "TimeUS,Euex,Euey,Euez,Avex,Avey,Avez",
-                    "srrrEEE",
+                    "sdddkkk",
                     "F000000",
                     "Qffffff",
                     AP_HAL::micros64(),
-                    double(ang_err_log.x),
-                    double(ang_err_log.y),
-                    double(ang_err_log.z),
-                    double(_error_ang_vel_save.x),
-                    double(_error_ang_vel_save.y),
-                    double(_error_ang_vel_save.z));
+                    double(ang_err_log.x) * RAD_TO_DEG,
+                    double(ang_err_log.y) * RAD_TO_DEG,
+                    double(ang_err_log.z) * RAD_TO_DEG,
+                    double(_error_ang_vel_save.x) * RAD_TO_DEG,
+                    double(_error_ang_vel_save.y) * RAD_TO_DEG,
+                    double(_error_ang_vel_save.z) * RAD_TO_DEG);
 }
 
 AC_INDI_Control *AC_INDI_Control::_singleton = nullptr;
