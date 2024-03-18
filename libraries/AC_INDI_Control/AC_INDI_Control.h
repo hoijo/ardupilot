@@ -148,7 +148,8 @@ protected:
 
     // vehicle properties
     AP_Float    _mass_kg;                       // mass in kg               
-    AP_Float    _moment_inertia_xy_kgm2;        // moment of inertia of xy axis in kg.m²
+    AP_Float    _moment_inertia_xx_kgm2;        // moment of inertia of xx axis in kg.m²
+    AP_Float    _moment_inertia_yy_kgm2;        // moment of inertia of yy axis in kg.m²
     AP_Float    _moment_inertia_z_kgm2;         // moment of inertia of z axis in kg.m²
     AP_Float    _arm_length_m;                  // distance to motors in m
     AP_Float    _thrust_coefficient;            // thrust coefficient in N/(rad/s)²
