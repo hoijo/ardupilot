@@ -16,6 +16,13 @@
         "mutex": "cpp",
         "streambuf": "cpp",
         "jacobi": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "array": "cpp",
+        "memory": "cpp",
+        "istream": "cpp",
+        "functional": "cpp",
+        "utility": "cpp",
+        "variant": "cpp",
+        "ranges": "cpp"
     }
 }

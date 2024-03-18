@@ -215,6 +215,13 @@ const AP_Param::GroupInfo AC_AttitudeControl::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("D_T4", 30, AC_AttitudeControl, d_t4, D_T4_DEFAULT),
 
+    // @Param: double_filter
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("D_f", 31, AC_AttitudeControl, _d_filter, D_FILTER),
+
     AP_GROUPEND};
 
 // get the slew yaw rate limit in deg/s
@@ -380,10 +387,26 @@ void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler
         }
 
         // LPF
-        float tau_doublet = 0.2;
-        float delta_t = 0.002;
-        euler_roll_angle_cd = (tau_doublet * doublelet_out_prev + euler_roll_angle_cd * delta_t) / (tau_doublet + delta_t);
-        doublelet_out_prev = euler_roll_angle_cd;
+        // float tau_doublet = 0.2;
+        // float delta_t = 0.002;
+        // euler_roll_angle_cd = (tau_doublet * doublelet_out_prev + euler_roll_angle_cd * delta_t) / (tau_doublet + delta_t);
+        // doublelet_out_prev = euler_roll_angle_cd;
+
+        float d_filter_hz = get_d_filter();
+        Vector3f    _doublet_filterd_before;
+        _doublet_filterd_before.x = euler_roll_angle_cd;
+        _doublet_filterd_before.y = euler_pitch_angle_cd;
+        _doublet_filterd_before.z = euler_yaw_rate_cds;
+
+        _doublet_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), d_filter_hz);
+        _doublet_filter.apply(_doublet_filterd_before);
+
+        Vector3f    _doublet_filterd_after;
+        _doublet_filterd_after = _doublet_filter.get();
+
+        euler_roll_angle_cd  = _doublet_filterd_after.x;
+        euler_pitch_angle_cd = _doublet_filterd_after.y;
+        euler_yaw_rate_cds   = _doublet_filterd_after.z;
     }
     else
     {

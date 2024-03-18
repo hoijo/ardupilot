@@ -83,6 +83,8 @@
 #define D_T3_DEFAULT 4000.0f
 #define D_T4_DEFAULT 10000.0f
 
+#define D_FILTER 30.0f
+
 // 2nd filter for INDI
 #define SAM_RATE_INDI 400.0f
 #define CUT_FREQ_INDI 8.0f
@@ -536,6 +538,8 @@ protected:
     const AP_Vehicle::MultiCopter &_aparm;
     AP_Motors&          _motors;
 
+    LowPassFilterVector3f _doublet_filter;
+
 public:
 
   // Doublet cmd generator (hoijo)
@@ -576,6 +580,10 @@ protected:
     u_int32_t get_d_t2() { return d_t2; }
     u_int32_t get_d_t3() { return d_t3; }
     u_int32_t get_d_t4() { return d_t4; }
+
+    AP_Float _d_filter;
+    float get_d_filter() { return _d_filter; }
+
 
 protected:
     /*
