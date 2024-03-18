@@ -799,7 +799,7 @@ void AC_INDI_Control::write_log(void)
                         double(get_attitude_quad_target().get_euler_yaw() * RAD_TO_DEG),
                         double(_ahrs.roll_sensor*0.01f),
                         double(_ahrs.pitch_sensor*0.01f),
-                        double(wrap_180(_ahrs.yaw_sensor*0.01f)),
+                        double(wrap_360(_ahrs.yaw_sensor*0.01f)),
                         double(ang_vel_target.x) * RAD_TO_DEG,
                         double(ang_vel_target.y) * RAD_TO_DEG,
                         double(ang_vel_target.z) * RAD_TO_DEG,
@@ -808,17 +808,20 @@ void AC_INDI_Control::write_log(void)
                         double(ang_vel.z) * RAD_TO_DEG);
 
     AP::logger().Write("IND4",
-                        "TimeUS,TAX,TAY,TAZ,DAX,DAY,DAZ",
-                        "seeeeee",
-                        "F000000",
-                        "Qffffff",
+                        "TimeUS,TAX,TAY,TAZ,DAX,DAY,DAZ,accx,accy,accz",
+                        "seeeeeeeee",
+                        "F000000000",
+                        "Qfffffffff",
                         AP_HAL::micros64(),
                         double(ang_acc_target.x) * RAD_TO_DEG,
                         double(ang_acc_target.y) * RAD_TO_DEG,
                         double(ang_acc_target.z) * RAD_TO_DEG,
                         double(_ang_acc_desired_radpss.x) * RAD_TO_DEG,
                         double(_ang_acc_desired_radpss.y) * RAD_TO_DEG,
-                        double(_ang_acc_desired_radpss.z) * RAD_TO_DEG);
+                        double(_ang_acc_desired_radpss.z) * RAD_TO_DEG,
+                        double(_ang_acc_check_x) * RAD_TO_DEG,
+                        double(_ang_acc_check_y) * RAD_TO_DEG,
+                        double(_ang_acc_check_z) * RAD_TO_DEG);
 
 
     // log commanded and estimated specific thrust and torque values
