@@ -145,75 +145,75 @@ const AP_Param::GroupInfo AC_AttitudeControl::var_info[] = {
     // @User: Standard
     AP_GROUPINFO("INPUT_TC", 20, AC_AttitudeControl, _input_tc, AC_ATTITUDE_CONTROL_INPUT_TC_DEFAULT),
 
-    // // @Param: roll_cd_up
-    // // @DisplayName: HOIJO
-    // // @Description: HOIJO
-    // // @Range: 0.0 10.0
-    // // @User: Advanced
-    // AP_GROUPINFO("ROLL_CD_UP", 36, AC_AttitudeControl, roll_cd_up, ROLL_CD_UP_DEFAULT),
+    // @Param: roll_cd_up
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("ROLL_CD_UP", 21, AC_AttitudeControl, roll_cd_up, ROLL_CD_UP_DEFAULT),
 
-    // // @Param: roll_cd_down
-    // // @DisplayName: HOIJO
-    // // @Description: HOIJO
-    // // @Range: 0.0 10.0
-    // // @User: Advanced
-    // AP_GROUPINFO("ROLL_CD_DO", 37, AC_AttitudeControl, roll_cd_do, ROLL_CD_DO_DEFAULT),
+    // @Param: roll_cd_down
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("ROLL_CD_DO", 22, AC_AttitudeControl, roll_cd_do, ROLL_CD_DO_DEFAULT),
 
-    // // @Param: pitch_cd_up
-    // // @DisplayName: HOIJO
-    // // @Description: HOIJO
-    // // @Range: 0.0 10.0
-    // // @User: Advanced
-    // AP_GROUPINFO("PITCH_CD_UP", 38, AC_AttitudeControl, pitch_cd_up, PITCH_CD_UP_DEFAULT),
+    // @Param: pitch_cd_up
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("PITCH_CD_UP", 23, AC_AttitudeControl, pitch_cd_up, PITCH_CD_UP_DEFAULT),
 
-    // // @Param: pitch_cd_down
-    // // @DisplayName: HOIJO
-    // // @Description: HOIJO
-    // // @Range: 0.0 10.0
-    // // @User: Advanced
-    // AP_GROUPINFO("PITCH_CD_DO", 39, AC_AttitudeControl, pitch_cd_do, PITCH_CD_DO_DEFAULT),
+    // @Param: pitch_cd_down
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("PITCH_CD_DO", 24, AC_AttitudeControl, pitch_cd_do, PITCH_CD_DO_DEFAULT),
 
-    // // @Param: yaw_cd_up
-    // // @DisplayName: HOIJO
-    // // @Description: HOIJO
-    // // @Range: 0.0 10.0
-    // // @User: AdvancedROLL_CD_UP_DEFAULT
-    // AP_GROUPINFO("YAW_CD_UP", 40, AC_AttitudeControl, yaw_cd_up, YAW_CD_UP_DEFAULT),
+    // @Param: yaw_cd_up
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: AdvancedROLL_CD_UP_DEFAULT
+    AP_GROUPINFO("YAW_CD_UP", 25, AC_AttitudeControl, yaw_cd_up, YAW_CD_UP_DEFAULT),
 
-    // // @Param: yaw_cd_down
-    // // @DisplayName: HOIJO
-    // // @Description: HOIJO
-    // // @Range: 0.0 10.0
-    // // @User: Advanced
-    // AP_GROUPINFO("YAW_CD_DO", 41, AC_AttitudeControl, yaw_cd_do, YAW_CD_DO_DEFAULT),
+    // @Param: yaw_cd_down
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("YAW_CD_DO", 26, AC_AttitudeControl, yaw_cd_do, YAW_CD_DO_DEFAULT),
 
-    // // @Param: double_t1
-    // // @DisplayName: HOIJO
-    // // @Description: HOIJO
-    // // @Range: 0.0 10.0
-    // // @User: Advanced
-    // AP_GROUPINFO("D_T1", 42, AC_AttitudeControl, d_t1, D_T1_DEFAULT),
+    // @Param: double_t1
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("D_T1", 27, AC_AttitudeControl, d_t1, D_T1_DEFAULT),
 
-    // // @Param: double_t2
-    // // @DisplayName: HOIJO
-    // // @Description: HOIJO
-    // // @Range: 0.0 10.0
-    // // @User: Advanced
-    // AP_GROUPINFO("D_T2", 43, AC_AttitudeControl, d_t2, D_T2_DEFAULT),
+    // @Param: double_t2
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("D_T2", 28, AC_AttitudeControl, d_t2, D_T2_DEFAULT),
 
-    // // @Param: double_t1
-    // // @DisplayName: HOIJO
-    // // @Description: HOIJO
-    // // @Range: 0.0 10.0
-    // // @User: Advanced
-    // AP_GROUPINFO("D_T3", 44, AC_AttitudeControl, d_t3, D_T3_DEFAULT),
+    // @Param: double_t1
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("D_T3", 29, AC_AttitudeControl, d_t3, D_T3_DEFAULT),
 
-    // // @Param: double_t4
-    // // @DisplayName: HOIJO
-    // // @Description: HOIJO
-    // // @Range: 0.0 10.0
-    // // @User: Advanced
-    // AP_GROUPINFO("D_T4", 45, AC_AttitudeControl, d_t4, D_T4_DEFAULT),
+    // @Param: double_t4
+    // @DisplayName: HOIJO
+    // @Description: HOIJO
+    // @Range: 0.0 10.0
+    // @User: Advanced
+    AP_GROUPINFO("D_T4", 30, AC_AttitudeControl, d_t4, D_T4_DEFAULT),
 
     AP_GROUPEND};
 
