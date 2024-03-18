@@ -98,7 +98,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: kg.m²
     // @Range: 0.001 1
     // @User: Standard
-    AP_GROUPINFO("_MOI_XX",                         12, AC_INDI_Control, _moment_inertia_xx_kgm2, 3.5e-3f),
+    AP_GROUPINFO("_MOI_XX",                         12, AC_INDI_Control, _moment_inertia_xx_kgm2, 0.004f),
 
     // @Param: _MOI_YY
     // @DisplayName: Moment of inertia of vehicle  in y-y axis in kg.m² 
@@ -106,7 +106,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: kg.m²
     // @Range: 0.001 1
     // @User: Standard
-    AP_GROUPINFO("_MOI_YY",                         13, AC_INDI_Control, _moment_inertia_yy_kgm2, 3.5e-3f),
+    AP_GROUPINFO("_MOI_YY",                         13, AC_INDI_Control, _moment_inertia_yy_kgm2, 0.004f),
 
     // @Param: _MOI_Z
     // @DisplayName: Moment of inertia of vehicle in z axis in kg.m² 
@@ -114,7 +114,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: kg.m²
     // @Range: 0.001 1
     // @User: Standard
-    AP_GROUPINFO("_MOI_Z",                          14, AC_INDI_Control, _moment_inertia_z_kgm2, 5.1e-3f),
+    AP_GROUPINFO("_MOI_Z",                          14, AC_INDI_Control, _moment_inertia_z_kgm2, 0.008f),
 
     // @Param: _ARM_LEN
     // @DisplayName: Distance to motor in m
@@ -153,7 +153,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: Hz
     // @Range: 20 100
     // @User: Standard
-    AP_GROUPINFO("_TRQEST_FILT",                     19, AC_INDI_Control, _torque_est_filter_cutoff, 30.0f),
+    AP_GROUPINFO("_TRQEST_FILT",                     19, AC_INDI_Control, _torque_est_filter_cutoff, 35.0f),
 
     // @Param: _STHEST_FILT
     // @DisplayName: Specific thrust cutoff frequency in Hz
@@ -177,7 +177,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: Hz
     // @Range: 2 20
     // @User: Standard    
-    AP_GROUPINFO("_YAW_FILT",                     22, AC_INDI_Control, _yaw_rate_filter_cutoff, 3.0f),
+    AP_GROUPINFO("_YAW_FILT",                     22, AC_INDI_Control, _yaw_rate_filter_cutoff, 35.0f),
 
     // @Param: _ACC_SEL
     // @DisplayName: Selection of the angular acceleration
@@ -198,11 +198,11 @@ AC_INDI_Control::AC_INDI_Control(AP_AHRS_View& ahrs, const AP_InertialNav& inav)
     _p_pos_z(1),
     _p_vel_z(4),
     _p_angle_x(7.5),
-    _p_ang_rate_x(30),
+    _p_ang_rate_x(65),
     _p_angle_y(7.5),
-    _p_ang_rate_y(30),
-    _p_angle_z(6),
-    _p_ang_rate_z(24)
+    _p_ang_rate_y(65),
+    _p_angle_z(8),
+    _p_ang_rate_z(80)
 {
     if (_singleton) {
         AP_HAL::panic("Too many AC_INDI_Control instances");
@@ -490,9 +490,9 @@ void AC_INDI_Control::indi_angular_accel(void)
     // filter body z axis torque command to compansate for the mechanicaly yaw
     // this render rotor inertia information(_motor_moment_inertia_kgm2) unneccessary 
     
-    // _yaw_rate_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _yaw_rate_filter_cutoff);
-    // _yaw_rate_filter.apply(_torque_cmd_body_Nm.z);
-    // _torque_cmd_body_Nm.z = _yaw_rate_filter.get();
+    _yaw_rate_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _yaw_rate_filter_cutoff);
+    _yaw_rate_filter.apply(_torque_cmd_body_Nm.z);
+    _torque_cmd_body_Nm.z = _yaw_rate_filter.get();
 }
 
 // TODO: apply scaling to the torque command to correct scaling due to the arducopter control allocation

@@ -343,77 +343,77 @@ void AC_AttitudeControl::input_quaternion(Quaternion &attitude_desired_quat, Vec
 void AC_AttitudeControl::input_euler_angle_roll_pitch_euler_rate_yaw(float euler_roll_angle_cd, float euler_pitch_angle_cd, float euler_yaw_rate_cds)
 {
 
-    // GEnerator of the Doublet command
-    if (_use_doublet == true)
-    {
-        u_int32_t now = AP_HAL::millis();
+    // // GEnerator of the Doublet command
+    // if (_use_doublet == true)
+    // {
+    //     u_int32_t now = AP_HAL::millis();
 
-        if (doublet_timer == 0 || now - doublet_timer < get_d_t1())
-        {
-            if (doublet_timer == 0)
-            {
-                GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet time start");
-                doublet_timer = now;
-            }
-            euler_roll_angle_cd = 0.0f;
-            euler_pitch_angle_cd = 0.0f;
-            euler_yaw_rate_cds = 0.0f;
-        }
-        else if (now - doublet_timer >= get_d_t1() && now - doublet_timer < get_d_t2())
-        {
-            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet phase 1");
-            euler_roll_angle_cd = get_roll_cd_up();
-            euler_pitch_angle_cd = get_pitch_cd_up();
-            euler_yaw_rate_cds = get_yaw_cd_up();
-        }
-        else if (now - doublet_timer >= get_d_t2() && now - doublet_timer < get_d_t3())
-        {
-            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet phase 2");
-            euler_roll_angle_cd = get_roll_cd_do();
-            euler_pitch_angle_cd = get_pitch_cd_do();
-            euler_yaw_rate_cds = get_yaw_cd_do();
-        }
-        else if (now - doublet_timer >= get_d_t3() && now - doublet_timer < get_d_t4())
-        {
-            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet phase 3");
-            euler_roll_angle_cd = 0.0f;
-            euler_pitch_angle_cd = 0.0f;
-            euler_yaw_rate_cds = 0.0f;
-        }
-        else
-        {
-            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet motion off");
-            doublet_arm = false;
-        }
+    //     if (doublet_timer == 0 || now - doublet_timer < get_d_t1())
+    //     {
+    //         if (doublet_timer == 0)
+    //         {
+    //             GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet time start");
+    //             doublet_timer = now;
+    //         }
+    //         euler_roll_angle_cd = 0.0f;
+    //         euler_pitch_angle_cd = 0.0f;
+    //         euler_yaw_rate_cds = 0.0f;
+    //     }
+    //     else if (now - doublet_timer >= get_d_t1() && now - doublet_timer < get_d_t2())
+    //     {
+    //         GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet phase 1");
+    //         euler_roll_angle_cd = get_roll_cd_up();
+    //         euler_pitch_angle_cd = get_pitch_cd_up();
+    //         euler_yaw_rate_cds = get_yaw_cd_up();
+    //     }
+    //     else if (now - doublet_timer >= get_d_t2() && now - doublet_timer < get_d_t3())
+    //     {
+    //         GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet phase 2");
+    //         euler_roll_angle_cd = get_roll_cd_do();
+    //         euler_pitch_angle_cd = get_pitch_cd_do();
+    //         euler_yaw_rate_cds = get_yaw_cd_do();
+    //     }
+    //     else if (now - doublet_timer >= get_d_t3() && now - doublet_timer < get_d_t4())
+    //     {
+    //         GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet phase 3");
+    //         euler_roll_angle_cd = 0.0f;
+    //         euler_pitch_angle_cd = 0.0f;
+    //         euler_yaw_rate_cds = 0.0f;
+    //     }
+    //     else
+    //     {
+    //         GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Doublet motion off");
+    //         doublet_arm = false;
+    //     }
 
-        // LPF
-        // float tau_doublet = 0.2;
-        // float delta_t = 0.002;
-        // euler_roll_angle_cd = (tau_doublet * doublelet_out_prev + euler_roll_angle_cd * delta_t) / (tau_doublet + delta_t);
-        // doublelet_out_prev = euler_roll_angle_cd;
+    //     // LPF
+    //     // float tau_doublet = 0.2;
+    //     // float delta_t = 0.002;
+    //     // euler_roll_angle_cd = (tau_doublet * doublelet_out_prev + euler_roll_angle_cd * delta_t) / (tau_doublet + delta_t);
+    //     // doublelet_out_prev = euler_roll_angle_cd;
 
-        float d_filter_hz = get_d_filter();
-        Vector3f    _doublet_filterd_before;
-        _doublet_filterd_before.x = euler_roll_angle_cd;
-        _doublet_filterd_before.y = euler_pitch_angle_cd;
-        _doublet_filterd_before.z = euler_yaw_rate_cds;
+    //     float d_filter_hz = get_d_filter();
+    //     Vector3f    _doublet_filterd_before;
+    //     _doublet_filterd_before.x = euler_roll_angle_cd;
+    //     _doublet_filterd_before.y = euler_pitch_angle_cd;
+    //     _doublet_filterd_before.z = euler_yaw_rate_cds;
 
-        _doublet_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), d_filter_hz);
-        _doublet_filter.apply(_doublet_filterd_before);
+    //     _doublet_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), d_filter_hz);
+    //     _doublet_filter.apply(_doublet_filterd_before);
 
-        Vector3f    _doublet_filterd_after;
-        _doublet_filterd_after = _doublet_filter.get();
+    //     Vector3f    _doublet_filterd_after;
+    //     _doublet_filterd_after = _doublet_filter.get();
 
-        euler_roll_angle_cd  = _doublet_filterd_after.x;
-        euler_pitch_angle_cd = _doublet_filterd_after.y;
-        euler_yaw_rate_cds   = _doublet_filterd_after.z;
-    }
-    else
-    {
-        doublet_timer = 0;
-        doublelet_out_prev = 0;
-        // doublet_arm = true;
-    }
+    //     euler_roll_angle_cd  = _doublet_filterd_after.x;
+    //     euler_pitch_angle_cd = _doublet_filterd_after.y;
+    //     euler_yaw_rate_cds   = _doublet_filterd_after.z;
+    // }
+    // else
+    // {
+    //     doublet_timer = 0;
+    //     doublelet_out_prev = 0;
+    //     // doublet_arm = true;
+    // }
 
     // Convert from centidegrees on public interface to radians
     float euler_roll_angle = radians(euler_roll_angle_cd * 0.01f);
