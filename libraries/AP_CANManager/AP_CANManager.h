@@ -54,6 +54,7 @@ public:
     enum Driver_Type : uint8_t {
         Driver_Type_None = 0,
         Driver_Type_UAVCAN = 1,
+        Driver_Type_MW_AHRS = 2,
         // 2 was KDECAN -- do not re-use
         Driver_Type_ToshibaCAN = 3,
         Driver_Type_PiccoloCAN = 4,
@@ -151,6 +152,7 @@ private:
         AP_Int8 _driver_type;
         AP_CANDriver* _testcan;
         AP_CANDriver* _uavcan;
+        AP_CANDriver* _mw_ahrs;
         AP_CANDriver* _kdecan;
         AP_CANDriver* _piccolocan;
     };

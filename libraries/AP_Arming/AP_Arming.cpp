@@ -52,6 +52,8 @@
 
   #include <AP_PiccoloCAN/AP_PiccoloCAN.h>
 
+  #include <AP_MW_AHRS/AP_MW_AHRS.h>
+
   // To be replaced with macro saying if KDECAN library is included
   #if APM_BUILD_COPTER_OR_HELI || APM_BUILD_TYPE(APM_BUILD_ArduPlane) || APM_BUILD_TYPE(APM_BUILD_ArduSub)
     #include <AP_KDECAN/AP_KDECAN.h>
@@ -988,6 +990,17 @@ bool AP_Arming::can_checks(bool report)
 #endif
                     break;
                 }
+                case AP_CANManager::Driver_Type_MW_AHRS:
+                {
+                    AP_MW_AHRS *ap_mw_ahrs = AP_MW_AHRS::get_mw_ahrs(i);
+                    if (ap_mw_ahrs != nullptr && !ap_mw_ahrs->pre_arm_check(fail_msg, ARRAY_SIZE(fail_msg)))
+                    {
+                        check_failed(ARMING_CHECK_SYSTEM, report, "MW_AHRS: %s", fail_msg);
+                        return false;
+                    }
+                    break;
+                }
+
                 case AP_CANManager::Driver_Type_PiccoloCAN: {
 #if HAL_PICCOLO_CAN_ENABLE
                     AP_PiccoloCAN *ap_pcan = AP_PiccoloCAN::get_pcan(i);
