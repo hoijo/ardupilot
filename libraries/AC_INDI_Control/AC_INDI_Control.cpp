@@ -191,6 +191,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
 };
 
 AC_INDI_Control::AC_INDI_Control(AP_AHRS_View& ahrs, const AP_InertialNav& inav) :
+// AC_INDI_Control::AC_INDI_Control(AP_AHRS_View& ahrs, const AP_InertialNav& inav, AP_MW_AHRS& mwmw) :
     _ahrs(ahrs),
     _inav(inav),
     _p_pos_xy(1),
@@ -439,6 +440,11 @@ void AC_INDI_Control::run_angvel_controller(Vector3f target, Vector3f measurment
     z_transform_acc();
     indi_angular_accel();
     scale_torque_cmd();
+
+    // Off-CG Sensor data 
+    // Off_CG_arrange();
+
+    NAP_cal();
 }
 
 // torque increment based on angular acceleration difference
@@ -539,6 +545,19 @@ void AC_INDI_Control::z_transform_acc(void)
     _angular_acc_z.x = _p_dot_z_transform;
     _angular_acc_z.y = _q_dot_z_transform;
     _angular_acc_z.z = _r_dot_z_transform;
+}
+
+void AC_INDI_Control::Off_CG_arrange(void)
+{
+    // Num 1 : Right
+    
+}
+
+void AC_INDI_Control::NAP_cal(void)
+{
+
+    mw_1_acc.y = AP_MW_AHRS::acc_mw_ahrs[0][0];;
+    mw_1_acc.z = -mw_1_acc.y;
 }
 
 // NOT USED: Arducopter control allocation used at the moment.
@@ -654,7 +673,6 @@ void AC_INDI_Control::get_motor_speed(void)
 //         motor_speed_hz[i] = motor_speed_rpm[i] / 60.0f;
 //     }
 // #endif
-
  
     for (uint8_t i=0; i < 4; i++) {
         _motor_speed_hz[i]          = _motor_speed_rpm[i] * 0.016667;
@@ -914,19 +932,29 @@ void AC_INDI_Control::write_log(void)
                     double(_ang_acc_check_y) * RAD_TO_DEG,
                     double(_ang_acc_check_z) * RAD_TO_DEG);
 
-    const Vector3f &ang_err_log = get_ang_err();
-    AP::logger().Write("IN10",
-                    "TimeUS,Euex,Euey,Euez,Avex,Avey,Avez",
-                    "sdddkkk",
-                    "F000000",
-                    "Qffffff",
-                    AP_HAL::micros64(),
-                    double(ang_err_log.x) * RAD_TO_DEG,
-                    double(ang_err_log.y) * RAD_TO_DEG,
-                    double(ang_err_log.z) * RAD_TO_DEG,
-                    double(_error_ang_vel_save.x) * RAD_TO_DEG,
-                    double(_error_ang_vel_save.y) * RAD_TO_DEG,
-                    double(_error_ang_vel_save.z) * RAD_TO_DEG);
+    // const Vector3f &ang_err_log = get_ang_err();
+    // AP::logger().Write("IN10",
+    //                 "TimeUS,Euex,Euey,Euez,Avex,Avey,Avez",
+    //                 "sdddkkk",
+    //                 "F000000",
+    //                 "Qffffff",
+    //                 AP_HAL::micros64(),
+    //                 double(ang_err_log.x) * RAD_TO_DEG,
+    //                 double(ang_err_log.y) * RAD_TO_DEG,
+    //                 double(ang_err_log.z) * RAD_TO_DEG,
+    //                 double(_error_ang_vel_save.x) * RAD_TO_DEG,
+    //                 double(_error_ang_vel_save.y) * RAD_TO_DEG,
+    //                 double(_error_ang_vel_save.z) * RAD_TO_DEG);
+
+    const Vector3f &offcg_mw = get_mw_1_acc();
+    AP::logger().Write("IN11",
+                "TimeUS,ax2,ax3",
+                "s--",
+                "F00",
+                "Qff",
+                AP_HAL::micros64(),
+                offcg_mw.y,
+                offcg_mw.z);
 }
 
 AC_INDI_Control *AC_INDI_Control::_singleton = nullptr;

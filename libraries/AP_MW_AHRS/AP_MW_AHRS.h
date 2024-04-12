@@ -32,9 +32,9 @@ public:
     // check that arming can happen
     bool pre_arm_check(char* reason, uint8_t reason_len);
 
-    float acc_mw_ahrs[3][5];
-    float gyr_mw_ahrs[3][5];
-    float ang_mw_ahrs[3][5];
+    static float acc_mw_ahrs[3][5];
+    static float gyr_mw_ahrs[3][5];
+    static float ang_mw_ahrs[3][5];
 
 private:
     void loop();

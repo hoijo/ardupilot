@@ -12,6 +12,10 @@
 
 extern const AP_HAL::HAL& hal;
 
+float AP_MW_AHRS::acc_mw_ahrs[3][5];
+float AP_MW_AHRS::gyr_mw_ahrs[3][5];
+float AP_MW_AHRS::ang_mw_ahrs[3][5];
+
 #if HAL_CANMANAGER_ENABLED
 #define debug_can(level_debug, fmt, args...) do { AP::can().log_text(level_debug, "MW_AHRS", fmt, ##args); } while (0)
 #else

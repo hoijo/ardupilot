@@ -8,6 +8,8 @@
 #include <Filter/LowPassFilter2p.h>
 #include <Filter/LowPassFilter.h>
 
+#include <AP_MW_AHRS/AP_MW_AHRS.h>
+
 // rpm hall sensor
 #include <AP_RPM/AP_RPM.h>
 
@@ -16,6 +18,7 @@ class AC_INDI_Control
 public:
     /// Constructor
     AC_INDI_Control(AP_AHRS_View& ahrs, const AP_InertialNav& inav);
+    // AC_INDI_Control(AP_AHRS_View& ahrs, const AP_InertialNav& inav, AP_MW_AHRS& mwmw);
 
     /* Do not allow copies */
     AC_INDI_Control(const AC_INDI_Control &other) = delete;
@@ -70,6 +73,9 @@ public:
 
     const Vector3f& get_ang_acc_z_transform() const { return _angular_acc_z; }
 
+    // Off-CG
+    const Vector3f& get_mw_1_acc() const {return mw_1_acc;}
+
     // get P controllers
     AC_P& get_pos_xy_p() { return _p_pos_xy; }
     AC_P& get_vel_xy_p() { return _p_vel_xy; }
@@ -90,7 +96,6 @@ public:
     bool get_use_INDI() { return _use_INDI;}
 
 protected:
-
     // add delta linear accleration to current specific thrust to obtain 
     // specific thrust command
     void indi_linear_accel(bool enable_xy, float accel_max_xy_mpss);
@@ -116,6 +121,12 @@ protected:
     // z transform 400hz for angular acceleration using angular velocity
     void z_transform_acc(void);
 
+    // Off-CG data arrange
+    void Off_CG_arrange(void);
+
+    // calculating of the angular acceleration using Off-CGs
+    void NAP_cal(void);
+
     // allocate torque and thrust cmd to the each motor thrust
     void control_allocation(void);
 
@@ -126,9 +137,7 @@ protected:
     // references to inertial nav and ahrs libraries
     AP_AHRS_View &        _ahrs;
     const AP_InertialNav&       _inav;
-
-    // AP_RPM rpm_indi;
-
+        
     // Parameters 
     AP_Int8     enable_chan;
 
@@ -226,6 +235,7 @@ protected:
 
     Vector3f _angular_acc_z;
 
+    Vector3f mw_1_acc = {0,0,0};
 private:
     static AC_INDI_Control *_singleton;
 public:
