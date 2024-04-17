@@ -148,6 +148,7 @@ void AP_MW_AHRS::loop()
             
         // Immediately check if rx buffer not empty
         select_ret = _can_iface->select(read_select, write_select, &empty_frame, timeout);
+        
         if (select_ret && read_select) {
             AP_HAL::CANFrame frame;
             uint64_t rx_time;
@@ -167,12 +168,12 @@ void AP_MW_AHRS::loop()
                                 break;
                             }
 
-                            int16_t acc_y = ((int)(unsigned char)frame.data[2] | (int)(unsigned char)frame.data[3] << 8);
-                            int16_t acc_x = ((int)(unsigned char)frame.data[4] | (int)(unsigned char)frame.data[5] << 8);
+                            int16_t acc_x = ((int)(unsigned char)frame.data[2] | (int)(unsigned char)frame.data[3] << 8);
+                            int16_t acc_y = ((int)(unsigned char)frame.data[4] | (int)(unsigned char)frame.data[5] << 8);
                             int16_t acc_z = ((int)(unsigned char)frame.data[6] | (int)(unsigned char)frame.data[7] << 8);
 
-                            float accx = -acc_x * 9.8 / 1000.0;
-                            float accy = -acc_y * 9.8 / 1000.0;
+                            float accx = acc_x * 9.8 / 1000.0;
+                            float accy = acc_y * 9.8 / 1000.0;
                             float accz = acc_z * 9.8 / 1000.0;
 
                             if (accx != acc_mw_ahrs_prev[0][id.node_id] || accy != acc_mw_ahrs_prev[1][id.node_id] || accz != acc_mw_ahrs_prev[2][id.node_id]) {
@@ -230,13 +231,13 @@ void AP_MW_AHRS::loop()
                                 break;
                             }
 
-                            int16_t gyr_y = ((int)(unsigned char)frame.data[2] | (int)(unsigned char)frame.data[3] << 8);
-                            int16_t gyr_x = ((int)(unsigned char)frame.data[4] | (int)(unsigned char)frame.data[5] << 8);
+                            int16_t gyr_x = ((int)(unsigned char)frame.data[2] | (int)(unsigned char)frame.data[3] << 8);
+                            int16_t gyr_y = ((int)(unsigned char)frame.data[4] | (int)(unsigned char)frame.data[5] << 8);
                             int16_t gyr_z = ((int)(unsigned char)frame.data[6] | (int)(unsigned char)frame.data[7] << 8);
 
                             float gyrx = gyr_x / 10.0;
                             float gyry = gyr_y / 10.0;
-                            float gyrz = -gyr_z / 10.0;
+                            float gyrz = gyr_z / 10.0;
 
                             if (gyrx != gyr_mw_ahrs_prev[0][id.node_id] || gyry != gyr_mw_ahrs_prev[1][id.node_id] || gyrz != gyr_mw_ahrs_prev[2][id.node_id]) {
 
@@ -293,13 +294,13 @@ void AP_MW_AHRS::loop()
                                 break;
                             }
 
-                            int16_t ang_y = ((int)(unsigned char)frame.data[2] | (int)(unsigned char)frame.data[3] << 8);
-                            int16_t ang_x = ((int)(unsigned char)frame.data[4] | (int)(unsigned char)frame.data[5] << 8);
+                            int16_t ang_x = ((int)(unsigned char)frame.data[2] | (int)(unsigned char)frame.data[3] << 8);
+                            int16_t ang_y = ((int)(unsigned char)frame.data[4] | (int)(unsigned char)frame.data[5] << 8);
                             int16_t ang_z = ((int)(unsigned char)frame.data[6] | (int)(unsigned char)frame.data[7] << 8);
 
                             float angx = ang_x / 100.0;
                             float angy = ang_y / 100.0;
-                            float angz = -ang_z / 100.0;
+                            float angz = ang_z / 100.0;
 
                             if (angx != ang_mw_ahrs_prev[0][id.node_id] || angy != ang_mw_ahrs_prev[1][id.node_id] || angz != ang_mw_ahrs_prev[2][id.node_id]) {
 

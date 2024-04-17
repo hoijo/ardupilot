@@ -71,11 +71,41 @@ public:
 
     const Vector3f& get_ang_err() const { return _error_att_save; }
 
-    const Vector3f& get_ang_acc_z_transform() const { return _angular_acc_z; }
+    const Vector3f& get_ang_acc_z_transform() const { return _angular_acc_z; } // [rad/s^2]
 
-    // Off-CG
+    // Output of the Off-CG data
     const Vector3f& get_mw_1_acc() const {return mw_1_acc;}
+    const Vector3f& get_mw_1_acc_wo_g() const {return mw_1_acc_wo_g;}
+    const Vector3f& get_mw_1_gyr() const {return mw_1_gyr;}
+    
+    const Vector3f& get_mw_2_acc() const {return mw_2_acc;}
+    const Vector3f& get_mw_2_acc_wo_g() const {return mw_2_acc_wo_g;}
+    const Vector3f& get_mw_2_gyr() const {return mw_2_gyr;}
 
+    const Vector3f& get_mw_3_acc() const {return mw_3_acc;}
+    const Vector3f& get_mw_3_acc_wo_g() const {return mw_3_acc_wo_g;}
+    const Vector3f& get_mw_3_gyr() const {return mw_3_gyr;}
+
+    const Vector3f& get_mw_4_acc() const {return mw_4_acc;}
+    const Vector3f& get_mw_4_acc_wo_g() const {return mw_4_acc_wo_g;}
+    const Vector3f& get_mw_4_gyr() const {return mw_4_gyr;}
+
+    const Vector3f& get_mw_5_acc() const {return mw_5_acc;}
+    const Vector3f& get_mw_5_acc_wo_g() const {return mw_5_acc_wo_g;}
+    const Vector3f& get_mw_5_gyr() const {return mw_5_gyr;}
+
+    // Output of the NAP
+    const Vector3f& get_acc_nap() const {return acc_nap;}
+
+    // Output of the 3aw
+    const Vector3f& get_acc_3aw() const {return acc_3aw;}
+
+    // Output of the 6aw
+    const Vector3f& get_acc_6aw() const {return acc_6aw;}
+
+    // Output of the tri_axis
+    const Vector3f& get_acc_tri_axis() const {return acc_tri_axis;}
+    
     // get P controllers
     AC_P& get_pos_xy_p() { return _p_pos_xy; }
     AC_P& get_vel_xy_p() { return _p_vel_xy; }
@@ -118,14 +148,27 @@ protected:
     // set mixer input from the torque and thrust command 
     void scale_torque_cmd(void);
 
+    // *************************** Angular acceleration *********************************
+
+    // Off-CG data arrange (1~5 sensors)
+    void Off_CG_data_arrange(void);
+
     // z transform 400hz for angular acceleration using angular velocity
     void z_transform_acc(void);
 
-    // Off-CG data arrange
-    void Off_CG_arrange(void);
-
-    // calculating of the angular acceleration using Off-CGs
+    // calculating of the angular acceleration using NAP
     void NAP_cal(void);
+
+    // calculating of the angular acceleration using 3aw
+    void acc_3aw_cal(void);
+
+    // calculating of the angular acceleration using 6aw
+    void acc_6aw_cal(void);
+
+    // calculating of the angular acceleration using tri-axis
+    void acc_tri_axis_cal(void);
+
+    // **********************************************************************************
 
     // allocate torque and thrust cmd to the each motor thrust
     void control_allocation(void);
@@ -235,9 +278,73 @@ protected:
 
     Vector3f _angular_acc_z;
 
-    Vector3f mw_1_acc = {0,0,0};
+    // Arranging of the Off-CG sensor data
+    Vector3f mw_1_acc = {0.0f,0.0f,0.0f};
+    Vector3f mw_1_acc_wo_g = {0.0f,0.0f,0.0f}; // w/o gravity
+    Vector3f mw_1_gyr = {0.0f,0.0f,0.0f};
+
+    Vector3f mw_2_acc = {0.0f,0.0f,0.0f};
+    Vector3f mw_2_acc_wo_g = {0.0f,0.0f,0.0f}; // w/o gravity
+    Vector3f mw_2_gyr = {0.0f,0.0f,0.0f};
+
+    Vector3f mw_3_acc = {0.0f,0.0f,0.0f};
+    Vector3f mw_3_acc_wo_g = {0.0f,0.0f,0.0f}; // w/o gravity
+    Vector3f mw_3_gyr = {0.0f,0.0f,0.0f};
+
+    Vector3f mw_4_acc = {0.0f,0.0f,0.0f};
+    Vector3f mw_4_acc_wo_g = {0.0f,0.0f,0.0f}; // w/o gravity
+    Vector3f mw_4_gyr = {0.0f,0.0f,0.0f};
+
+    Vector3f mw_5_acc = {0.0f,0.0f,0.0f};
+    Vector3f mw_5_acc_wo_g = {0.0f,0.0f,0.0f}; // w/o gravity
+    Vector3f mw_5_gyr = {0.0f,0.0f,0.0f};
 private:
     static AC_INDI_Control *_singleton;
+
+    double Ct = 3.336e-5;
+    double Cq = 5.694e-7;
+
+    // Num 1: Right (Coordinate : NWU)
+    Vector3f mw_1_pos = {0.0f, -0.48f, 0.0f};
+
+    // Num 2: Left (Coordinate : NWU)
+    Vector3f mw_2_pos = {0.0f, 0.48f, 0.0f};
+
+    // Num 3: Front (Coordinate : NWU)
+    Vector3f mw_3_pos = {0.48f, 0.0f, 0.0f};
+   
+    // Num 4: Rear (Coordinate : NWU)
+    Vector3f mw_4_pos = {-0.48f, 0.0f, 0.0f};
+
+    // Num 5: Top (Coordinate : NWU)
+    Vector3f mw_5_pos = {0.0f, 0.0f, 0.11f};
+
+    // NAP : angular acceleration (NWU)
+    Vector3f acc_nap = {0.0f,0.0f,0.0f};
+
+    // 3aw : angular acceleration (NWU)
+    Vector3f acc_3aw = {0.0f, 0.0f, 0.11f};
+
+    // 6aw : angular acceleration (NWU)
+    Vector3f acc_6aw = {0.0f,0.0f,0.0f};
+
+    // try-axis : angular acceleration (NWU)
+    Vector3f acc_tri_axis = {0.0f,0.0f,0.0f};
+
+    // accelerometer from CG w/ gravity
+    Vector3f cg_acc = {0.0f,0.0f,0.0f};
+
+    // accelerometer from CG w/o gravity
+    Vector3f cg_acc_wo_grav = {0.0f,0.0f,0.0f};
+
+    Vector3f accel_gravity{0.0f, 0.0f, GRAVITY_MSS}; // m/s/s NED, body frame
+
+    Vector3f acc_body_no_gravity = {0.0f,0.0f,0.0f};
+
+    // Convert a 321-intrinsic euler angle derivative to an angular velocity vector
+    void ned_to_body(const Vector3f& euler_rad, const Vector3f& ned_contents, Vector3f& body_contents);
+
+
 public:
     // INDI on/off switch
     bool _use_INDI = true;
@@ -246,7 +353,6 @@ public:
     float _rpm_indi_2 = 0.0f;
     float _rpm_indi_3 = 0.0f;
     float _rpm_indi_4 = 0.0f;
-
 };
 
 namespace AP {
