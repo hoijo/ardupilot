@@ -75,24 +75,36 @@ public:
 
     // Output of the Off-CG data
     const Vector3f& get_mw_1_acc() const {return mw_1_acc;}
+    const Vector3f& get_mw_1_acc_f() const {return mw_1_acc_f;}
     const Vector3f& get_mw_1_acc_wo_g() const {return mw_1_acc_wo_g;}
+    const Vector3f& get_mw_1_acc_wo_g_f() const {return mw_1_acc_wo_g_f;}
     const Vector3f& get_mw_1_gyr() const {return mw_1_gyr;}
-    
+
     const Vector3f& get_mw_2_acc() const {return mw_2_acc;}
+    const Vector3f& get_mw_2_acc_f() const {return mw_2_acc_f;}
     const Vector3f& get_mw_2_acc_wo_g() const {return mw_2_acc_wo_g;}
+    const Vector3f& get_mw_2_acc_wo_g_f() const {return mw_2_acc_wo_g_f;}
     const Vector3f& get_mw_2_gyr() const {return mw_2_gyr;}
 
     const Vector3f& get_mw_3_acc() const {return mw_3_acc;}
+    const Vector3f& get_mw_3_acc_f() const {return mw_3_acc_f;}
     const Vector3f& get_mw_3_acc_wo_g() const {return mw_3_acc_wo_g;}
+    const Vector3f& get_mw_3_acc_wo_g_f() const {return mw_3_acc_wo_g_f;}
     const Vector3f& get_mw_3_gyr() const {return mw_3_gyr;}
 
     const Vector3f& get_mw_4_acc() const {return mw_4_acc;}
+    const Vector3f& get_mw_4_acc_f() const {return mw_4_acc_f;}
     const Vector3f& get_mw_4_acc_wo_g() const {return mw_4_acc_wo_g;}
+    const Vector3f& get_mw_4_acc_wo_g_f() const {return mw_4_acc_wo_g_f;}
     const Vector3f& get_mw_4_gyr() const {return mw_4_gyr;}
 
     const Vector3f& get_mw_5_acc() const {return mw_5_acc;}
+    const Vector3f& get_mw_5_acc_f() const {return mw_5_acc_f;}
     const Vector3f& get_mw_5_acc_wo_g() const {return mw_5_acc_wo_g;}
+    const Vector3f& get_mw_5_acc_wo_g_f() const {return mw_5_acc_wo_g_f;}
     const Vector3f& get_mw_5_gyr() const {return mw_5_gyr;}
+
+    const Vector3f& get_cg_acc_wo_grav() const {return cg_acc_wo_grav;}
 
     // Output of the NAP
     const Vector3f& get_acc_nap() const {return acc_nap;}
@@ -105,7 +117,7 @@ public:
 
     // Output of the tri_axis
     const Vector3f& get_acc_tri_axis() const {return acc_tri_axis;}
-    
+
     // get P controllers
     AC_P& get_pos_xy_p() { return _p_pos_xy; }
     AC_P& get_vel_xy_p() { return _p_vel_xy; }
@@ -119,33 +131,33 @@ public:
     AC_P& get_rate_pitch_p() { return _p_ang_rate_y; }
     AC_P& get_rate_yaw_p() { return _p_ang_rate_z; }
 
-    static const struct AP_Param::GroupInfo var_info[];    
+    static const struct AP_Param::GroupInfo var_info[];
 
     // INDI on/off switch
     void set_use_INDI(bool use_INDI);
     bool get_use_INDI() { return _use_INDI;}
 
 protected:
-    // add delta linear accleration to current specific thrust to obtain 
+    // add delta linear accleration to current specific thrust to obtain
     // specific thrust command
     void indi_linear_accel(bool enable_xy, float accel_max_xy_mpss);
 
-    // First limit magnitude of specific thrust command 
-    // then limit xy axis of specific thrust command to no 
+    // First limit magnitude of specific thrust command
+    // then limit xy axis of specific thrust command to no
     // grater than 1 g or z axis command
     void limit_specific_thrust(float accel_max_xy);
 
-    // convert specific thrust command to the scaled thrust command 
+    // convert specific thrust command to the scaled thrust command
     void spec_thrust_to_scaled_thrust(void);
 
-    // calculate attiude error 
+    // calculate attiude error
     // same as thrust_heading_rotation_angles function in AC_AttitudeControl.cpp
     Vector3f calculate_att_error(Quaternion target, Quaternion meas);
 
     // add delta angular accleration to current torque to obtain torque command
     void indi_angular_accel(void);
 
-    // set mixer input from the torque and thrust command 
+    // set mixer input from the torque and thrust command
     void scale_torque_cmd(void);
 
     // *************************** Angular acceleration *********************************
@@ -173,15 +185,14 @@ protected:
     // allocate torque and thrust cmd to the each motor thrust
     void control_allocation(void);
 
-    // assign measured motor speed to _motor_speed_meas_radps 
+    // assign measured motor speed to _motor_speed_meas_radps
     void get_motor_speed(void);
 
-    
     // references to inertial nav and ahrs libraries
     AP_AHRS_View &        _ahrs;
     const AP_InertialNav&       _inav;
-        
-    // Parameters 
+
+    // Parameters
     AP_Int8     enable_chan;
 
     // position and velocity P controller parameters
@@ -199,7 +210,7 @@ protected:
     AC_P        _p_ang_rate_z;
 
     // vehicle properties
-    AP_Float    _mass_kg;                       // mass in kg               
+    AP_Float    _mass_kg;                       // mass in kg
     AP_Float    _moment_inertia_xx_kgm2;        // moment of inertia of xx axis in kg.m²
     AP_Float    _moment_inertia_yy_kgm2;        // moment of inertia of yy axis in kg.m²
     AP_Float    _moment_inertia_z_kgm2;         // moment of inertia of z axis in kg.m²
@@ -213,6 +224,12 @@ protected:
     AP_Float    _yaw_rate_filter_cutoff;        // torque command filter cutoff frequency in Hz
     AP_Int32    _ang_acc_sel;                   // Select angular acc
 
+    AP_Float    _mw1_lpf;                       // Cutoff frequency of LPF about MW 1 sensor
+    AP_Float    _mw2_lpf;                       // Cutoff frequency of LPF about MW 2 sensor
+    AP_Float    _mw3_lpf;                       // Cutoff frequency of LPF about MW 3 sensor
+    AP_Float    _mw4_lpf;                       // Cutoff frequency of LPF about MW 4 sensor
+    AP_Float    _mw5_lpf;                       // Cutoff frequency of LPF about MW 5 sensor
+
     Vector3f    _pos_target_neu_m;              // position target in NEU frame in m
     Vector3f    _vel_target_neu_mps;            // velocity target in NEU frame in m/s
     Vector3f    _lin_acc_target_ned_mpss;       // linear accleration target in NED frame m/s²
@@ -221,7 +238,6 @@ protected:
     Vector3f    _spec_thrust_est_ned_mpss;      // estimated specific thrust from motor speed in NED frame in m/s²
     float       _total_thrust_cmd_body_N;       // total thrust command in body frame in N
     float       _total_thrust_cmd_scaled;       // scaled total thrust command between 0 ~ 1
-    
 
     Quaternion  _att_target_quat;               // target attitude defined using desired yaw and specific thrust command
     float       _att_target_euler_angle_yaw_rad;// target attitude used only for target heading in rad
@@ -239,7 +255,7 @@ protected:
     float       _ang_acc_check_x;
     float       _ang_acc_check_y;
     float       _ang_acc_check_z;
-    
+
     float _motor_cmd_radps[4];                  // motor command in rad/s   !!!NOT USED
     float _motor_cmd_scaled[4];                 // scaled motor command 0-1 !!!NOT USED
     float _motor_speed_meas_radps[4];           // current motor speed in rad/s
@@ -247,11 +263,16 @@ protected:
     float _motor_speed_hz[4];
     float _motor_speed_rpm[4];
 
-
     LowPassFilterVector3f _torque_est_filter;
     LowPassFilter2pFloat _spec_thrust_est_filter;
     LowPassFilterVector3f _spec_thrust_cmd_filter;
     LowPassFilterFloat _yaw_rate_filter;
+
+    LowPassFilterVector3f _mw1_lpf_filter;
+    LowPassFilterVector3f _mw2_lpf_filter;
+    LowPassFilterVector3f _mw3_lpf_filter;
+    LowPassFilterVector3f _mw4_lpf_filter;
+    LowPassFilterVector3f _mw5_lpf_filter;
 
     // Angular acc of z transform
     float _p_dot_z_transform = 0.0f;
@@ -280,23 +301,33 @@ protected:
 
     // Arranging of the Off-CG sensor data
     Vector3f mw_1_acc = {0.0f,0.0f,0.0f};
+    Vector3f mw_1_acc_f = {0.0f,0.0f,0.0f};
     Vector3f mw_1_acc_wo_g = {0.0f,0.0f,0.0f}; // w/o gravity
+    Vector3f mw_1_acc_wo_g_f = {0.0f,0.0f,0.0f}; // w/o gravity
     Vector3f mw_1_gyr = {0.0f,0.0f,0.0f};
 
     Vector3f mw_2_acc = {0.0f,0.0f,0.0f};
+    Vector3f mw_2_acc_f = {0.0f,0.0f,0.0f};
     Vector3f mw_2_acc_wo_g = {0.0f,0.0f,0.0f}; // w/o gravity
+    Vector3f mw_2_acc_wo_g_f = {0.0f,0.0f,0.0f}; // w/o gravity
     Vector3f mw_2_gyr = {0.0f,0.0f,0.0f};
 
     Vector3f mw_3_acc = {0.0f,0.0f,0.0f};
+    Vector3f mw_3_acc_f = {0.0f,0.0f,0.0f};
     Vector3f mw_3_acc_wo_g = {0.0f,0.0f,0.0f}; // w/o gravity
+    Vector3f mw_3_acc_wo_g_f = {0.0f,0.0f,0.0f}; // w/o gravity
     Vector3f mw_3_gyr = {0.0f,0.0f,0.0f};
 
     Vector3f mw_4_acc = {0.0f,0.0f,0.0f};
+    Vector3f mw_4_acc_f = {0.0f,0.0f,0.0f};
     Vector3f mw_4_acc_wo_g = {0.0f,0.0f,0.0f}; // w/o gravity
+    Vector3f mw_4_acc_wo_g_f = {0.0f,0.0f,0.0f}; // w/o gravity
     Vector3f mw_4_gyr = {0.0f,0.0f,0.0f};
 
     Vector3f mw_5_acc = {0.0f,0.0f,0.0f};
+    Vector3f mw_5_acc_f = {0.0f,0.0f,0.0f};
     Vector3f mw_5_acc_wo_g = {0.0f,0.0f,0.0f}; // w/o gravity
+    Vector3f mw_5_acc_wo_g_f = {0.0f,0.0f,0.0f}; // w/o gravity
     Vector3f mw_5_gyr = {0.0f,0.0f,0.0f};
 private:
     static AC_INDI_Control *_singleton;
@@ -312,18 +343,18 @@ private:
 
     // Num 3: Front (Coordinate : NWU)
     Vector3f mw_3_pos = {0.48f, 0.0f, 0.0f};
-   
+
     // Num 4: Rear (Coordinate : NWU)
     Vector3f mw_4_pos = {-0.48f, 0.0f, 0.0f};
 
     // Num 5: Top (Coordinate : NWU)
-    Vector3f mw_5_pos = {0.0f, 0.0f, 0.11f};
+    Vector3f mw_5_pos = {0.0f, 0.0f, -0.15f};
 
     // NAP : angular acceleration (NWU)
     Vector3f acc_nap = {0.0f,0.0f,0.0f};
 
     // 3aw : angular acceleration (NWU)
-    Vector3f acc_3aw = {0.0f, 0.0f, 0.11f};
+    Vector3f acc_3aw = {0.0f, 0.0f, 0.0f};
 
     // 6aw : angular acceleration (NWU)
     Vector3f acc_6aw = {0.0f,0.0f,0.0f};
@@ -334,7 +365,7 @@ private:
     // accelerometer from CG w/ gravity
     Vector3f cg_acc = {0.0f,0.0f,0.0f};
 
-    // accelerometer from CG w/o gravity
+    // accelerometer from CG w/o gravity : NED [m/s^2] no gravity
     Vector3f cg_acc_wo_grav = {0.0f,0.0f,0.0f};
 
     Vector3f accel_gravity{0.0f, 0.0f, GRAVITY_MSS}; // m/s/s NED, body frame

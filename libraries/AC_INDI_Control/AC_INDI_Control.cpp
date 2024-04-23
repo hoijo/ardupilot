@@ -176,7 +176,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Description: First order low pass filter applied to the z axis of toruqe command. This is compansate for the mechanical D-term of yaw axis. 
     // @Units: Hz
     // @Range: 2 20
-    // @User: Standard    
+    // @User: Standard
     AP_GROUPINFO("_YAW_FILT",                     22, AC_INDI_Control, _yaw_rate_filter_cutoff, 35.0f),
 
     // @Param: _ACC_SEL
@@ -184,9 +184,49 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Description: 1: gyro - diff - filt - ang_acc / 2: gyro - filt - diff - ang_acc / 3: no filter / 4 : z transform
     // @Units: Hz
     // @Range: 2 20
-    // @User: Standard    
+    // @User: Standard
     AP_GROUPINFO("_ACC_SEL",                     23, AC_INDI_Control, _ang_acc_sel, 1),
-    
+
+    // @Param: _MW1_LPF
+    // @DisplayName: Cutoff frequency of LPF about MW 1 sensor
+    // @Description:
+    // @Units: Hz
+    // @Range: 20 120
+    // @User: Standard
+    AP_GROUPINFO("_MW1_LPF",                     24, AC_INDI_Control, _mw1_lpf, 100),
+
+    // @Param: _MW2_LPF
+    // @DisplayName: Cutoff frequency of LPF about MW 2 sensor
+    // @Description:
+    // @Units: Hz
+    // @Range: 20 120
+    // @User: Standard
+    AP_GROUPINFO("_MW2_LPF",                     25, AC_INDI_Control, _mw2_lpf, 100),
+
+    // @Param: _MW3_LPF
+    // @DisplayName: Cutoff frequency of LPF about MW 3 sensor
+    // @Description:
+    // @Units: Hz
+    // @Range: 20 120
+    // @User: Standard
+    AP_GROUPINFO("_MW3_LPF",                     26, AC_INDI_Control, _mw3_lpf, 100),
+
+    // @Param: _MW4_LPF
+    // @DisplayName: Cutoff frequency of LPF about MW 4 sensor
+    // @Description:
+    // @Units: Hz
+    // @Range: 20 120
+    // @User: Standard
+    AP_GROUPINFO("_MW4_LPF",                     27, AC_INDI_Control, _mw4_lpf, 100),
+
+    // @Param: _MW5_LPF
+    // @DisplayName: Cutoff frequency of LPF about MW 5 sensor
+    // @Description:
+    // @Units: Hz
+    // @Range: 20 120
+    // @User: Standard
+    AP_GROUPINFO("_MW5_LPF",                     28, AC_INDI_Control, _mw5_lpf, 100),
+
     AP_GROUPEND
 };
 
@@ -355,15 +395,15 @@ Quaternion AC_INDI_Control::input_acc_des_euler_angle_yaw(float yaw_rad)
     Same as thrust_heading_rotation_angles function in AC_AttitudeControl.cpp
 */
 Vector3f AC_INDI_Control::calculate_att_error(Quaternion target, Quaternion measurment)
-{   
+{
     Quaternion att_cur_quat;
 
     _att_target_quat = target;
     att_cur_quat = measurment;
 
-    Vector3f e_cur_z, e_des_z;    
+    Vector3f e_cur_z, e_des_z;
 
-    // ---------------------------------------------------------------------   
+    // ---------------------------------------------------------------------
     Matrix3f att_cur_matrix;
     att_cur_quat.rotation_matrix(att_cur_matrix);
 
@@ -398,7 +438,7 @@ Vector3f AC_INDI_Control::calculate_att_error(Quaternion target, Quaternion meas
     thrust_vec_correction_quat = att_cur_quat.inverse() * thrust_vec_correction_quat * att_cur_quat;
 
     // calculate the remaining rotation required after thrust vector is rotated transformed to the body frame
-    Quaternion yaw_vec_correction_quat = thrust_vec_correction_quat.inverse() * att_cur_quat.inverse() * _att_target_quat;    
+    Quaternion yaw_vec_correction_quat = thrust_vec_correction_quat.inverse() * att_cur_quat.inverse() * _att_target_quat;
 
     // calculate the angle error in x and y.
     Vector3f rotation, error_att;
@@ -415,7 +455,7 @@ Vector3f AC_INDI_Control::calculate_att_error(Quaternion target, Quaternion meas
 
 // run attitude controller
 Vector3f AC_INDI_Control::run_attitude_controller(Quaternion target, Quaternion measurment)
-{   
+{
     _error_att_save = calculate_att_error(target, measurment);
 
     return Vector3f(_p_angle_x.get_p(_error_att_save.x), _p_angle_y.get_p(_error_att_save.y), _p_angle_z.get_p(_error_att_save.z));
@@ -438,10 +478,10 @@ void AC_INDI_Control::run_angvel_controller(Vector3f target, Vector3f measurment
     _ang_acc_target_radpss += ang_acc_desired;
 
 
-    // Off-CG Sensor data 
+    // Off-CG Sensor data
     Off_CG_data_arrange();
 
-    // ****************** Angular acceleration ***** 
+    // ****************** Angular acceleration *****
     z_transform_acc();  // using z transform
     NAP_cal();          // using NAP
     acc_6aw_cal();      // using 6aw
@@ -458,27 +498,41 @@ void AC_INDI_Control::indi_angular_accel(void)
 {
     switch (_ang_acc_sel)
     {
-        // Vector3f ang_acc_;
     case 1:
-        // angular acc from Inertial_sensor_class (deferential and filter)
+        // angular acc from Inertial_sensor_class (deferential and filter) : [rad/s^2]
          _ang_acc_ = _ahrs.get_ang_accel_latest();
         break;
-    
+
     case 2:
-        // angular acc from Inertial_sensor_class (first gyro filter and deferential)
+        // angular acc from Inertial_sensor_class (first gyro filter and deferential) : [rad/s^2]
          _ang_acc_ = _ahrs.get_ang_accel_gyro_f_latest();
         break;
 
     case 3:
-        // angular acc from Inertial_sensor_class (no filter)
+        // angular acc from Inertial_sensor_class (no filter) : [rad/s^2]
          _ang_acc_ = _ahrs.get_ang_accel_no_f_latest();
         break;
 
     case 4:
-        // angular acc from z transform
+        // angular acc from z transform : [rad/s^2]
          _ang_acc_ = get_ang_acc_z_transform();
         break;
-    
+
+    case 5:
+        // angular acc from NAP : [rad/s^2]
+        _ang_acc_ = get_acc_nap();
+        break;
+
+    case 6:
+        // angular acc from NAP : [rad/s^2]
+        _ang_acc_ = get_acc_6aw();
+        break;
+
+    case 7:
+        // angular acc from NAP : [rad/s^2]
+        _ang_acc_ = get_acc_tri_axis();
+        break;
+
     default:
         break;
     }
@@ -496,10 +550,10 @@ void AC_INDI_Control::indi_angular_accel(void)
     // Differ origin INID, I calculate the torque cmd
     _torque_cmd_body_Nm = _torque_est_body_Nm + moment_of_inertia_xyz * (_ang_acc_target_radpss - _ang_acc_);
 
-    // mechanical yaw is not considered in arducopter current control allocation 
+    // mechanical yaw is not considered in arducopter current control allocation
     // filter body z axis torque command to compansate for the mechanicaly yaw
-    // this render rotor inertia information(_motor_moment_inertia_kgm2) unneccessary 
-    
+    // this render rotor inertia information(_motor_moment_inertia_kgm2) unneccessary
+
     _yaw_rate_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _yaw_rate_filter_cutoff);
     _yaw_rate_filter.apply(_torque_cmd_body_Nm.z);
     _torque_cmd_body_Nm.z = _yaw_rate_filter.get();
@@ -510,7 +564,7 @@ void AC_INDI_Control::scale_torque_cmd(void)
 {
     float xy_scale = 2.0f / (4.0f * sq(_throttle2motor_speed) * _thrust_coefficient * _arm_length_m * HALF_SQRT_2);
     float z_scale = 2.0f / (4.0f * sq(_throttle2motor_speed) * _torque_coefficient );
-    
+
     // ******
     xy_scale = 1.0f;
     z_scale  = 1.0f;
@@ -534,12 +588,12 @@ void AC_INDI_Control::ned_to_body(const Vector3f& euler_rad, const Vector3f& ned
     body_contents.z = -sin_phi * ned_contents.y + cos_theta * cos_phi * ned_contents.z;
 }
 
-void AC_INDI_Control::Off_CG_data_arrange(void) 
+void AC_INDI_Control::Off_CG_data_arrange(void)
 {
     Vector3f euler_angle_rad = {AP::ahrs().roll, AP::ahrs().pitch, 0.0f};
 
     ned_to_body(euler_angle_rad, accel_gravity, acc_body_no_gravity);
-    
+
     // Num 1 : Right
     mw_1_acc.x =  AP_MW_AHRS::acc_mw_ahrs[1][0]; // coordiate : NED [m/s^2]
     mw_1_acc.y =  AP_MW_AHRS::acc_mw_ahrs[0][0]; // coordiate : NED [m/s^2]
@@ -549,6 +603,13 @@ void AC_INDI_Control::Off_CG_data_arrange(void)
     mw_1_acc_wo_g.y = mw_1_acc.y + acc_body_no_gravity.y; // coordiate : NED [m/s^2] no gravity
     mw_1_acc_wo_g.z = mw_1_acc.z + acc_body_no_gravity.z; // coordiate : NED [m/s^2] no gravity
 
+    _mw1_lpf_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _mw1_lpf);
+    mw_1_acc_f = _mw1_lpf_filter.apply(mw_1_acc);
+
+    mw_1_acc_wo_g_f.x = mw_1_acc_f.x + acc_body_no_gravity.x; // coordiate : NED [m/s^2] no gravity
+    mw_1_acc_wo_g_f.y = mw_1_acc_f.y + acc_body_no_gravity.y; // coordiate : NED [m/s^2] no gravity
+    mw_1_acc_wo_g_f.z = mw_1_acc_f.z + acc_body_no_gravity.z; // coordiate : NED [m/s^2] no gravity
+
     mw_1_gyr.x =  AP_MW_AHRS::gyr_mw_ahrs[1][0]; // coordiate : NED [deg/s]
     mw_1_gyr.y =  AP_MW_AHRS::gyr_mw_ahrs[0][0]; // coordiate : NED [deg/s]
     mw_1_gyr.z = -AP_MW_AHRS::gyr_mw_ahrs[2][0]; // coordiate : NED [deg/s]
@@ -557,10 +618,17 @@ void AC_INDI_Control::Off_CG_data_arrange(void)
     mw_2_acc.x =  AP_MW_AHRS::acc_mw_ahrs[1][1]; // coordiate : NED [m/s^2]
     mw_2_acc.y =  AP_MW_AHRS::acc_mw_ahrs[0][1]; // coordiate : NED [m/s^2]
     mw_2_acc.z = -AP_MW_AHRS::acc_mw_ahrs[2][1]; // coordiate : NED [m/s^2]
-    
+
     mw_2_acc_wo_g.x = mw_2_acc.x + acc_body_no_gravity.x; // coordiate : NED [m/s^2] no gravity
     mw_2_acc_wo_g.y = mw_2_acc.y + acc_body_no_gravity.y; // coordiate : NED [m/s^2] no gravity
     mw_2_acc_wo_g.z = mw_2_acc.z + acc_body_no_gravity.z; // coordiate : NED [m/s^2] no gravity
+
+    _mw2_lpf_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _mw2_lpf);
+    mw_2_acc_f = _mw2_lpf_filter.apply(mw_2_acc);
+
+    mw_2_acc_wo_g_f.x = mw_2_acc_f.x + acc_body_no_gravity.x; // coordiate : NED [m/s^2] no gravity
+    mw_2_acc_wo_g_f.y = mw_2_acc_f.y + acc_body_no_gravity.y; // coordiate : NED [m/s^2] no gravity
+    mw_2_acc_wo_g_f.z = mw_2_acc_f.z + acc_body_no_gravity.z; // coordiate : NED [m/s^2] no gravity
 
     mw_2_gyr.x =  AP_MW_AHRS::gyr_mw_ahrs[1][1]; // coordiate : NED [deg/s]
     mw_2_gyr.y =  AP_MW_AHRS::gyr_mw_ahrs[0][1]; // coordiate : NED [deg/s]
@@ -575,6 +643,13 @@ void AC_INDI_Control::Off_CG_data_arrange(void)
     mw_3_acc_wo_g.y = mw_3_acc.y + acc_body_no_gravity.y; // coordiate : NED [m/s^2] no gravity
     mw_3_acc_wo_g.z = mw_3_acc.z + acc_body_no_gravity.z; // coordiate : NED [m/s^2] no gravity
 
+    _mw3_lpf_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _mw3_lpf);
+    mw_3_acc_f = _mw3_lpf_filter.apply(mw_3_acc);
+
+    mw_3_acc_wo_g_f.x = mw_3_acc_f.x + acc_body_no_gravity.x; // coordiate : NED [m/s^2] no gravity
+    mw_3_acc_wo_g_f.y = mw_3_acc_f.y + acc_body_no_gravity.y; // coordiate : NED [m/s^2] no gravity
+    mw_3_acc_wo_g_f.z = mw_3_acc_f.z + acc_body_no_gravity.z; // coordiate : NED [m/s^2] no gravity
+
     mw_3_gyr.x =  AP_MW_AHRS::gyr_mw_ahrs[0][2]; // coordiate : NED [deg/s]
     mw_3_gyr.y = -AP_MW_AHRS::gyr_mw_ahrs[1][2]; // coordiate : NED [deg/s]
     mw_3_gyr.z = -AP_MW_AHRS::gyr_mw_ahrs[2][2]; // coordiate : NED [deg/s]
@@ -588,6 +663,13 @@ void AC_INDI_Control::Off_CG_data_arrange(void)
     mw_4_acc_wo_g.y = mw_4_acc.y + acc_body_no_gravity.y; // coordiate : NED [m/s^2] no gravity
     mw_4_acc_wo_g.z = mw_4_acc.z + acc_body_no_gravity.z; // coordiate : NED [m/s^2] no gravity
 
+    _mw4_lpf_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _mw4_lpf);
+    mw_4_acc_f = _mw4_lpf_filter.apply(mw_4_acc);
+
+    mw_4_acc_wo_g_f.x = mw_4_acc_f.x + acc_body_no_gravity.x; // coordiate : NED [m/s^2] no gravity
+    mw_4_acc_wo_g_f.y = mw_4_acc_f.y + acc_body_no_gravity.y; // coordiate : NED [m/s^2] no gravity
+    mw_4_acc_wo_g_f.z = mw_4_acc_f.z + acc_body_no_gravity.z; // coordiate : NED [m/s^2] no gravity
+
     mw_4_gyr.x =  AP_MW_AHRS::gyr_mw_ahrs[0][3]; // coordiate : NED [deg/s]
     mw_4_gyr.y = -AP_MW_AHRS::gyr_mw_ahrs[1][3]; // coordiate : NED [deg/s]
     mw_4_gyr.z = -AP_MW_AHRS::gyr_mw_ahrs[2][3]; // coordiate : NED [deg/s]
@@ -600,6 +682,13 @@ void AC_INDI_Control::Off_CG_data_arrange(void)
     mw_5_acc_wo_g.x = mw_5_acc.x + acc_body_no_gravity.x; // coordiate : NED [m/s^2] no gravity
     mw_5_acc_wo_g.y = mw_5_acc.y + acc_body_no_gravity.y; // coordiate : NED [m/s^2] no gravity
     mw_5_acc_wo_g.z = mw_5_acc.z + acc_body_no_gravity.z; // coordiate : NED [m/s^2] no gravity
+
+    _mw5_lpf_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _mw5_lpf);
+    mw_5_acc_f = _mw5_lpf_filter.apply(mw_5_acc);
+
+    mw_5_acc_wo_g_f.x = mw_5_acc_f.x + acc_body_no_gravity.x; // coordiate : NED [m/s^2] no gravity
+    mw_5_acc_wo_g_f.y = mw_5_acc_f.y + acc_body_no_gravity.y; // coordiate : NED [m/s^2] no gravity
+    mw_5_acc_wo_g_f.z = mw_5_acc_f.z + acc_body_no_gravity.z; // coordiate : NED [m/s^2] no gravity
 
     mw_5_gyr.x =  AP_MW_AHRS::gyr_mw_ahrs[0][4]; // coordiate : NED [deg/s]
     mw_5_gyr.y = -AP_MW_AHRS::gyr_mw_ahrs[1][4]; // coordiate : NED [deg/s]
@@ -652,12 +741,12 @@ void AC_INDI_Control::NAP_cal(void)
     float nap_cg_acc_z = -cg_acc_wo_grav.z; // coordiate : NWU [m/s^2] no gravity
 
     // Accelerometer on the sensor 2,3,5 : NED -> NWU
-    float nap_mw_2_acc_x =  mw_2_acc_wo_g.x; // coordiate : NWU [m/s^2] no gravity
-    float nap_mw_2_acc_z = -mw_2_acc_wo_g.z; // coordiate : NWU [m/s^2] no gravity
-    float nap_mw_3_acc_y = -mw_3_acc_wo_g.y; // coordiate : NWU [m/s^2] no gravity
-    float nap_mw_3_acc_z = -mw_3_acc_wo_g.z; // coordiate : NWU [m/s^2] no gravity
-    float nap_mw_5_acc_x =  mw_5_acc_wo_g.x; // coordiate : NWU [m/s^2] no gravity
-    float nap_mw_5_acc_y = -mw_5_acc_wo_g.y; // coordiate : NWU [m/s^2] no gravity
+    float nap_mw_2_acc_x =  mw_2_acc_wo_g_f.x; // coordiate : NWU [m/s^2] no gravity
+    float nap_mw_2_acc_z = -mw_2_acc_wo_g_f.z; // coordiate : NWU [m/s^2] no gravity
+    float nap_mw_3_acc_y = -mw_3_acc_wo_g_f.y; // coordiate : NWU [m/s^2] no gravity
+    float nap_mw_3_acc_z = -mw_3_acc_wo_g_f.z; // coordiate : NWU [m/s^2] no gravity
+    float nap_mw_5_acc_x =  mw_5_acc_wo_g_f.x; // coordiate : NWU [m/s^2] no gravity
+    float nap_mw_5_acc_y = -mw_5_acc_wo_g_f.y; // coordiate : NWU [m/s^2] no gravity
 
     // NAP angular acceleration (NWU)
     acc_nap.x = ((nap_cg_acc_y - nap_mw_5_acc_y)/(2*mw_5_pos.z)) - ((nap_cg_acc_z - nap_mw_2_acc_z)/(2*mw_2_pos.y)); // coordiate : NWU [rad/s^2]
@@ -689,9 +778,9 @@ void AC_INDI_Control::acc_6aw_cal(void)
     float aw6_ang_vel_z = -ang_vel.z;       // coordiate : NWU [rad/s^2]
 
     // Accelerometer on the sensor 2,3,5 : NED -> NWU
-    float nap_mw_2_acc_x =  mw_2_acc_wo_g.x; // coordiate : NWU [m/s^2] no gravity
-    float nap_mw_3_acc_z = -mw_3_acc_wo_g.z; // coordiate : NWU [m/s^2] no gravity
-    float nap_mw_5_acc_y = -mw_5_acc_wo_g.y; // coordiate : NWU [m/s^2] no gravity
+    float nap_mw_2_acc_x =  mw_2_acc_wo_g_f.x; // coordiate : NWU [m/s^2] no gravity
+    float nap_mw_3_acc_z = -mw_3_acc_wo_g_f.z; // coordiate : NWU [m/s^2] no gravity
+    float nap_mw_5_acc_y = -mw_5_acc_wo_g_f.y; // coordiate : NWU [m/s^2] no gravity
 
     // 6aw angular acceleration (NWU)
     acc_6aw.x = ((aw6_cg_acc_y - nap_mw_5_acc_y)/(mw_5_pos.z)) + (aw6_ang_vel_y * aw6_ang_vel_z); // coordiate : NWU [rad/s^2]
@@ -707,12 +796,12 @@ void AC_INDI_Control::acc_6aw_cal(void)
 void AC_INDI_Control::acc_tri_axis_cal(void)
 {
     // Accelerometer on the sensor 2,3,5 : NED -> NWU
-    float tri_mw_1_acc_x =  mw_1_acc_wo_g.x; // coordiate : NWU [m/s^2] no gravity
-    float tri_mw_1_acc_z = -mw_1_acc_wo_g.z; // coordiate : NWU [m/s^2] no gravity
-    float tri_mw_2_acc_x =  mw_2_acc_wo_g.x; // coordiate : NWU [m/s^2] no gravity
-    float tri_mw_2_acc_z = -mw_2_acc_wo_g.z; // coordiate : NWU [m/s^2] no gravity
-    float tri_mw_3_acc_z = -mw_3_acc_wo_g.z; // coordiate : NWU [m/s^2] no gravity
-    float tri_mw_4_acc_z = -mw_4_acc_wo_g.z; // coordiate : NWU [m/s^2] no gravity
+    float tri_mw_1_acc_x =  mw_1_acc_wo_g_f.x; // coordiate : NWU [m/s^2] no gravity
+    float tri_mw_1_acc_z = -mw_1_acc_wo_g_f.z; // coordiate : NWU [m/s^2] no gravity
+    float tri_mw_2_acc_x =  mw_2_acc_wo_g_f.x; // coordiate : NWU [m/s^2] no gravity
+    float tri_mw_2_acc_z = -mw_2_acc_wo_g_f.z; // coordiate : NWU [m/s^2] no gravity
+    float tri_mw_3_acc_z = -mw_3_acc_wo_g_f.z; // coordiate : NWU [m/s^2] no gravity
+    float tri_mw_4_acc_z = -mw_4_acc_wo_g_f.z; // coordiate : NWU [m/s^2] no gravity
 
     // tri-axis angular acceleration (NWU)
     acc_tri_axis.x = (tri_mw_2_acc_z - tri_mw_1_acc_z)/(2*mw_2_pos.y); // coordiate : NWU [rad/s^2]
@@ -1131,7 +1220,7 @@ void AC_INDI_Control::write_log(void)
     //                 double(_error_ang_vel_save.z) * RAD_TO_DEG);
 
 
-    // ************************************************** Off-sensor data check ***************************************************
+    // ************************************************** Off-sensor data check pre-filter ***************************************************
     const Vector3f &mw_1_sensor_acc = get_mw_1_acc(); // [m/s^2]
     const Vector3f &mw_2_sensor_acc = get_mw_2_acc(); // [m/s^2]
     const Vector3f &mw_3_sensor_acc = get_mw_3_acc(); // [m/s^2]
@@ -1164,73 +1253,138 @@ void AC_INDI_Control::write_log(void)
                 mw_1_sensor_acc.z, mw_2_sensor_acc.z, mw_3_sensor_acc.z,
                 mw_4_sensor_acc.z, mw_5_sensor_acc.z);
 
-    const Vector3f &mw_1_sensor_acc_wo_g = get_mw_1_acc_wo_g(); // [m/s^2] no gravity
-    const Vector3f &mw_2_sensor_acc_wo_g = get_mw_2_acc_wo_g(); // [m/s^2] no gravity
-    const Vector3f &mw_3_sensor_acc_wo_g = get_mw_3_acc_wo_g(); // [m/s^2] no gravity
-    const Vector3f &mw_4_sensor_acc_wo_g = get_mw_4_acc_wo_g(); // [m/s^2] no gravity
-    const Vector3f &mw_5_sensor_acc_wo_g = get_mw_5_acc_wo_g(); // [m/s^2] no gravity
+    const Vector3f &mw_1_sensor_acc_wo_g    = get_mw_1_acc_wo_g(); // [m/s^2] no gravity
+    const Vector3f &mw_2_sensor_acc_wo_g    = get_mw_2_acc_wo_g(); // [m/s^2] no gravity
+    const Vector3f &mw_3_sensor_acc_wo_g    = get_mw_3_acc_wo_g(); // [m/s^2] no gravity
+    const Vector3f &mw_4_sensor_acc_wo_g    = get_mw_4_acc_wo_g(); // [m/s^2] no gravity
+    const Vector3f &mw_5_sensor_acc_wo_g    = get_mw_5_acc_wo_g(); // [m/s^2] no gravity
+    const Vector3f &body_get_cg_acc_wo_grav = get_cg_acc_wo_grav(); // [m/s^2] no gravity
 
     AP::logger().Write("IN14",
+                "TimeUS,ax1,ax2,ax3,ax4,ax5,axb",
+                "soooooo",
+                "F000000",
+                "Qffffff",
+                AP_HAL::micros64(),
+                mw_1_sensor_acc_wo_g.x, mw_2_sensor_acc_wo_g.x, mw_3_sensor_acc_wo_g.x,
+                mw_4_sensor_acc_wo_g.x, mw_5_sensor_acc_wo_g.x, body_get_cg_acc_wo_grav.x);
+
+    AP::logger().Write("IN15",
+                "TimeUS,ay1,ay2,ay3,ay4,ay5,ayb",
+                "soooooo",
+                "F000000",
+                "Qffffff",
+                AP_HAL::micros64(),
+                mw_1_sensor_acc_wo_g.y, mw_2_sensor_acc_wo_g.y, mw_3_sensor_acc_wo_g.y,
+                mw_4_sensor_acc_wo_g.y, mw_5_sensor_acc_wo_g.y, body_get_cg_acc_wo_grav.y);
+
+    AP::logger().Write("IN16",
+                "TimeUS,az1,az2,az3,az4,az5,azb",
+                "soooooo",
+                "F000000",
+                "Qffffff",
+                AP_HAL::micros64(),
+                mw_1_sensor_acc_wo_g.z, mw_2_sensor_acc_wo_g.z, mw_3_sensor_acc_wo_g.z,
+                mw_4_sensor_acc_wo_g.z, mw_5_sensor_acc_wo_g.z, body_get_cg_acc_wo_grav.z);
+
+    // const Vector3f &mw_1_sensor_gyr = get_mw_1_gyr(); // [deg/s]
+    // const Vector3f &mw_2_sensor_gyr = get_mw_2_gyr(); // [deg/s]
+    // const Vector3f &mw_3_sensor_gyr = get_mw_3_gyr(); // [deg/s]
+    // const Vector3f &mw_4_sensor_gyr = get_mw_4_gyr(); // [deg/s]
+    // const Vector3f &mw_5_sensor_gyr = get_mw_5_gyr(); // [deg/s]
+
+    // AP::logger().Write("IN17",
+    //             "TimeUS,gx1,gx2,gx3,gx4,gx5",
+    //             "sooooo",
+    //             "F00000",
+    //             "Qfffff",
+    //             AP_HAL::micros64(),
+    //             mw_1_sensor_gyr.x, mw_2_sensor_gyr.x, mw_3_sensor_gyr.x,
+    //             mw_4_sensor_gyr.x, mw_5_sensor_gyr.x);
+
+    // AP::logger().Write("IN18",
+    //             "TimeUS,gy1,gy2,gy3,gy4,gy5",
+    //             "sooooo",
+    //             "F00000",
+    //             "Qfffff",
+    //             AP_HAL::micros64(),
+    //             mw_1_sensor_gyr.y, mw_2_sensor_gyr.y, mw_3_sensor_gyr.y,
+    //             mw_4_sensor_gyr.y, mw_5_sensor_gyr.y);
+
+    // AP::logger().Write("IN19",
+    //             "TimeUS,gz1,gz2,gz3,gz4,gz5",
+    //             "sooooo",
+    //             "F00000",
+    //             "Qfffff",
+    //             AP_HAL::micros64(),
+    //             mw_1_sensor_gyr.z, mw_2_sensor_gyr.z, mw_3_sensor_gyr.z,
+    //             mw_4_sensor_gyr.z, mw_5_sensor_gyr.z);
+
+    // ************************************************** Off-sensor data check pre-filter ***************************************************
+    const Vector3f &mw_1_sensor_acc_f = get_mw_1_acc_f(); // [m/s^2]
+    const Vector3f &mw_2_sensor_acc_f = get_mw_2_acc_f(); // [m/s^2]
+    const Vector3f &mw_3_sensor_acc_f = get_mw_3_acc_f(); // [m/s^2]
+    const Vector3f &mw_4_sensor_acc_f = get_mw_4_acc_f(); // [m/s^2]
+    const Vector3f &mw_5_sensor_acc_f = get_mw_5_acc_f(); // [m/s^2]
+    AP::logger().Write("IN20",
                 "TimeUS,ax1,ax2,ax3,ax4,ax5",
                 "sooooo",
                 "F00000",
                 "Qfffff",
                 AP_HAL::micros64(),
-                mw_1_sensor_acc_wo_g.x, mw_2_sensor_acc_wo_g.x, mw_3_sensor_acc_wo_g.x,
-                mw_4_sensor_acc_wo_g.x, mw_5_sensor_acc_wo_g.x);
+                mw_1_sensor_acc_f.x, mw_2_sensor_acc_f.x, mw_3_sensor_acc_f.x,
+                mw_4_sensor_acc_f.x, mw_5_sensor_acc_f.x);
 
-    AP::logger().Write("IN15",
+    AP::logger().Write("IN21",
                 "TimeUS,ay1,ay2,ay3,ay4,ay5",
                 "sooooo",
                 "F00000",
                 "Qfffff",
                 AP_HAL::micros64(),
-                mw_1_sensor_acc_wo_g.y, mw_2_sensor_acc_wo_g.y, mw_3_sensor_acc_wo_g.y,
-                mw_4_sensor_acc_wo_g.y, mw_5_sensor_acc_wo_g.y);
+                mw_1_sensor_acc_f.y, mw_2_sensor_acc_f.y, mw_3_sensor_acc_f.y,
+                mw_4_sensor_acc_f.y, mw_5_sensor_acc_f.y);
 
-    AP::logger().Write("IN16",
+    AP::logger().Write("IN22",
                 "TimeUS,az1,az2,az3,az4,az5",
                 "sooooo",
                 "F00000",
                 "Qfffff",
                 AP_HAL::micros64(),
-                mw_1_sensor_acc_wo_g.z, mw_2_sensor_acc_wo_g.z, mw_3_sensor_acc_wo_g.z,
-                mw_4_sensor_acc_wo_g.z, mw_5_sensor_acc_wo_g.z);
+                mw_1_sensor_acc_f.z, mw_2_sensor_acc_f.z, mw_3_sensor_acc_f.z,
+                mw_4_sensor_acc_f.z, mw_5_sensor_acc_f.z);
 
+    const Vector3f &mw_1_sensor_acc_wo_g_f    = get_mw_1_acc_wo_g_f(); // [m/s^2] no gravity
+    const Vector3f &mw_2_sensor_acc_wo_g_f    = get_mw_2_acc_wo_g_f(); // [m/s^2] no gravity
+    const Vector3f &mw_3_sensor_acc_wo_g_f    = get_mw_3_acc_wo_g_f(); // [m/s^2] no gravity
+    const Vector3f &mw_4_sensor_acc_wo_g_f    = get_mw_4_acc_wo_g_f(); // [m/s^2] no gravity
+    const Vector3f &mw_5_sensor_acc_wo_g_f    = get_mw_5_acc_wo_g_f(); // [m/s^2] no gravity
 
-    const Vector3f &mw_1_sensor_gyr = get_mw_1_gyr(); // [deg/s]
-    const Vector3f &mw_2_sensor_gyr = get_mw_2_gyr(); // [deg/s]
-    const Vector3f &mw_3_sensor_gyr = get_mw_3_gyr(); // [deg/s]
-    const Vector3f &mw_4_sensor_gyr = get_mw_4_gyr(); // [deg/s]
-    const Vector3f &mw_5_sensor_gyr = get_mw_5_gyr(); // [deg/s]
-
-    AP::logger().Write("IN17",
-                "TimeUS,gx1,gx2,gx3,gx4,gx5",
+    AP::logger().Write("IN23",
+                "TimeUS,ax1,ax2,ax3,ax4,ax5",
                 "sooooo",
                 "F00000",
                 "Qfffff",
                 AP_HAL::micros64(),
-                mw_1_sensor_gyr.x, mw_2_sensor_gyr.x, mw_3_sensor_gyr.x,
-                mw_4_sensor_gyr.x, mw_5_sensor_gyr.x);
+                mw_1_sensor_acc_wo_g_f.x, mw_2_sensor_acc_wo_g_f.x, mw_3_sensor_acc_wo_g_f.x,
+                mw_4_sensor_acc_wo_g_f.x, mw_5_sensor_acc_wo_g_f.x);
 
-    AP::logger().Write("IN18",
-                "TimeUS,gy1,gy2,gy3,gy4,gy5",
+    AP::logger().Write("IN24",
+                "TimeUS,ay1,ay2,ay3,ay4,ay5",
                 "sooooo",
                 "F00000",
                 "Qfffff",
                 AP_HAL::micros64(),
-                mw_1_sensor_gyr.y, mw_2_sensor_gyr.y, mw_3_sensor_gyr.y,
-                mw_4_sensor_gyr.y, mw_5_sensor_gyr.y);
+                mw_1_sensor_acc_wo_g_f.y, mw_2_sensor_acc_wo_g_f.y, mw_3_sensor_acc_wo_g_f.y,
+                mw_4_sensor_acc_wo_g_f.y, mw_5_sensor_acc_wo_g_f.y);
 
-    AP::logger().Write("IN19",
-                "TimeUS,gz1,gz2,gz3,gz4,gz5",
+    AP::logger().Write("IN25",
+                "TimeUS,az1,az2,az3,az4,az5",
                 "sooooo",
                 "F00000",
                 "Qfffff",
                 AP_HAL::micros64(),
-                mw_1_sensor_gyr.z, mw_2_sensor_gyr.z, mw_3_sensor_gyr.z,
-                mw_4_sensor_gyr.z, mw_5_sensor_gyr.z);
-    // ***************************************************************************************************************************
+                mw_1_sensor_acc_wo_g_f.z, mw_2_sensor_acc_wo_g_f.z, mw_3_sensor_acc_wo_g_f.z,
+                mw_4_sensor_acc_wo_g_f.z, mw_5_sensor_acc_wo_g_f.z);
 }
 
 
