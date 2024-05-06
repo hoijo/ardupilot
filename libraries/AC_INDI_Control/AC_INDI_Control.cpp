@@ -675,9 +675,9 @@ void AC_INDI_Control::Off_CG_data_arrange(void)
     mw_4_gyr.z = -AP_MW_AHRS::gyr_mw_ahrs[2][3]; // coordiate : NED [deg/s]
 
     // Num 5 : Top
-    mw_5_acc.x =  AP_MW_AHRS::acc_mw_ahrs[0][4]; // coordiate : NED [m/s^2]
+    mw_5_acc.x = -AP_MW_AHRS::acc_mw_ahrs[0][4]; // coordiate : NED [m/s^2]
     mw_5_acc.y = -AP_MW_AHRS::acc_mw_ahrs[1][4]; // coordiate : NED [m/s^2]
-    mw_5_acc.z = -AP_MW_AHRS::acc_mw_ahrs[2][4]; // coordiate : NED [m/s^2]
+    mw_5_acc.z =  AP_MW_AHRS::acc_mw_ahrs[2][4]; // coordiate : NED [m/s^2]
 
     mw_5_acc_wo_g.x = mw_5_acc.x + acc_body_no_gravity.x; // coordiate : NED [m/s^2] no gravity
     mw_5_acc_wo_g.y = mw_5_acc.y + acc_body_no_gravity.y; // coordiate : NED [m/s^2] no gravity
@@ -690,9 +690,9 @@ void AC_INDI_Control::Off_CG_data_arrange(void)
     mw_5_acc_wo_g_f.y = mw_5_acc_f.y + acc_body_no_gravity.y; // coordiate : NED [m/s^2] no gravity
     mw_5_acc_wo_g_f.z = mw_5_acc_f.z + acc_body_no_gravity.z; // coordiate : NED [m/s^2] no gravity
 
-    mw_5_gyr.x =  AP_MW_AHRS::gyr_mw_ahrs[0][4]; // coordiate : NED [deg/s]
+    mw_5_gyr.x = -AP_MW_AHRS::gyr_mw_ahrs[0][4]; // coordiate : NED [deg/s]
     mw_5_gyr.y = -AP_MW_AHRS::gyr_mw_ahrs[1][4]; // coordiate : NED [deg/s]
-    mw_5_gyr.z = -AP_MW_AHRS::gyr_mw_ahrs[2][4]; // coordiate : NED [deg/s]
+    mw_5_gyr.z =  AP_MW_AHRS::gyr_mw_ahrs[2][4]; // coordiate : NED [deg/s]
 
     // accelerometer from CG
     cg_acc.x = AP::ins().get_accel().x; // coordiate : NED [m/s^2]
