@@ -23,6 +23,7 @@
         "functional": "cpp",
         "utility": "cpp",
         "variant": "cpp",
-        "ranges": "cpp"
+        "ranges": "cpp",
+        "chrono": "cpp"
     }
 }

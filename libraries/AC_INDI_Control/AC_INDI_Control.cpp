@@ -83,14 +83,14 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Increment: 0.005
     // @User: Standard  
     AP_SUBGROUPINFO(_p_ang_rate_z,   "_RAT_YAW_",   10, AC_INDI_Control, AC_P),
-    
+
     // @Param: _MASS
     // @DisplayName: Vehicle mass in kg 
     // @Description: Total vehicle mass in kg
     // @Units: kg
     // @Range: 0.01 10
     // @User: Standard
-    AP_GROUPINFO("_MASS",                           11, AC_INDI_Control, _mass_kg, 2.0f),
+    AP_GROUPINFO("_MASS",                           11, AC_INDI_Control, _mass_kg, 2.02f),
 
     // @Param: _MOI_XX
     // @DisplayName: Moment of inertia of vehicle  in x-X axis in kg.m² 
@@ -98,7 +98,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: kg.m²
     // @Range: 0.001 1
     // @User: Standard
-    AP_GROUPINFO("_MOI_XX",                         12, AC_INDI_Control, _moment_inertia_xx_kgm2, 0.004f),
+    AP_GROUPINFO("_MOI_XX",                         12, AC_INDI_Control, _moment_inertia_xx_kgm2, 0.02f),
 
     // @Param: _MOI_YY
     // @DisplayName: Moment of inertia of vehicle  in y-y axis in kg.m² 
@@ -106,7 +106,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: kg.m²
     // @Range: 0.001 1
     // @User: Standard
-    AP_GROUPINFO("_MOI_YY",                         13, AC_INDI_Control, _moment_inertia_yy_kgm2, 0.004f),
+    AP_GROUPINFO("_MOI_YY",                         13, AC_INDI_Control, _moment_inertia_yy_kgm2, 0.02f),
 
     // @Param: _MOI_Z
     // @DisplayName: Moment of inertia of vehicle in z axis in kg.m² 
@@ -114,7 +114,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: kg.m²
     // @Range: 0.001 1
     // @User: Standard
-    AP_GROUPINFO("_MOI_Z",                          14, AC_INDI_Control, _moment_inertia_z_kgm2, 0.008f),
+    AP_GROUPINFO("_MOI_Z",                          14, AC_INDI_Control, _moment_inertia_z_kgm2, 0.03f),
 
     // @Param: _ARM_LEN
     // @DisplayName: Distance to motor in m
@@ -130,7 +130,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: N/(rad/s)²
     // @Range: 0.000001 0.0001
     // @User: Standard
-    AP_GROUPINFO("_THR_COEF",                       16, AC_INDI_Control, _thrust_coefficient, 1.489e-6f),
+    AP_GROUPINFO("_THR_COEF",                       16, AC_INDI_Control, _thrust_coefficient, 1.0f),
 
     // @Param: _TRQ_COEF
     // @DisplayName: Torque coefficent in Nm/(rad/s)²
@@ -138,7 +138,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: N/(rad/s)²
     // @Range: 0.000001 0.0001
     // @User: Standard
-    AP_GROUPINFO("_TRQ_COEF",                       17, AC_INDI_Control, _torque_coefficient, 1.523e-8f),
+    AP_GROUPINFO("_TRQ_COEF",                       17, AC_INDI_Control, _torque_coefficient, 1.0f),
 
     // @Param: _THR2RTRSPD
     // @DisplayName: Throttle command to motor speed coefficient
@@ -186,7 +186,55 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Range: 2 20
     // @User: Standard    
     AP_GROUPINFO("_ACC_SEL",                     23, AC_INDI_Control, _ang_acc_sel, 1),
-    
+
+    // @Param: _I_AVEL_X
+    // @DisplayName: I gain of angular velocity
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_I_AVEL_X",                     24, AC_INDI_Control, _i_ang_rate_x, 1.0f),
+
+    // @Param: _I_AVEL_Y
+    // @DisplayName: I gain of angular velocity
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_I_AVEL_Y",                     25, AC_INDI_Control, _i_ang_rate_y, 1.0f),
+
+    // @Param: _I_AVEL_Z
+    // @DisplayName: I gain of angular velocity
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_I_AVEL_Z",                     26, AC_INDI_Control, _i_ang_rate_z, 1.0f),
+
+    // @Param: _I_MAX_X
+    // @DisplayName: I max of angular velocity
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_I_MAX_X",                     27, AC_INDI_Control, _i_ang_rate_x_max, 3.0f),
+
+    // @Param: _I_MAX_Y
+    // @DisplayName: I max of angular velocity
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_I_MAX_Y",                     28, AC_INDI_Control, _i_ang_rate_y_max, 3.0f),
+
+    // @Param: _I_MAX_Z
+    // @DisplayName: I max of angular velocity
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_I_MAX_Z",                     29, AC_INDI_Control, _i_ang_rate_z_max, 3.0f),
+
     AP_GROUPEND
 };
 
@@ -218,8 +266,7 @@ void AC_INDI_Control::set_use_INDI(bool use_INDI)
     _use_INDI = use_INDI;
 }
 
-
-// run position and velocity controller in xy axes 
+// run position and velocity controller in xy axes
 void AC_INDI_Control::run_pos_vel_xy_controller(Vector3f target_point_m, Vector3f meas_dist_m, Vector3f vel_des_mps, Vector3f meas_vel_mps, Vector3f accel_des_mpss)
 {
     Vector3f error_pos;
@@ -354,15 +401,15 @@ Quaternion AC_INDI_Control::input_acc_des_euler_angle_yaw(float yaw_rad)
     Same as thrust_heading_rotation_angles function in AC_AttitudeControl.cpp
 */
 Vector3f AC_INDI_Control::calculate_att_error(Quaternion target, Quaternion measurment)
-{   
+{
     Quaternion att_cur_quat;
 
     _att_target_quat = target;
     att_cur_quat = measurment;
 
-    Vector3f e_cur_z, e_des_z;    
+    Vector3f e_cur_z, e_des_z;
 
-    // ---------------------------------------------------------------------   
+    // ---------------------------------------------------------------------
     Matrix3f att_cur_matrix;
     att_cur_quat.rotation_matrix(att_cur_matrix);
 
@@ -414,7 +461,7 @@ Vector3f AC_INDI_Control::calculate_att_error(Quaternion target, Quaternion meas
 
 // run attitude controller
 Vector3f AC_INDI_Control::run_attitude_controller(Quaternion target, Quaternion measurment)
-{   
+{
     _error_att_save = calculate_att_error(target, measurment);
 
     return Vector3f(_p_angle_x.get_p(_error_att_save.x), _p_angle_y.get_p(_error_att_save.y), _p_angle_z.get_p(_error_att_save.z));
@@ -436,9 +483,45 @@ void AC_INDI_Control::run_angvel_controller(Vector3f target, Vector3f measurment
 
     _ang_acc_target_radpss += ang_acc_desired;
 
+    // I controller
+    Vector3f ang_vel_err_i_control = angular_velocity_I_controller(error_ang_vel);
+    _ang_acc_target_radpss += ang_vel_err_i_control;
+
     z_transform_acc();
     indi_angular_accel();
     scale_torque_cmd();
+}
+
+Vector3f AC_INDI_Control::angular_velocity_I_controller(Vector3f err)
+{
+
+    float _dt = AP::scheduler().get_loop_period_s();
+
+    // bool max_flag_roll = _motors.limit.roll;
+    if (!is_zero(_i_ang_rate_x) && is_positive(_dt)) {
+            av_integrator.x += ((float)err.x * _i_ang_rate_x) * _dt;
+            av_integrator.x = constrain_float(av_integrator.x, -_i_ang_rate_x_max, _i_ang_rate_x_max);
+    } else {
+        av_integrator.x = 0.0f;
+    }
+
+    // bool max_flag_pitch = _motors.limit.pitch;
+    if (!is_zero(_i_ang_rate_y) && is_positive(_dt)) {
+            av_integrator.y += ((float)err.y * _i_ang_rate_y) * _dt;
+            av_integrator.y = constrain_float(av_integrator.y, -_i_ang_rate_y_max, _i_ang_rate_y_max);
+    } else {
+        av_integrator.y = 0.0f;
+    }
+
+    // bool max_flag_yaw = _motors.limit.yaw;
+    if (!is_zero(_i_ang_rate_z) && is_positive(_dt)) {
+            av_integrator.z += ((float)err.z * _i_ang_rate_z) * _dt;
+            av_integrator.z = constrain_float(av_integrator.z, -_i_ang_rate_z_max, _i_ang_rate_z_max);
+    } else {
+        av_integrator.z = 0.0f;
+    }
+
+    return av_integrator;
 }
 
 // torque increment based on angular acceleration difference
@@ -452,7 +535,7 @@ void AC_INDI_Control::indi_angular_accel(void)
         // angular acc from Inertial_sensor_class (deferential and filter)
          _ang_acc_ = _ahrs.get_ang_accel_latest();
         break;
-    
+
     case 2:
         // angular acc from Inertial_sensor_class (first gyro filter and deferential)
          _ang_acc_ = _ahrs.get_ang_accel_gyro_f_latest();
@@ -504,7 +587,6 @@ void AC_INDI_Control::scale_torque_cmd(void)
     // ******
     xy_scale = 1.0f;
     z_scale = 1.0f;
-    // z_scale *= 0.1f; 
     z_scale = 1.0f;  
     // ******
 
@@ -617,18 +699,18 @@ void AC_INDI_Control::get_motor_speed(void)
     // motor_speed_rpm[3] = rpm_indi_4;
 
     // M1 - RPM4
-    _motor_speed_rpm[0] = _rpm_indi_4;
+    _motor_speed_rpm[0] = double(_rpm_indi_4);
     // M2 - RPM3
-    _motor_speed_rpm[1] = _rpm_indi_3;
+    _motor_speed_rpm[1] = double(_rpm_indi_3);
     // M3 - RPM2
-    _motor_speed_rpm[2] = _rpm_indi_2;
+    _motor_speed_rpm[2] = double(_rpm_indi_2);
     // M4 - RPM1
-    _motor_speed_rpm[3] = _rpm_indi_1;
+    _motor_speed_rpm[3] = double(_rpm_indi_1);
 
 
 // #ifdef HAVE_AP_BLHELI_SUPPORT
 //     // get motor rotation speed telemetry
-//     float esc_freq_hz[4] = {0.0f, 0.0f, 0.0f, 0.0f};    
+//     float esc_freq_hz[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 //     AP_BLHeli::get_singleton()->get_motor_frequencies_hz(4, esc_freq_hz);
 
 //     // map esc servo order to quad x frame order
@@ -655,28 +737,30 @@ void AC_INDI_Control::get_motor_speed(void)
 //     }
 // #endif
 
- 
+
     for (uint8_t i=0; i < 4; i++) {
         _motor_speed_hz[i]          = _motor_speed_rpm[i] * 0.016667;
         _motor_speed_meas_radps[i]  = _motor_speed_rpm[i] * 0.10472;
-    }    
+    }
 }
 
-/* 
+/*
     Calculate estimate of torque and thrust produced by motor using
-    the measured motor speed.  
+    the measured motor speed.
     Motor speed derivative is not taken into account since it is not considered
     in control allocation.
     TODO: might require motor reordering in real hardware
-*/ 
+*/
 void AC_INDI_Control::calculate_torque_thrust_est(void)
 {
     // read last rotation speed of motors
     get_motor_speed();
 
-    // pre calculate some common constant 
-    float l = _arm_length_m * HALF_SQRT_2;
-    float k = _torque_coefficient / _thrust_coefficient;
+    // pre calculate some common constant
+    double l = double(_arm_length_m) * HALF_SQRT_2;
+    double ct_rad_s = 7.609e-6; // N/(rad/s_^2)
+    double cq_rad_s = 1.541e-7; // Nm/(rad/s_^2)
+    double k = (cq_rad_s * _torque_coefficient) / (ct_rad_s * _thrust_coefficient);
 
     // control allocation matrix for quad-x frame type
     // motor order start from top right and increase counter clockwise
@@ -686,35 +770,36 @@ void AC_INDI_Control::calculate_torque_thrust_est(void)
     //     {    k,    -k,     k,    -k},
     //     {-1.0f, -1.0f, -1.0f, -1.0f}};
 
-    float control_alloc_G1[4][4] = {
+    double control_alloc_G1[4][4] = {
         {   -l,    l,     l,     -l},
         {    l,    -l,    l,     -l},
         {    k,    k,     -k,    -k},
         {-1.0f, -1.0f, -1.0f, -1.0f}};
 
     // calculate square of measured motor speed
-    float motor_speed_meas_sq[4];
+    double motor_speed_meas_sq[4];
     for (uint8_t i=0; i < 4; i++) {
         motor_speed_meas_sq[i] = sq(_motor_speed_meas_radps[i]);
     }
 
-    float cmd[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    double cmd[4] = {0.0f, 0.0f, 0.0f, 0.0f};
     // perform multiplication
     // can whole multiplication be performed in single step?
     for (uint8_t i=0; i < 4; i++) {
         for (uint8_t j=0; j < 4; j++) {
             cmd[i] += control_alloc_G1[i][j] * motor_speed_meas_sq[j];
        }
-       cmd[i] *= _thrust_coefficient;
+       cmd[i] *= (ct_rad_s * _thrust_coefficient);
     }
 
     // filter torque estimate
     _torque_est_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _torque_est_filter_cutoff);
     _torque_est_body_Nm = _torque_est_filter.apply(Vector3f(cmd[0], cmd[1], cmd[2]));
-    
+
     // filter specific thrust estimate and rotate specific thrust vector from body to NED frame
     _spec_thrust_est_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _spec_thrust_est_filter_cutoff);
     _spec_thrust_est_ned_mpss = _ahrs.get_rotation_body_to_ned() * Vector3f(0, 0, _spec_thrust_est_filter.apply(cmd[3] / _mass_kg)) ;
+    // _spec_thrust_est_ned_mpss = _ahrs.get_rotation_body_to_ned() * Vector3f(0, 0, _spec_thrust_est_filter.apply(cmd[3])) ;
 }
 
 
@@ -927,6 +1012,18 @@ void AC_INDI_Control::write_log(void)
                     double(_error_ang_vel_save.x) * RAD_TO_DEG,
                     double(_error_ang_vel_save.y) * RAD_TO_DEG,
                     double(_error_ang_vel_save.z) * RAD_TO_DEG);
+
+    const Vector3f &and_vel_integ  = get_ang_vel_integrator();
+    AP::logger().Write("IN11",
+                    "TimeUS,itgx,itgy,itgz",
+                    "skkk",
+                    "F000",
+                    "Qfff",
+                    AP_HAL::micros64(),
+                    double(and_vel_integ.x) * RAD_TO_DEG,
+                    double(and_vel_integ.y) * RAD_TO_DEG,
+                    double(and_vel_integ.z) * RAD_TO_DEG);
+
 }
 
 AC_INDI_Control *AC_INDI_Control::_singleton = nullptr;

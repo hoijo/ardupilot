@@ -7,6 +7,7 @@
 #include <AC_PID/AC_P.h>               // P library
 #include <Filter/LowPassFilter2p.h>
 #include <Filter/LowPassFilter.h>
+#include <AP_Motors/AP_Motors.h>
 
 // rpm hall sensor
 #include <AP_RPM/AP_RPM.h>
@@ -42,6 +43,8 @@ public:
     // run angular velocity controller 
     void run_angvel_controller(Vector3f target, Vector3f meas, Vector3f ang_acc_desired);
 
+    Vector3f angular_velocity_I_controller(Vector3f error);
+
     // calculate estimated torque and thrust values using current motor speed
     void calculate_torque_thrust_est(void);
 
@@ -63,6 +66,8 @@ public:
 
     const Quaternion& get_attitude_quad_target() const { return _att_target_quat; }
     const Vector3f& get_ang_vel_target() const { return _ang_vel_target_radps; }
+    const Vector3f& get_ang_vel_integrator() const {return av_integrator; }
+
     const Vector3f& get_ang_acc_target() const { return _ang_acc_target_radpss; }
     const Vector3f& get_torque_cmd() const { return _torque_cmd_body_Nm; }
 
@@ -127,8 +132,6 @@ protected:
     AP_AHRS_View &        _ahrs;
     const AP_InertialNav&       _inav;
 
-    // AP_RPM rpm_indi;
-
     // Parameters 
     AP_Int8     enable_chan;
 
@@ -146,15 +149,26 @@ protected:
     AC_P        _p_ang_rate_y;
     AC_P        _p_ang_rate_z;
 
+    // angular velocity I controller and max
+    AP_Float        _i_ang_rate_x;
+    AP_Float        _i_ang_rate_y;
+    AP_Float        _i_ang_rate_z;
+
+    AP_Float        _i_ang_rate_x_max;
+    AP_Float        _i_ang_rate_y_max;
+    AP_Float        _i_ang_rate_z_max;
+
+    Vector3f av_integrator = {0.0f, 0.0f, 0.0f};
+
     // vehicle properties
-    AP_Float    _mass_kg;                       // mass in kg               
+    AP_Float    _mass_kg;                       // mass in kg
     AP_Float    _moment_inertia_xx_kgm2;        // moment of inertia of xx axis in kg.m²
     AP_Float    _moment_inertia_yy_kgm2;        // moment of inertia of yy axis in kg.m²
     AP_Float    _moment_inertia_z_kgm2;         // moment of inertia of z axis in kg.m²
     AP_Float    _arm_length_m;                  // distance to motors in m
     AP_Float    _thrust_coefficient;            // thrust coefficient in N/(rad/s)²
     AP_Float    _torque_coefficient;            // torque coefficient in Nm/(rad/s)²
-    AP_Float    _throttle2motor_speed;          // coefficient between scaled throttle(between 0-1) command and motor speed in rad/s 
+    AP_Float    _throttle2motor_speed;          // coefficient between scaled throttle(between 0-1) command and motor speed in rad/s
     AP_Float    _torque_est_filter_cutoff;      // rpm filter cutoff frequency for torque estimation in Hz
     AP_Float    _spec_thrust_est_filter_cutoff; // rpm filter cutoff frequency for specific thrust estimation in Hz
     AP_Float    _spec_thrust_cmd_filter_cutoff; // specific thrust command filter cutoff frequency in Hz
@@ -188,12 +202,12 @@ protected:
     float       _ang_acc_check_y;
     float       _ang_acc_check_z;
     
-    float _motor_cmd_radps[4];                  // motor command in rad/s   !!!NOT USED
-    float _motor_cmd_scaled[4];                 // scaled motor command 0-1 !!!NOT USED
-    float _motor_speed_meas_radps[4];           // current motor speed in rad/s
+    double _motor_cmd_radps[4];                  // motor command in rad/s   !!!NOT USED
+    double _motor_cmd_scaled[4];                 // scaled motor command 0-1 !!!NOT USED
+    double _motor_speed_meas_radps[4];           // current motor speed in rad/s
 
-    float _motor_speed_hz[4];
-    float _motor_speed_rpm[4];
+    double _motor_speed_hz[4];
+    double _motor_speed_rpm[4];
 
 
     LowPassFilterVector3f _torque_est_filter;
