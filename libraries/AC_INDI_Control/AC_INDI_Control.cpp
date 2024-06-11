@@ -98,7 +98,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: kg.m²
     // @Range: 0.001 1
     // @User: Standard
-    AP_GROUPINFO("_MOI_XX",                         12, AC_INDI_Control, _moment_inertia_xx_kgm2, 0.02f),
+    AP_GROUPINFO("_MOI_XX",                         12, AC_INDI_Control, _moment_inertia_xx_kgm2, 0.002f),
 
     // @Param: _MOI_YY
     // @DisplayName: Moment of inertia of vehicle  in y-y axis in kg.m² 
@@ -106,7 +106,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: kg.m²
     // @Range: 0.001 1
     // @User: Standard
-    AP_GROUPINFO("_MOI_YY",                         13, AC_INDI_Control, _moment_inertia_yy_kgm2, 0.02f),
+    AP_GROUPINFO("_MOI_YY",                         13, AC_INDI_Control, _moment_inertia_yy_kgm2, 0.002f),
 
     // @Param: _MOI_Z
     // @DisplayName: Moment of inertia of vehicle in z axis in kg.m² 
@@ -114,7 +114,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: kg.m²
     // @Range: 0.001 1
     // @User: Standard
-    AP_GROUPINFO("_MOI_Z",                          14, AC_INDI_Control, _moment_inertia_z_kgm2, 0.03f),
+    AP_GROUPINFO("_MOI_Z",                          14, AC_INDI_Control, _moment_inertia_z_kgm2, 0.005f),
 
     // @Param: _ARM_LEN
     // @DisplayName: Distance to motor in m
@@ -787,7 +787,7 @@ void AC_INDI_Control::calculate_torque_thrust_est(void)
     for (uint8_t i=0; i < 4; i++) {
         for (uint8_t j=0; j < 4; j++) {
             cmd[i] += control_alloc_G1[i][j] * motor_speed_meas_sq[j];
-       }
+    }
        cmd[i] *= (ct_rad_s * _thrust_coefficient);
     }
 
