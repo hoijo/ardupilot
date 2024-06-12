@@ -235,6 +235,41 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @User:
     AP_GROUPINFO("_I_MAX_Z",                     29, AC_INDI_Control, _i_ang_rate_z_max, 3.0f),
 
+
+    // @Param: _rpm_filt
+    // @DisplayName: I max of angular velocity
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_RPM_FILT",                     30, AC_INDI_Control, _rpm_filt, 20.0f),
+
+    // @Param: _X_SCALE
+    // @DisplayName: scale indi output
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_X_SCALE",                     31, AC_INDI_Control, _x_scale, 1.0f),
+
+    // @Param: _Y_SCALE
+    // @DisplayName: scale indi output
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_Y_SCALE",                     32, AC_INDI_Control, _y_scale, 1.0f),
+
+    // @Param: _Z_SCALE
+    // @DisplayName: scale indi output
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_Z_SCALE",                     33, AC_INDI_Control, _z_scale, 1.0f),
+
+
+
     AP_GROUPEND
 };
 
@@ -581,18 +616,18 @@ void AC_INDI_Control::indi_angular_accel(void)
 // TODO: apply scaling to the torque command to correct scaling due to the arducopter control allocation
 void AC_INDI_Control::scale_torque_cmd(void)
 {
-    float xy_scale = 2.0f / (4.0f * sq(_throttle2motor_speed) * _thrust_coefficient * _arm_length_m * HALF_SQRT_2);
-    float z_scale = 2.0f / (4.0f * sq(_throttle2motor_speed) * _torque_coefficient );
+    // float xy_scale = 2.0f / (4.0f * sq(_throttle2motor_speed) * _thrust_coefficient * _arm_length_m * HALF_SQRT_2);
+    // float z_scale = 2.0f / (4.0f * sq(_throttle2motor_speed) * _torque_coefficient );
 
     // ******
-    xy_scale = 1.0f;
-    z_scale = 1.0f;
-    z_scale = 1.0f;
+    // xy_scale = 1.0f;
+    // z_scale = 1.0f;
+    // z_scale = 1.0f;
     // ******
 
-    _torque_cmd_scaled.x = _torque_cmd_body_Nm.x * xy_scale;
-    _torque_cmd_scaled.y = _torque_cmd_body_Nm.y * xy_scale;
-    _torque_cmd_scaled.z = _torque_cmd_body_Nm.z * z_scale;
+    _torque_cmd_scaled.x = _torque_cmd_body_Nm.x * _x_scale;
+    _torque_cmd_scaled.y = _torque_cmd_body_Nm.y * _y_scale;
+    _torque_cmd_scaled.z = _torque_cmd_body_Nm.z * _z_scale;
 }
 
 void AC_INDI_Control::z_transform_acc(void)
@@ -741,6 +776,19 @@ void AC_INDI_Control::get_motor_speed(void)
         _motor_speed_hz[i]          = _motor_speed_rpm[i] * 0.016667;
         _motor_speed_meas_radps[i]  = _motor_speed_rpm[i] * 0.10472;
     }
+
+    _rpm_1_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _rpm_filt);
+    _motor_speed_meas_radps_f[0] = _rpm_1_filter.apply(_motor_speed_meas_radps[0]);
+
+    _rpm_2_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _rpm_filt);
+    _motor_speed_meas_radps_f[1] = _rpm_2_filter.apply(_motor_speed_meas_radps[1]);
+
+    _rpm_3_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _rpm_filt);
+    _motor_speed_meas_radps_f[2] = _rpm_3_filter.apply(_motor_speed_meas_radps[2]);
+
+    _rpm_1_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _rpm_filt);
+    _motor_speed_meas_radps_f[3] = _rpm_4_filter.apply(_motor_speed_meas_radps[3]);
+
 }
 
 /*
@@ -778,7 +826,7 @@ void AC_INDI_Control::calculate_torque_thrust_est(void)
     // calculate square of measured motor speed
     double motor_speed_meas_sq[4];
     for (uint8_t i=0; i < 4; i++) {
-        motor_speed_meas_sq[i] = sq(_motor_speed_meas_radps[i]);
+        motor_speed_meas_sq[i] = sq(_motor_speed_meas_radps_f[i]);
     }
 
     double cmd[4] = {0.0f, 0.0f, 0.0f, 0.0f};
@@ -941,7 +989,7 @@ void AC_INDI_Control::write_log(void)
 
     // log rpm, rpm[rad/s], rpm[Hz]
     AP::logger().Write("IND7",
-                    "TimeUS,rp1,rp2,rp3,rp4,rpr1,rpr2,rpr3,rpr4,rph1,rph2,rph3,rph4",
+                    "TimeUS,rp1,rp2,rp3,rp4,rpr1,rpr2,rpr3,rpr4,rpf1,rpf2,rpf3,rpf4",
                     "s------------",
                     "F000000000000",
                     "Qffffffffffff",
@@ -954,10 +1002,10 @@ void AC_INDI_Control::write_log(void)
                     _motor_speed_meas_radps[1],
                     _motor_speed_meas_radps[2],
                     _motor_speed_meas_radps[3],
-                    _motor_speed_hz[0],
-                    _motor_speed_hz[1],
-                    _motor_speed_hz[2],
-                    _motor_speed_hz[3]);
+                    _motor_speed_meas_radps_f[0],
+                    _motor_speed_meas_radps_f[1],
+                    _motor_speed_meas_radps_f[2],
+                    _motor_speed_meas_radps_f[3]);
 
     // angular acc from Inertial_sensor_class
     const Vector3f ang_acc_flt     = _ahrs.get_ang_accel_latest();

@@ -24,6 +24,7 @@
         "utility": "cpp",
         "variant": "cpp",
         "ranges": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "valarray": "cpp"
     }
 }

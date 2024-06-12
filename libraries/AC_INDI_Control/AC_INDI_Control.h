@@ -173,7 +173,11 @@ protected:
     AP_Float    _spec_thrust_est_filter_cutoff; // rpm filter cutoff frequency for specific thrust estimation in Hz
     AP_Float    _spec_thrust_cmd_filter_cutoff; // specific thrust command filter cutoff frequency in Hz
     AP_Float    _yaw_rate_filter_cutoff;        // torque command filter cutoff frequency in Hz
+    AP_Float    _rpm_filt;                      // rpm filter
     AP_Int32    _ang_acc_sel;                   // Select angular acc
+    AP_Float    _x_scale;                         // scale x
+    AP_Float    _y_scale;                         // scale y
+    AP_Float    _z_scale;                         // scale z
 
     Vector3f    _pos_target_neu_m;              // position target in NEU frame in m
     Vector3f    _vel_target_neu_mps;            // velocity target in NEU frame in m/s
@@ -183,7 +187,6 @@ protected:
     Vector3f    _spec_thrust_est_ned_mpss;      // estimated specific thrust from motor speed in NED frame in m/s²
     float       _total_thrust_cmd_body_N;       // total thrust command in body frame in N
     float       _total_thrust_cmd_scaled;       // scaled total thrust command between 0 ~ 1
-    
 
     Quaternion  _att_target_quat;               // target attitude defined using desired yaw and specific thrust command
     float       _att_target_euler_angle_yaw_rad;// target attitude used only for target heading in rad
@@ -205,6 +208,7 @@ protected:
     double _motor_cmd_radps[4];                  // motor command in rad/s   !!!NOT USED
     double _motor_cmd_scaled[4];                 // scaled motor command 0-1 !!!NOT USED
     double _motor_speed_meas_radps[4];           // current motor speed in rad/s
+    double _motor_speed_meas_radps_f[4];           // current motor speed in rad/s
 
     double _motor_speed_hz[4];
     double _motor_speed_rpm[4];
@@ -214,6 +218,11 @@ protected:
     LowPassFilter2pFloat _spec_thrust_est_filter;
     LowPassFilterVector3f _spec_thrust_cmd_filter;
     LowPassFilterFloat _yaw_rate_filter;
+
+    LowPassFilterFloat _rpm_1_filter;
+    LowPassFilterFloat _rpm_2_filter;
+    LowPassFilterFloat _rpm_3_filter;
+    LowPassFilterFloat _rpm_4_filter;
 
     // Angular acc of z transform
     float _p_dot_z_transform = 0.0f;
