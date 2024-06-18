@@ -1,7 +1,7 @@
 {
     "cSpell.language": "en-GB",
     "astyle.astylerc": "${workspaceFolder}/Tools/CodeStyle/astylerc",
-    "cmake.sourceDirectory": "/home/hoijo/ardupilot/libraries/AP_HAL_ESP32/targets/esp-idf",
+    "cmake.sourceDirectory": "/home/uasg/ardupilot_indi_rpm_hall/libraries/AP_HAL_ESP32/targets/esp-idf",
     "files.associations": {
         "*.repos": "yaml",
         "*.world": "xml",

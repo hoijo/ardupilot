@@ -824,9 +824,14 @@ void AC_INDI_Control::calculate_torque_thrust_est(void)
         {-1.0f, -1.0f, -1.0f, -1.0f}};
 
     // calculate square of measured motor speed
+    // double motor_speed_meas_sq[4];
+    // for (uint8_t i=0; i < 4; i++) {
+    //     motor_speed_meas_sq[i] = sq(_motor_speed_meas_radps_f[i]);
+    // }
+
     double motor_speed_meas_sq[4];
     for (uint8_t i=0; i < 4; i++) {
-        motor_speed_meas_sq[i] = sq(_motor_speed_meas_radps_f[i]);
+        motor_speed_meas_sq[i] = sq(_motor_speed_meas_radps[i]);
     }
 
     double cmd[4] = {0.0f, 0.0f, 0.0f, 0.0f};
