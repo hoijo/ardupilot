@@ -227,6 +227,87 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @User: Standard
     AP_GROUPINFO("_MW5_LPF",                     28, AC_INDI_Control, _mw5_lpf, 100),
 
+// @Param: _I_AVEL_X
+    // @DisplayName: I gain of angular velocity
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_I_AVEL_X",                     29, AC_INDI_Control, _i_ang_rate_x, 0.0f),
+
+    // @Param: _I_AVEL_Y
+    // @DisplayName: I gain of angular velocity
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_I_AVEL_Y",                     30, AC_INDI_Control, _i_ang_rate_y, 0.0f),
+
+    // @Param: _I_AVEL_Z
+    // @DisplayName: I gain of angular velocity
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_I_AVEL_Z",                     31, AC_INDI_Control, _i_ang_rate_z, 0.0f),
+
+    // @Param: _I_MAX_X
+    // @DisplayName: I max of angular velocity
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_I_MAX_X",                     32, AC_INDI_Control, _i_ang_rate_x_max, 3.0f),
+
+    // @Param: _I_MAX_Y
+    // @DisplayName: I max of angular velocity
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_I_MAX_Y",                     33, AC_INDI_Control, _i_ang_rate_y_max, 3.0f),
+
+    // @Param: _I_MAX_Z
+    // @DisplayName: I max of angular velocity
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_I_MAX_Z",                     34, AC_INDI_Control, _i_ang_rate_z_max, 3.0f),
+
+// @Param: _rpm_filt
+    // @DisplayName: I max of angular velocity
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_RPM_FILT",                     35, AC_INDI_Control, _rpm_filt, 20.0f),
+
+    // @Param: _X_SCALE
+    // @DisplayName: scale indi output
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_X_SCALE",                     36, AC_INDI_Control, _x_scale, 1.0f),
+
+    // @Param: _Y_SCALE
+    // @DisplayName: scale indi output
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_Y_SCALE",                     37, AC_INDI_Control, _y_scale, 1.0f),
+
+    // @Param: _Z_SCALE
+    // @DisplayName: scale indi output
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_Z_SCALE",                     38, AC_INDI_Control, _z_scale, 1.0f),
+
+
     AP_GROUPEND
 };
 
@@ -329,12 +410,12 @@ void AC_INDI_Control::limit_specific_thrust(float accel_max_xy)
     // do not allow z axis acceleration to be bigger than zero
     // z axis of specific thrust should always be negative in NED frame
     _spec_thrust_cmd_ned_mpss.z = MIN(_spec_thrust_cmd_ned_mpss.z, -0.001f);
-    
+
     // adjust maximum xy accel based on z accel
     accel_max_xy = MIN(accel_max_xy, fabsf(_spec_thrust_cmd_ned_mpss.z)*accel_max_xy/GRAVITY_MSS);
 
     // scale xy axis command to maximum limit
-    float sp_th_xy_len = norm(_spec_thrust_cmd_ned_mpss.x, _spec_thrust_cmd_ned_mpss.y);    
+    float sp_th_xy_len = norm(_spec_thrust_cmd_ned_mpss.x, _spec_thrust_cmd_ned_mpss.y);
     if ((sp_th_xy_len > accel_max_xy) && is_positive(sp_th_xy_len)) {
         _spec_thrust_cmd_ned_mpss.x *= (accel_max_xy / sp_th_xy_len);
         _spec_thrust_cmd_ned_mpss.y *= (accel_max_xy / sp_th_xy_len);
@@ -477,6 +558,10 @@ void AC_INDI_Control::run_angvel_controller(Vector3f target, Vector3f measurment
 
     _ang_acc_target_radpss += ang_acc_desired;
 
+    // I controller
+    Vector3f ang_vel_err_i_control = angular_velocity_I_controller(error_ang_vel);
+    _ang_acc_target_radpss += ang_vel_err_i_control;
+
 
     // Off-CG Sensor data
     Off_CG_data_arrange();
@@ -490,6 +575,38 @@ void AC_INDI_Control::run_angvel_controller(Vector3f target, Vector3f measurment
 
     indi_angular_accel(); // INDI inner loop
     scale_torque_cmd();   // not used
+}
+
+Vector3f AC_INDI_Control::angular_velocity_I_controller(Vector3f err)
+{
+
+    float _dt = AP::scheduler().get_loop_period_s();
+
+    // bool max_flag_roll = _motors.limit.roll;
+    if (!is_zero(_i_ang_rate_x) && is_positive(_dt)) {
+            av_integrator.x += ((float)err.x * _i_ang_rate_x) * _dt;
+            av_integrator.x = constrain_float(av_integrator.x, -_i_ang_rate_x_max, _i_ang_rate_x_max);
+    } else {
+        av_integrator.x = 0.0f;
+    }
+
+    // bool max_flag_pitch = _motors.limit.pitch;
+    if (!is_zero(_i_ang_rate_y) && is_positive(_dt)) {
+            av_integrator.y += ((float)err.y * _i_ang_rate_y) * _dt;
+            av_integrator.y = constrain_float(av_integrator.y, -_i_ang_rate_y_max, _i_ang_rate_y_max);
+    } else {
+        av_integrator.y = 0.0f;
+    }
+
+    // bool max_flag_yaw = _motors.limit.yaw;
+    if (!is_zero(_i_ang_rate_z) && is_positive(_dt)) {
+            av_integrator.z += ((float)err.z * _i_ang_rate_z) * _dt;
+            av_integrator.z = constrain_float(av_integrator.z, -_i_ang_rate_z_max, _i_ang_rate_z_max);
+    } else {
+        av_integrator.z = 0.0f;
+    }
+
+    return av_integrator;
 }
 
 // torque increment based on angular acceleration difference
@@ -562,17 +679,17 @@ void AC_INDI_Control::indi_angular_accel(void)
 // TODO: apply scaling to the torque command to correct scaling due to the arducopter control allocation
 void AC_INDI_Control::scale_torque_cmd(void)
 {
-    float xy_scale = 2.0f / (4.0f * sq(_throttle2motor_speed) * _thrust_coefficient * _arm_length_m * HALF_SQRT_2);
-    float z_scale = 2.0f / (4.0f * sq(_throttle2motor_speed) * _torque_coefficient );
+    // float xy_scale = 2.0f / (4.0f * sq(_throttle2motor_speed) * _thrust_coefficient * _arm_length_m * HALF_SQRT_2);
+    // float z_scale = 2.0f / (4.0f * sq(_throttle2motor_speed) * _torque_coefficient );
 
     // ******
-    xy_scale = 1.0f;
-    z_scale  = 1.0f;
+    // xy_scale = 1.0f;
+    // z_scale  = 1.0f;
     // ******
 
-    _torque_cmd_scaled.x = _torque_cmd_body_Nm.x * xy_scale;
-    _torque_cmd_scaled.y = _torque_cmd_body_Nm.y * xy_scale;
-    _torque_cmd_scaled.z = _torque_cmd_body_Nm.z * z_scale;
+    _torque_cmd_scaled.x = _torque_cmd_body_Nm.x * _x_scale;
+    _torque_cmd_scaled.y = _torque_cmd_body_Nm.y * _y_scale;
+    _torque_cmd_scaled.z = _torque_cmd_body_Nm.z * _z_scale;
 }
 
 // Convert a 321-intrinsic euler angle derivative to an angular velocity vector
@@ -890,13 +1007,13 @@ void AC_INDI_Control::get_motor_speed(void)
     // motor_speed_rpm[3] = rpm_indi_4;
 
     // M1 - RPM4
-    _motor_speed_rpm[0] = _rpm_indi_4;
+    _motor_speed_rpm[0] = double(_rpm_indi_4);
     // M2 - RPM3
-    _motor_speed_rpm[1] = _rpm_indi_3;
+    _motor_speed_rpm[1] = double(_rpm_indi_3);
     // M3 - RPM2
-    _motor_speed_rpm[2] = _rpm_indi_2;
+    _motor_speed_rpm[2] = double(_rpm_indi_2);
     // M4 - RPM1
-    _motor_speed_rpm[3] = _rpm_indi_1;
+    _motor_speed_rpm[3] = double(_rpm_indi_1);
 
 
 // #ifdef HAVE_AP_BLHELI_SUPPORT
@@ -927,27 +1044,39 @@ void AC_INDI_Control::get_motor_speed(void)
 //         motor_speed_hz[i] = motor_speed_rpm[i] / 60.0f;
 //     }
 // #endif
- 
+
     for (uint8_t i=0; i < 4; i++) {
         _motor_speed_hz[i]          = _motor_speed_rpm[i] * 0.016667;
         _motor_speed_meas_radps[i]  = _motor_speed_rpm[i] * 0.10472;
-    }    
+    }
+
+    _rpm_1_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _rpm_filt);
+    _motor_speed_meas_radps_f[0] = _rpm_1_filter.apply(_motor_speed_meas_radps[0]);
+
+    _rpm_2_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _rpm_filt);
+    _motor_speed_meas_radps_f[1] = _rpm_2_filter.apply(_motor_speed_meas_radps[1]);
+
+    _rpm_3_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _rpm_filt);
+    _motor_speed_meas_radps_f[2] = _rpm_3_filter.apply(_motor_speed_meas_radps[2]);
+
+    _rpm_1_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _rpm_filt);
+    _motor_speed_meas_radps_f[3] = _rpm_4_filter.apply(_motor_speed_meas_radps[3]);
 }
 
-/* 
+/*
     Calculate estimate of torque and thrust produced by motor using
-    the measured motor speed.  
+    the measured motor speed.
     Motor speed derivative is not taken into account since it is not considered
     in control allocation.
     TODO: might require motor reordering in real hardware
-*/ 
+*/
 void AC_INDI_Control::calculate_torque_thrust_est(void)
 {
     // read last rotation speed of motors
     get_motor_speed();
 
-    // pre calculate some common constant 
-    double l = _arm_length_m * HALF_SQRT_2;
+    // pre calculate some common constant
+    double l = double(_arm_length_m) * HALF_SQRT_2;
     double k = (Cq * _torque_coefficient) / (Ct * _thrust_coefficient);
 
     // control allocation matrix for quad-x frame type
@@ -965,9 +1094,15 @@ void AC_INDI_Control::calculate_torque_thrust_est(void)
         {-1.0f, -1.0f, -1.0f, -1.0f}};
 
     // calculate square of measured motor speed
+    // double motor_speed_meas_sq[4];
+    // for (uint8_t i=0; i < 4; i++) {
+    //     motor_speed_meas_sq[i] = sq(_motor_speed_meas_radps_f[i]);
+    // }
+
+    // calculate square of measured motor speed
     double motor_speed_meas_sq[4];
     for (uint8_t i=0; i < 4; i++) {
-        motor_speed_meas_sq[i] = sq(_motor_speed_meas_radps[i]);
+        motor_speed_meas_sq[i] = sq(double(_motor_speed_meas_radps[i]));
     }
 
     double cmd[4] = {0.0f, 0.0f, 0.0f, 0.0f};
@@ -983,7 +1118,7 @@ void AC_INDI_Control::calculate_torque_thrust_est(void)
     // filter torque estimate
     _torque_est_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _torque_est_filter_cutoff);
     _torque_est_body_Nm = _torque_est_filter.apply(Vector3f(cmd[0], cmd[1], cmd[2]));
-    
+
     // filter specific thrust estimate and rotate specific thrust vector from body to NED frame
     _spec_thrust_est_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _spec_thrust_est_filter_cutoff);
     _spec_thrust_est_ned_mpss = _ahrs.get_rotation_body_to_ned() * Vector3f(0, 0, _spec_thrust_est_filter.apply(cmd[3] / _mass_kg)) ;
@@ -991,10 +1126,10 @@ void AC_INDI_Control::calculate_torque_thrust_est(void)
 
 void AC_INDI_Control::write_log(void)
 {
-    // const Vector3f &pos_target = get_pos_target();
-    // const Vector3f &vel_target = get_vel_target();
-    // const Vector3f &position = _inav.get_position_neu_cm()*0.01f;
-    // const Vector3f &velocity = _inav.get_velocity_neu_cms()*0.01f;
+    const Vector3f &pos_target = get_pos_target();
+    const Vector3f &vel_target = get_vel_target();
+    const Vector3f &position = _inav.get_position_neu_cm()*0.01f;
+    const Vector3f &velocity = _inav.get_velocity_neu_cms()*0.01f;
 
 // @LoggerMessage: IND1
 // @Description: INDI controller
@@ -1015,136 +1150,136 @@ void AC_INDI_Control::write_log(void)
 // @Field: TAY: Target acceleration, Y-axis
 // @Field: TAZ: Target acceleration, Z-axis
 
-    // AP::logger().Write("IND1",
-    //                     "TimeUS,TPX,TPY,TPZ,PX,PY,PZ,TVX,TVY,TVZ,VX,VY,VZ",
-    //                     "smmmmmmnnnnnn",
-    //                     "F000000000000",
-    //                     "Qffffffffffff",
-    //                     AP_HAL::micros64(),
-    //                     double(pos_target.x),
-    //                     double(pos_target.y),
-    //                     double(pos_target.z),
-    //                     double(position.x),
-    //                     double(position.y),
-    //                     double(position.z),
-    //                     double(vel_target.x),
-    //                     double(vel_target.y),
-    //                     double(vel_target.z),
-    //                     double(velocity.x),
-    //                     double(velocity.y),
-    //                     double(velocity.z));
+    AP::logger().Write("IND1",
+                        "TimeUS,TPX,TPY,TPZ,PX,PY,PZ,TVX,TVY,TVZ,VX,VY,VZ",
+                        "smmmmmmnnnnnn",
+                        "F000000000000",
+                        "Qffffffffffff",
+                        AP_HAL::micros64(),
+                        pos_target.x,
+                        pos_target.y,
+                        pos_target.z,
+                        position.x,
+                        position.y,
+                        position.z,
+                        vel_target.x,
+                        vel_target.y,
+                        vel_target.z,
+                        velocity.x,
+                        velocity.y,
+                        velocity.z);
 
-    // const Vector3f &lin_accel_target = get_lin_accel_target();
-    // const Vector3f acc_flt = _ahrs.get_accel_ef_blended() + Vector3f(0, 0, GRAVITY_MSS);
-    // AP::logger().Write("IND2",
-    //                     "TimeUS,TAX,TAY,TAZ,DAX,DAY,DAZ,AX,AY,AZ",
-    //                     "sooooooooo",
-    //                     "F000000000",
-    //                     "Qfffffffff",
-    //                     AP_HAL::micros64(),
-    //                     double(lin_accel_target.x),
-    //                     double(lin_accel_target.y),
-    //                     double(lin_accel_target.z),
-    //                     double(_lin_acc_desired_ned_mpss.x),
-    //                     double(_lin_acc_desired_ned_mpss.y),
-    //                     double(_lin_acc_desired_ned_mpss.z),
-    //                     double(acc_flt.x),
-    //                     double(acc_flt.y),
-    //                     double(acc_flt.z));
-
-
-    // // log attitude controller  
-    // // const float &att_target = get_attitude_quad_target().to_euler();
-    // const Vector3f &ang_vel_target = get_ang_vel_target();
-    // const Vector3f &ang_acc_target = get_ang_acc_target();
-    // const Vector3f &ang_vel = _ahrs.get_gyro();
-
-    // AP::logger().Write("IND3",
-    //                     "TimeUS,TPX,TPY,TPZ,PX,PY,PZ,TVX,TVY,TVZ,VX,VY,VZ",
-    //                     "sddddddkkkkkk",
-    //                     "F000000000000",
-    //                     "Qffffffffffff",
-    //                     AP_HAL::micros64(),
-    //                     double(get_attitude_quad_target().get_euler_roll() * RAD_TO_DEG),
-    //                     double(get_attitude_quad_target().get_euler_pitch() * RAD_TO_DEG),
-    //                     double(get_attitude_quad_target().get_euler_yaw() * RAD_TO_DEG),
-    //                     double(_ahrs.roll_sensor*0.01f),
-    //                     double(_ahrs.pitch_sensor*0.01f),
-    //                     double(wrap_360(_ahrs.yaw_sensor*0.01f)),
-    //                     double(ang_vel_target.x) * RAD_TO_DEG,
-    //                     double(ang_vel_target.y) * RAD_TO_DEG,
-    //                     double(ang_vel_target.z) * RAD_TO_DEG,
-    //                     double(ang_vel.x) * RAD_TO_DEG,
-    //                     double(ang_vel.y) * RAD_TO_DEG,
-    //                     double(ang_vel.z) * RAD_TO_DEG);
-
-    // AP::logger().Write("IND4",
-    //                     "TimeUS,TAX,TAY,TAZ,DAX,DAY,DAZ,accx,accy,accz",
-    //                     "seeeeeeeee",
-    //                     "F000000000",
-    //                     "Qfffffffff",
-    //                     AP_HAL::micros64(),
-    //                     double(ang_acc_target.x) * RAD_TO_DEG,
-    //                     double(ang_acc_target.y) * RAD_TO_DEG,
-    //                     double(ang_acc_target.z) * RAD_TO_DEG,
-    //                     double(_ang_acc_desired_radpss.x) * RAD_TO_DEG,
-    //                     double(_ang_acc_desired_radpss.y) * RAD_TO_DEG,
-    //                     double(_ang_acc_desired_radpss.z) * RAD_TO_DEG,
-    //                     double(_ang_acc_check_x) * RAD_TO_DEG,
-    //                     double(_ang_acc_check_y) * RAD_TO_DEG,
-    //                     double(_ang_acc_check_z) * RAD_TO_DEG);
+    const Vector3f &lin_accel_target = get_lin_accel_target();
+    const Vector3f acc_flt = _ahrs.get_accel_ef_blended() + Vector3f(0, 0, GRAVITY_MSS);
+    AP::logger().Write("IND2",
+                        "TimeUS,TAX,TAY,TAZ,DAX,DAY,DAZ,AX,AY,AZ",
+                        "sooooooooo",
+                        "F000000000",
+                        "Qfffffffff",
+                        AP_HAL::micros64(),
+                        lin_accel_target.x,
+                        lin_accel_target.y,
+                        lin_accel_target.z,
+                        _lin_acc_desired_ned_mpss.x,
+                        _lin_acc_desired_ned_mpss.y,
+                        _lin_acc_desired_ned_mpss.z,
+                        acc_flt.x,
+                        acc_flt.y,
+                        acc_flt.z);
 
 
-    // // log commanded and estimated specific thrust and torque values
-    // AP::logger().Write("IND5",
-    //                 "TimeUS,STCX,STCY,STCZ,STEX,STEY,STEZ,TCX,TCY,TCZ,TEX,TEY,TEZ",
-    //                 "soooooo------",
-    //                 "F000000000000",
-    //                 "Qffffffffffff",
-    //                 AP_HAL::micros64(),
-    //                 double(_spec_thrust_cmd_ned_mpss.x),
-    //                 double(_spec_thrust_cmd_ned_mpss.y),
-    //                 double(_spec_thrust_cmd_ned_mpss.z),
-    //                 double(_spec_thrust_est_ned_mpss.x),
-    //                 double(_spec_thrust_est_ned_mpss.y),
-    //                 double(_spec_thrust_est_ned_mpss.z),
-    //                 double(_torque_cmd_body_Nm.x),
-    //                 double(_torque_cmd_body_Nm.y),
-    //                 double(_torque_cmd_body_Nm.z),
-    //                 double(_torque_est_body_Nm.x),
-    //                 double(_torque_est_body_Nm.y),
-    //                 double(_torque_est_body_Nm.z));
+    // log attitude controller
+    // const float &att_target = get_attitude_quad_target().to_euler();
+    const Vector3f &ang_vel_target = get_ang_vel_target();
+    const Vector3f &ang_acc_target = get_ang_acc_target();
+    const Vector3f &ang_vel = _ahrs.get_gyro();
 
-    // // log scaled torque (to the mixer)
-    // AP::logger().Write("IND6",
-    //                 "TimeUS,SCAX,SCAY,SCAZ",
-    //                 "s---",
-    //                 "F000",
-    //                 "Qfff",
-    //                 AP_HAL::micros64(),
-    //                 _torque_cmd_scaled.x,
-    //                 _torque_cmd_scaled.y,
-    //                 _torque_cmd_scaled.z);
+    AP::logger().Write("IND3",
+                        "TimeUS,TPX,TPY,TPZ,PX,PY,PZ,TVX,TVY,TVZ,VX,VY,VZ",
+                        "sddddddkkkkkk",
+                        "F000000000000",
+                        "Qffffffffffff",
+                        AP_HAL::micros64(),
+                        get_attitude_quad_target().get_euler_roll() * RAD_TO_DEG,
+                        get_attitude_quad_target().get_euler_pitch() * RAD_TO_DEG,
+                        get_attitude_quad_target().get_euler_yaw() * RAD_TO_DEG,
+                        _ahrs.roll_sensor*0.01f,
+                        _ahrs.pitch_sensor*0.01f,
+                        wrap_360(_ahrs.yaw_sensor*0.01f),
+                        ang_vel_target.x * RAD_TO_DEG,
+                        ang_vel_target.y * RAD_TO_DEG,
+                        ang_vel_target.z * RAD_TO_DEG,
+                        ang_vel.x * RAD_TO_DEG,
+                        ang_vel.y * RAD_TO_DEG,
+                        ang_vel.z * RAD_TO_DEG);
 
-    // // log rpm, rpm[rad/s], rpm[Hz]
-    // AP::logger().Write("IND7",
-    //                 "TimeUS,rp1,rp2,rp3,rp4,rpr1,rpr2,rpr3,rpr4,rph1,rph2,rph3,rph4",
-    //                 "s------------",
-    //                 "F000000000000",
-    //                 "Qffffffffffff",
-    //                 AP_HAL::micros64(),
-    //                 double(_motor_speed_rpm[0]),
-    //                 double(_motor_speed_rpm[1]),
-    //                 double(_motor_speed_rpm[2]),
-    //                 double(_motor_speed_rpm[3]),
-    //                 double(_motor_speed_meas_radps[0]),
-    //                 double(_motor_speed_meas_radps[1]),
-    //                 double(_motor_speed_meas_radps[2]),
-    //                 double(_motor_speed_meas_radps[3]),
-    //                 double(_motor_speed_hz[0]),
-    //                 double(_motor_speed_hz[1]),
-    //                 double(_motor_speed_hz[2]),
-    //                 double(_motor_speed_hz[3]));
+    AP::logger().Write("IND4",
+                        "TimeUS,TAX,TAY,TAZ,DAX,DAY,DAZ,accx,accy,accz",
+                        "seeeeeeeee",
+                        "F000000000",
+                        "Qfffffffff",
+                        AP_HAL::micros64(),
+                        ang_acc_target.x * RAD_TO_DEG,
+                        ang_acc_target.y * RAD_TO_DEG,
+                        ang_acc_target.z * RAD_TO_DEG,
+                        _ang_acc_desired_radpss.x * RAD_TO_DEG,
+                        _ang_acc_desired_radpss.y * RAD_TO_DEG,
+                        _ang_acc_desired_radpss.z * RAD_TO_DEG,
+                        _ang_acc_check_x * RAD_TO_DEG,
+                        _ang_acc_check_y * RAD_TO_DEG,
+                        _ang_acc_check_z * RAD_TO_DEG);
+
+
+    // log commanded and estimated specific thrust and torque values
+        AP::logger().Write("IND5",
+                        "TimeUS,STCX,STCY,STCZ,STEX,STEY,STEZ,TCX,TCY,TCZ,TEX,TEY,TEZ",
+                        "soooooo------",
+                        "F000000000000",
+                        "Qffffffffffff",
+                        AP_HAL::micros64(),
+                        _spec_thrust_cmd_ned_mpss.x,
+                        _spec_thrust_cmd_ned_mpss.y,
+                        _spec_thrust_cmd_ned_mpss.z,
+                        _spec_thrust_est_ned_mpss.x,
+                        _spec_thrust_est_ned_mpss.y,
+                        _spec_thrust_est_ned_mpss.z,
+                        _torque_cmd_body_Nm.x,
+                        _torque_cmd_body_Nm.y,
+                        _torque_cmd_body_Nm.z,
+                        _torque_est_body_Nm.x,
+                        _torque_est_body_Nm.y,
+                        _torque_est_body_Nm.z);
+
+        // log scaled torque (to the mixer)
+        AP::logger().Write("IND6",
+                        "TimeUS,SCAX,SCAY,SCAZ",
+                        "s---",
+                        "F000",
+                        "Qfff",
+                        AP_HAL::micros64(),
+                        _torque_cmd_scaled.x,
+                        _torque_cmd_scaled.y,
+                        _torque_cmd_scaled.z);
+
+    // log rpm, rpm[rad/s], rpm[Hz]
+    AP::logger().Write("IND7",
+                    "TimeUS,rp1,rp2,rp3,rp4,rpr1,rpr2,rpr3,rpr4,rpf1,rpf2,rpf3,rpf4",
+                    "s------------",
+                    "F000000000000",
+                    "Qffffffffffff",
+                    AP_HAL::micros64(),
+                    _motor_speed_rpm[0],
+                    _motor_speed_rpm[1],
+                    _motor_speed_rpm[2],
+                    _motor_speed_rpm[3],
+                    _motor_speed_meas_radps[0],
+                    _motor_speed_meas_radps[1],
+                    _motor_speed_meas_radps[2],
+                    _motor_speed_meas_radps[3],
+                    _motor_speed_meas_radps_f[0],
+                    _motor_speed_meas_radps_f[1],
+                    _motor_speed_meas_radps_f[2],
+                    _motor_speed_meas_radps_f[3]);
 
     // ************************************************** Angular acceleration ***************************************************
     // angular acc from Inertial_sensor_class
@@ -1203,21 +1338,32 @@ void AC_INDI_Control::write_log(void)
                     o_acc_nap.z * RAD_TO_DEG,
                     o_acc_6aw.z * RAD_TO_DEG,
                     o_acc_tri_axis.z * RAD_TO_DEG);
-    // ***************************************************************************************************************************
 
-    // const Vector3f &ang_err_log = get_ang_err();
-    // AP::logger().Write("IN10",
-    //                 "TimeUS,Euex,Euey,Euez,Avex,Avey,Avez",
-    //                 "sdddkkk",
-    //                 "F000000",
-    //                 "Qffffff",
-    //                 AP_HAL::micros64(),
-    //                 double(ang_err_log.x) * RAD_TO_DEG,
-    //                 double(ang_err_log.y) * RAD_TO_DEG,
-    //                 double(ang_err_log.z) * RAD_TO_DEG,
-    //                 double(_error_ang_vel_save.x) * RAD_TO_DEG,
-    //                 double(_error_ang_vel_save.y) * RAD_TO_DEG,
-    //                 double(_error_ang_vel_save.z) * RAD_TO_DEG);
+
+    const Vector3f &ang_err_log = get_ang_err();
+    AP::logger().Write("IN11",
+                    "TimeUS,Euex,Euey,Euez,Avex,Avey,Avez",
+                    "sdddkkk",
+                    "F000000",
+                    "Qffffff",
+                    AP_HAL::micros64(),
+                    ang_err_log.x * RAD_TO_DEG,
+                    ang_err_log.y * RAD_TO_DEG,
+                    ang_err_log.z * RAD_TO_DEG,
+                    _error_ang_vel_save.x * RAD_TO_DEG,
+                    _error_ang_vel_save.y * RAD_TO_DEG,
+                    _error_ang_vel_save.z * RAD_TO_DEG);
+
+    const Vector3f &and_vel_integ  = get_ang_vel_integrator();
+    AP::logger().Write("IN12",
+                    "TimeUS,itgx,itgy,itgz",
+                    "skkk",
+                    "F000",
+                    "Qfff",
+                    AP_HAL::micros64(),
+                    and_vel_integ.x * RAD_TO_DEG,
+                    and_vel_integ.y * RAD_TO_DEG,
+                    and_vel_integ.z * RAD_TO_DEG);
 
 
     // ************************************************** Off-sensor data check pre-filter ***************************************************
@@ -1226,7 +1372,7 @@ void AC_INDI_Control::write_log(void)
     const Vector3f &mw_3_sensor_acc = get_mw_3_acc(); // [m/s^2]
     const Vector3f &mw_4_sensor_acc = get_mw_4_acc(); // [m/s^2]
     const Vector3f &mw_5_sensor_acc = get_mw_5_acc(); // [m/s^2]
-    AP::logger().Write("IN11",
+    AP::logger().Write("IN13",
                 "TimeUS,ax1,ax2,ax3,ax4,ax5",
                 "sooooo",
                 "F00000",
@@ -1235,7 +1381,7 @@ void AC_INDI_Control::write_log(void)
                 mw_1_sensor_acc.x, mw_2_sensor_acc.x, mw_3_sensor_acc.x,
                 mw_4_sensor_acc.x, mw_5_sensor_acc.x);
 
-    AP::logger().Write("IN12",
+    AP::logger().Write("IN14",
                 "TimeUS,ay1,ay2,ay3,ay4,ay5",
                 "sooooo",
                 "F00000",
@@ -1244,7 +1390,7 @@ void AC_INDI_Control::write_log(void)
                 mw_1_sensor_acc.y, mw_2_sensor_acc.y, mw_3_sensor_acc.y,
                 mw_4_sensor_acc.y, mw_5_sensor_acc.y);
 
-    AP::logger().Write("IN13",
+    AP::logger().Write("IN15",
                 "TimeUS,az1,az2,az3,az4,az5",
                 "sooooo",
                 "F00000",
@@ -1260,7 +1406,7 @@ void AC_INDI_Control::write_log(void)
     const Vector3f &mw_5_sensor_acc_wo_g    = get_mw_5_acc_wo_g(); // [m/s^2] no gravity
     const Vector3f &body_get_cg_acc_wo_grav = get_cg_acc_wo_grav(); // [m/s^2] no gravity
 
-    AP::logger().Write("IN14",
+    AP::logger().Write("IN16",
                 "TimeUS,ax1,ax2,ax3,ax4,ax5,axb",
                 "soooooo",
                 "F000000",
@@ -1269,7 +1415,7 @@ void AC_INDI_Control::write_log(void)
                 mw_1_sensor_acc_wo_g.x, mw_2_sensor_acc_wo_g.x, mw_3_sensor_acc_wo_g.x,
                 mw_4_sensor_acc_wo_g.x, mw_5_sensor_acc_wo_g.x, body_get_cg_acc_wo_grav.x);
 
-    AP::logger().Write("IN15",
+    AP::logger().Write("IN17",
                 "TimeUS,ay1,ay2,ay3,ay4,ay5,ayb",
                 "soooooo",
                 "F000000",
@@ -1278,7 +1424,7 @@ void AC_INDI_Control::write_log(void)
                 mw_1_sensor_acc_wo_g.y, mw_2_sensor_acc_wo_g.y, mw_3_sensor_acc_wo_g.y,
                 mw_4_sensor_acc_wo_g.y, mw_5_sensor_acc_wo_g.y, body_get_cg_acc_wo_grav.y);
 
-    AP::logger().Write("IN16",
+    AP::logger().Write("IN18",
                 "TimeUS,az1,az2,az3,az4,az5,azb",
                 "soooooo",
                 "F000000",
@@ -1326,7 +1472,7 @@ void AC_INDI_Control::write_log(void)
     const Vector3f &mw_3_sensor_acc_f = get_mw_3_acc_f(); // [m/s^2]
     const Vector3f &mw_4_sensor_acc_f = get_mw_4_acc_f(); // [m/s^2]
     const Vector3f &mw_5_sensor_acc_f = get_mw_5_acc_f(); // [m/s^2]
-    AP::logger().Write("IN20",
+    AP::logger().Write("IN19",
                 "TimeUS,ax1,ax2,ax3,ax4,ax5",
                 "sooooo",
                 "F00000",
@@ -1335,7 +1481,7 @@ void AC_INDI_Control::write_log(void)
                 mw_1_sensor_acc_f.x, mw_2_sensor_acc_f.x, mw_3_sensor_acc_f.x,
                 mw_4_sensor_acc_f.x, mw_5_sensor_acc_f.x);
 
-    AP::logger().Write("IN21",
+    AP::logger().Write("IN20",
                 "TimeUS,ay1,ay2,ay3,ay4,ay5",
                 "sooooo",
                 "F00000",
@@ -1344,7 +1490,7 @@ void AC_INDI_Control::write_log(void)
                 mw_1_sensor_acc_f.y, mw_2_sensor_acc_f.y, mw_3_sensor_acc_f.y,
                 mw_4_sensor_acc_f.y, mw_5_sensor_acc_f.y);
 
-    AP::logger().Write("IN22",
+    AP::logger().Write("IN21",
                 "TimeUS,az1,az2,az3,az4,az5",
                 "sooooo",
                 "F00000",
@@ -1359,7 +1505,7 @@ void AC_INDI_Control::write_log(void)
     const Vector3f &mw_4_sensor_acc_wo_g_f    = get_mw_4_acc_wo_g_f(); // [m/s^2] no gravity
     const Vector3f &mw_5_sensor_acc_wo_g_f    = get_mw_5_acc_wo_g_f(); // [m/s^2] no gravity
 
-    AP::logger().Write("IN23",
+    AP::logger().Write("IN22",
                 "TimeUS,ax1,ax2,ax3,ax4,ax5",
                 "sooooo",
                 "F00000",
@@ -1368,7 +1514,7 @@ void AC_INDI_Control::write_log(void)
                 mw_1_sensor_acc_wo_g_f.x, mw_2_sensor_acc_wo_g_f.x, mw_3_sensor_acc_wo_g_f.x,
                 mw_4_sensor_acc_wo_g_f.x, mw_5_sensor_acc_wo_g_f.x);
 
-    AP::logger().Write("IN24",
+    AP::logger().Write("IN23",
                 "TimeUS,ay1,ay2,ay3,ay4,ay5",
                 "sooooo",
                 "F00000",
@@ -1377,7 +1523,7 @@ void AC_INDI_Control::write_log(void)
                 mw_1_sensor_acc_wo_g_f.y, mw_2_sensor_acc_wo_g_f.y, mw_3_sensor_acc_wo_g_f.y,
                 mw_4_sensor_acc_wo_g_f.y, mw_5_sensor_acc_wo_g_f.y);
 
-    AP::logger().Write("IN25",
+    AP::logger().Write("IN24",
                 "TimeUS,az1,az2,az3,az4,az5",
                 "sooooo",
                 "F00000",

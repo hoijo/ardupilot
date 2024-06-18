@@ -45,6 +45,9 @@ public:
     // run angular velocity controller 
     void run_angvel_controller(Vector3f target, Vector3f meas, Vector3f ang_acc_desired);
 
+    // run angular velocity I controller
+    Vector3f angular_velocity_I_controller(Vector3f error);
+
     // calculate estimated torque and thrust values using current motor speed
     void calculate_torque_thrust_est(void);
 
@@ -66,6 +69,7 @@ public:
 
     const Quaternion& get_attitude_quad_target() const { return _att_target_quat; }
     const Vector3f& get_ang_vel_target() const { return _ang_vel_target_radps; }
+    const Vector3f& get_ang_vel_integrator() const {return av_integrator; }
     const Vector3f& get_ang_acc_target() const { return _ang_acc_target_radpss; }
     const Vector3f& get_torque_cmd() const { return _torque_cmd_body_Nm; }
 
@@ -209,6 +213,17 @@ protected:
     AC_P        _p_ang_rate_y;
     AC_P        _p_ang_rate_z;
 
+    // angular velocity I controller and max
+    AP_Float        _i_ang_rate_x;
+    AP_Float        _i_ang_rate_y;
+    AP_Float        _i_ang_rate_z;
+
+    AP_Float        _i_ang_rate_x_max;
+    AP_Float        _i_ang_rate_y_max;
+    AP_Float        _i_ang_rate_z_max;
+
+    Vector3f av_integrator = {0.0f, 0.0f, 0.0f};
+
     // vehicle properties
     AP_Float    _mass_kg;                       // mass in kg
     AP_Float    _moment_inertia_xx_kgm2;        // moment of inertia of xx axis in kg.m²
@@ -223,7 +238,10 @@ protected:
     AP_Float    _spec_thrust_cmd_filter_cutoff; // specific thrust command filter cutoff frequency in Hz
     AP_Float    _yaw_rate_filter_cutoff;        // torque command filter cutoff frequency in Hz
     AP_Int32    _ang_acc_sel;                   // Select angular acc
-
+    AP_Float    _rpm_filt;                      // rpm filter
+    AP_Float    _x_scale;                         // scale x
+    AP_Float    _y_scale;                         // scale y
+    AP_Float    _z_scale;                         // scale z
     AP_Float    _mw1_lpf;                       // Cutoff frequency of LPF about MW 1 sensor
     AP_Float    _mw2_lpf;                       // Cutoff frequency of LPF about MW 2 sensor
     AP_Float    _mw3_lpf;                       // Cutoff frequency of LPF about MW 3 sensor
@@ -256,17 +274,23 @@ protected:
     float       _ang_acc_check_y;
     float       _ang_acc_check_z;
 
-    float _motor_cmd_radps[4];                  // motor command in rad/s   !!!NOT USED
-    float _motor_cmd_scaled[4];                 // scaled motor command 0-1 !!!NOT USED
-    float _motor_speed_meas_radps[4];           // current motor speed in rad/s
+    double _motor_cmd_radps[4];                  // motor command in rad/s   !!!NOT USED
+    double _motor_cmd_scaled[4];                 // scaled motor command 0-1 !!!NOT USED
+    double _motor_speed_meas_radps[4];           // current motor speed in rad/s
+    double _motor_speed_meas_radps_f[4];           // current motor speed in rad/s
 
-    float _motor_speed_hz[4];
-    float _motor_speed_rpm[4];
+    double _motor_speed_hz[4];
+    double _motor_speed_rpm[4];
 
     LowPassFilterVector3f _torque_est_filter;
     LowPassFilter2pFloat _spec_thrust_est_filter;
     LowPassFilterVector3f _spec_thrust_cmd_filter;
     LowPassFilterFloat _yaw_rate_filter;
+
+    LowPassFilterFloat _rpm_1_filter;
+    LowPassFilterFloat _rpm_2_filter;
+    LowPassFilterFloat _rpm_3_filter;
+    LowPassFilterFloat _rpm_4_filter;
 
     LowPassFilterVector3f _mw1_lpf_filter;
     LowPassFilterVector3f _mw2_lpf_filter;
@@ -332,8 +356,8 @@ protected:
 private:
     static AC_INDI_Control *_singleton;
 
-    double Ct = 3.336e-5;
-    double Cq = 5.694e-7;
+    double Ct = 3.336e-5; // N/(rad/s_^2)
+    double Cq = 5.694e-7; // Nm/(rad/s_^2)
 
     // Num 1: Right (Coordinate : NWU)
     Vector3f mw_1_pos = {0.0f, -0.48f, 0.0f};
