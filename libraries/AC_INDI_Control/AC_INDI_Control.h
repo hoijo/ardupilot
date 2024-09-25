@@ -8,6 +8,8 @@
 #include <Filter/LowPassFilter2p.h>
 #include <Filter/LowPassFilter.h>
 
+#include <SRV_Channel/SRV_Channel.h>
+
 #include <AP_MW_AHRS/AP_MW_AHRS.h>
 
 // rpm hall sensor
@@ -398,6 +400,8 @@ private:
 
     // Convert a 321-intrinsic euler angle derivative to an angular velocity vector
     void ned_to_body(const Vector3f& euler_rad, const Vector3f& ned_contents, Vector3f& body_contents);
+
+    float pwm_test_1;
 
 
 public:

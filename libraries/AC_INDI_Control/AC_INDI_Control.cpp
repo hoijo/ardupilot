@@ -1061,6 +1061,11 @@ void AC_INDI_Control::get_motor_speed(void)
 
     _rpm_1_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _rpm_filt);
     _motor_speed_meas_radps_f[3] = _rpm_4_filter.apply(_motor_speed_meas_radps[3]);
+
+
+
+    SRV_Channel *c = SRV_Channels::srv_channel(1);
+    pwm_test_1 = c->get_output_pwm();
 }
 
 /*
@@ -1367,71 +1372,71 @@ void AC_INDI_Control::write_log(void)
 
 
     // ************************************************** Off-sensor data check pre-filter ***************************************************
-    const Vector3f &mw_1_sensor_acc = get_mw_1_acc(); // [m/s^2]
-    const Vector3f &mw_2_sensor_acc = get_mw_2_acc(); // [m/s^2]
-    const Vector3f &mw_3_sensor_acc = get_mw_3_acc(); // [m/s^2]
-    const Vector3f &mw_4_sensor_acc = get_mw_4_acc(); // [m/s^2]
-    const Vector3f &mw_5_sensor_acc = get_mw_5_acc(); // [m/s^2]
-    AP::logger().Write("IN13",
-                "TimeUS,ax1,ax2,ax3,ax4,ax5",
-                "sooooo",
-                "F00000",
-                "Qfffff",
-                AP_HAL::micros64(),
-                mw_1_sensor_acc.x, mw_2_sensor_acc.x, mw_3_sensor_acc.x,
-                mw_4_sensor_acc.x, mw_5_sensor_acc.x);
+    // const Vector3f &mw_1_sensor_acc = get_mw_1_acc(); // [m/s^2]
+    // const Vector3f &mw_2_sensor_acc = get_mw_2_acc(); // [m/s^2]
+    // const Vector3f &mw_3_sensor_acc = get_mw_3_acc(); // [m/s^2]
+    // const Vector3f &mw_4_sensor_acc = get_mw_4_acc(); // [m/s^2]
+    // const Vector3f &mw_5_sensor_acc = get_mw_5_acc(); // [m/s^2]
+    // AP::logger().Write("IN13",
+    //             "TimeUS,ax1,ax2,ax3,ax4,ax5",
+    //             "sooooo",
+    //             "F00000",
+    //             "Qfffff",
+    //             AP_HAL::micros64(),
+    //             mw_1_sensor_acc.x, mw_2_sensor_acc.x, mw_3_sensor_acc.x,
+    //             mw_4_sensor_acc.x, mw_5_sensor_acc.x);
 
-    AP::logger().Write("IN14",
-                "TimeUS,ay1,ay2,ay3,ay4,ay5",
-                "sooooo",
-                "F00000",
-                "Qfffff",
-                AP_HAL::micros64(),
-                mw_1_sensor_acc.y, mw_2_sensor_acc.y, mw_3_sensor_acc.y,
-                mw_4_sensor_acc.y, mw_5_sensor_acc.y);
+    // AP::logger().Write("IN14",
+    //             "TimeUS,ay1,ay2,ay3,ay4,ay5",
+    //             "sooooo",
+    //             "F00000",
+    //             "Qfffff",
+    //             AP_HAL::micros64(),
+    //             mw_1_sensor_acc.y, mw_2_sensor_acc.y, mw_3_sensor_acc.y,
+    //             mw_4_sensor_acc.y, mw_5_sensor_acc.y);
 
-    AP::logger().Write("IN15",
-                "TimeUS,az1,az2,az3,az4,az5",
-                "sooooo",
-                "F00000",
-                "Qfffff",
-                AP_HAL::micros64(),
-                mw_1_sensor_acc.z, mw_2_sensor_acc.z, mw_3_sensor_acc.z,
-                mw_4_sensor_acc.z, mw_5_sensor_acc.z);
+    // AP::logger().Write("IN15",
+    //             "TimeUS,az1,az2,az3,az4,az5",
+    //             "sooooo",
+    //             "F00000",
+    //             "Qfffff",
+    //             AP_HAL::micros64(),
+    //             mw_1_sensor_acc.z, mw_2_sensor_acc.z, mw_3_sensor_acc.z,
+    //             mw_4_sensor_acc.z, mw_5_sensor_acc.z);
 
-    const Vector3f &mw_1_sensor_acc_wo_g    = get_mw_1_acc_wo_g(); // [m/s^2] no gravity
-    const Vector3f &mw_2_sensor_acc_wo_g    = get_mw_2_acc_wo_g(); // [m/s^2] no gravity
-    const Vector3f &mw_3_sensor_acc_wo_g    = get_mw_3_acc_wo_g(); // [m/s^2] no gravity
-    const Vector3f &mw_4_sensor_acc_wo_g    = get_mw_4_acc_wo_g(); // [m/s^2] no gravity
-    const Vector3f &mw_5_sensor_acc_wo_g    = get_mw_5_acc_wo_g(); // [m/s^2] no gravity
-    const Vector3f &body_get_cg_acc_wo_grav = get_cg_acc_wo_grav(); // [m/s^2] no gravity
+    // const Vector3f &mw_1_sensor_acc_wo_g    = get_mw_1_acc_wo_g(); // [m/s^2] no gravity
+    // const Vector3f &mw_2_sensor_acc_wo_g    = get_mw_2_acc_wo_g(); // [m/s^2] no gravity
+    // const Vector3f &mw_3_sensor_acc_wo_g    = get_mw_3_acc_wo_g(); // [m/s^2] no gravity
+    // const Vector3f &mw_4_sensor_acc_wo_g    = get_mw_4_acc_wo_g(); // [m/s^2] no gravity
+    // const Vector3f &mw_5_sensor_acc_wo_g    = get_mw_5_acc_wo_g(); // [m/s^2] no gravity
+    // const Vector3f &body_get_cg_acc_wo_grav = get_cg_acc_wo_grav(); // [m/s^2] no gravity
 
-    AP::logger().Write("IN16",
-                "TimeUS,ax1,ax2,ax3,ax4,ax5,axb",
-                "soooooo",
-                "F000000",
-                "Qffffff",
-                AP_HAL::micros64(),
-                mw_1_sensor_acc_wo_g.x, mw_2_sensor_acc_wo_g.x, mw_3_sensor_acc_wo_g.x,
-                mw_4_sensor_acc_wo_g.x, mw_5_sensor_acc_wo_g.x, body_get_cg_acc_wo_grav.x);
+    // AP::logger().Write("IN16",
+    //             "TimeUS,ax1,ax2,ax3,ax4,ax5,axb",
+    //             "soooooo",
+    //             "F000000",
+    //             "Qffffff",
+    //             AP_HAL::micros64(),
+    //             mw_1_sensor_acc_wo_g.x, mw_2_sensor_acc_wo_g.x, mw_3_sensor_acc_wo_g.x,
+    //             mw_4_sensor_acc_wo_g.x, mw_5_sensor_acc_wo_g.x, body_get_cg_acc_wo_grav.x);
 
-    AP::logger().Write("IN17",
-                "TimeUS,ay1,ay2,ay3,ay4,ay5,ayb",
-                "soooooo",
-                "F000000",
-                "Qffffff",
-                AP_HAL::micros64(),
-                mw_1_sensor_acc_wo_g.y, mw_2_sensor_acc_wo_g.y, mw_3_sensor_acc_wo_g.y,
-                mw_4_sensor_acc_wo_g.y, mw_5_sensor_acc_wo_g.y, body_get_cg_acc_wo_grav.y);
+    // AP::logger().Write("IN17",
+    //             "TimeUS,ay1,ay2,ay3,ay4,ay5,ayb",
+    //             "soooooo",
+    //             "F000000",
+    //             "Qffffff",
+    //             AP_HAL::micros64(),
+    //             mw_1_sensor_acc_wo_g.y, mw_2_sensor_acc_wo_g.y, mw_3_sensor_acc_wo_g.y,
+    //             mw_4_sensor_acc_wo_g.y, mw_5_sensor_acc_wo_g.y, body_get_cg_acc_wo_grav.y);
 
-    AP::logger().Write("IN18",
-                "TimeUS,az1,az2,az3,az4,az5,azb",
-                "soooooo",
-                "F000000",
-                "Qffffff",
-                AP_HAL::micros64(),
-                mw_1_sensor_acc_wo_g.z, mw_2_sensor_acc_wo_g.z, mw_3_sensor_acc_wo_g.z,
-                mw_4_sensor_acc_wo_g.z, mw_5_sensor_acc_wo_g.z, body_get_cg_acc_wo_grav.z);
+    // AP::logger().Write("IN18",
+    //             "TimeUS,az1,az2,az3,az4,az5,azb",
+    //             "soooooo",
+    //             "F000000",
+    //             "Qffffff",
+    //             AP_HAL::micros64(),
+    //             mw_1_sensor_acc_wo_g.z, mw_2_sensor_acc_wo_g.z, mw_3_sensor_acc_wo_g.z,
+    //             mw_4_sensor_acc_wo_g.z, mw_5_sensor_acc_wo_g.z, body_get_cg_acc_wo_grav.z);
 
     // const Vector3f &mw_1_sensor_gyr = get_mw_1_gyr(); // [deg/s]
     // const Vector3f &mw_2_sensor_gyr = get_mw_2_gyr(); // [deg/s]
@@ -1467,70 +1472,78 @@ void AC_INDI_Control::write_log(void)
     //             mw_4_sensor_gyr.z, mw_5_sensor_gyr.z);
 
     // ************************************************** Off-sensor data check pre-filter ***************************************************
-    const Vector3f &mw_1_sensor_acc_f = get_mw_1_acc_f(); // [m/s^2]
-    const Vector3f &mw_2_sensor_acc_f = get_mw_2_acc_f(); // [m/s^2]
-    const Vector3f &mw_3_sensor_acc_f = get_mw_3_acc_f(); // [m/s^2]
-    const Vector3f &mw_4_sensor_acc_f = get_mw_4_acc_f(); // [m/s^2]
-    const Vector3f &mw_5_sensor_acc_f = get_mw_5_acc_f(); // [m/s^2]
-    AP::logger().Write("IN19",
-                "TimeUS,ax1,ax2,ax3,ax4,ax5",
-                "sooooo",
-                "F00000",
-                "Qfffff",
-                AP_HAL::micros64(),
-                mw_1_sensor_acc_f.x, mw_2_sensor_acc_f.x, mw_3_sensor_acc_f.x,
-                mw_4_sensor_acc_f.x, mw_5_sensor_acc_f.x);
+    // const Vector3f &mw_1_sensor_acc_f = get_mw_1_acc_f(); // [m/s^2]
+    // const Vector3f &mw_2_sensor_acc_f = get_mw_2_acc_f(); // [m/s^2]
+    // const Vector3f &mw_3_sensor_acc_f = get_mw_3_acc_f(); // [m/s^2]
+    // const Vector3f &mw_4_sensor_acc_f = get_mw_4_acc_f(); // [m/s^2]
+    // const Vector3f &mw_5_sensor_acc_f = get_mw_5_acc_f(); // [m/s^2]
+    // AP::logger().Write("IN19",
+    //             "TimeUS,ax1,ax2,ax3,ax4,ax5",
+    //             "sooooo",
+    //             "F00000",
+    //             "Qfffff",
+    //             AP_HAL::micros64(),
+    //             mw_1_sensor_acc_f.x, mw_2_sensor_acc_f.x, mw_3_sensor_acc_f.x,
+    //             mw_4_sensor_acc_f.x, mw_5_sensor_acc_f.x);
 
-    AP::logger().Write("IN20",
-                "TimeUS,ay1,ay2,ay3,ay4,ay5",
-                "sooooo",
-                "F00000",
-                "Qfffff",
-                AP_HAL::micros64(),
-                mw_1_sensor_acc_f.y, mw_2_sensor_acc_f.y, mw_3_sensor_acc_f.y,
-                mw_4_sensor_acc_f.y, mw_5_sensor_acc_f.y);
+    // AP::logger().Write("IN20",
+    //             "TimeUS,ay1,ay2,ay3,ay4,ay5",
+    //             "sooooo",
+    //             "F00000",
+    //             "Qfffff",
+    //             AP_HAL::micros64(),
+    //             mw_1_sensor_acc_f.y, mw_2_sensor_acc_f.y, mw_3_sensor_acc_f.y,
+    //             mw_4_sensor_acc_f.y, mw_5_sensor_acc_f.y);
 
-    AP::logger().Write("IN21",
-                "TimeUS,az1,az2,az3,az4,az5",
-                "sooooo",
-                "F00000",
-                "Qfffff",
-                AP_HAL::micros64(),
-                mw_1_sensor_acc_f.z, mw_2_sensor_acc_f.z, mw_3_sensor_acc_f.z,
-                mw_4_sensor_acc_f.z, mw_5_sensor_acc_f.z);
+    // AP::logger().Write("IN21",
+    //             "TimeUS,az1,az2,az3,az4,az5",
+    //             "sooooo",
+    //             "F00000",
+    //             "Qfffff",
+    //             AP_HAL::micros64(),
+    //             mw_1_sensor_acc_f.z, mw_2_sensor_acc_f.z, mw_3_sensor_acc_f.z,
+    //             mw_4_sensor_acc_f.z, mw_5_sensor_acc_f.z);
 
-    const Vector3f &mw_1_sensor_acc_wo_g_f    = get_mw_1_acc_wo_g_f(); // [m/s^2] no gravity
-    const Vector3f &mw_2_sensor_acc_wo_g_f    = get_mw_2_acc_wo_g_f(); // [m/s^2] no gravity
-    const Vector3f &mw_3_sensor_acc_wo_g_f    = get_mw_3_acc_wo_g_f(); // [m/s^2] no gravity
-    const Vector3f &mw_4_sensor_acc_wo_g_f    = get_mw_4_acc_wo_g_f(); // [m/s^2] no gravity
-    const Vector3f &mw_5_sensor_acc_wo_g_f    = get_mw_5_acc_wo_g_f(); // [m/s^2] no gravity
+    // const Vector3f &mw_1_sensor_acc_wo_g_f    = get_mw_1_acc_wo_g_f(); // [m/s^2] no gravity
+    // const Vector3f &mw_2_sensor_acc_wo_g_f    = get_mw_2_acc_wo_g_f(); // [m/s^2] no gravity
+    // const Vector3f &mw_3_sensor_acc_wo_g_f    = get_mw_3_acc_wo_g_f(); // [m/s^2] no gravity
+    // const Vector3f &mw_4_sensor_acc_wo_g_f    = get_mw_4_acc_wo_g_f(); // [m/s^2] no gravity
+    // const Vector3f &mw_5_sensor_acc_wo_g_f    = get_mw_5_acc_wo_g_f(); // [m/s^2] no gravity
 
-    AP::logger().Write("IN22",
-                "TimeUS,ax1,ax2,ax3,ax4,ax5",
-                "sooooo",
-                "F00000",
-                "Qfffff",
-                AP_HAL::micros64(),
-                mw_1_sensor_acc_wo_g_f.x, mw_2_sensor_acc_wo_g_f.x, mw_3_sensor_acc_wo_g_f.x,
-                mw_4_sensor_acc_wo_g_f.x, mw_5_sensor_acc_wo_g_f.x);
+    // AP::logger().Write("IN22",
+    //             "TimeUS,ax1,ax2,ax3,ax4,ax5",
+    //             "sooooo",
+    //             "F00000",
+    //             "Qfffff",
+    //             AP_HAL::micros64(),
+    //             mw_1_sensor_acc_wo_g_f.x, mw_2_sensor_acc_wo_g_f.x, mw_3_sensor_acc_wo_g_f.x,
+    //             mw_4_sensor_acc_wo_g_f.x, mw_5_sensor_acc_wo_g_f.x);
 
-    AP::logger().Write("IN23",
-                "TimeUS,ay1,ay2,ay3,ay4,ay5",
-                "sooooo",
-                "F00000",
-                "Qfffff",
-                AP_HAL::micros64(),
-                mw_1_sensor_acc_wo_g_f.y, mw_2_sensor_acc_wo_g_f.y, mw_3_sensor_acc_wo_g_f.y,
-                mw_4_sensor_acc_wo_g_f.y, mw_5_sensor_acc_wo_g_f.y);
+    // AP::logger().Write("IN23",
+    //             "TimeUS,ay1,ay2,ay3,ay4,ay5",
+    //             "sooooo",
+    //             "F00000",
+    //             "Qfffff",
+    //             AP_HAL::micros64(),
+    //             mw_1_sensor_acc_wo_g_f.y, mw_2_sensor_acc_wo_g_f.y, mw_3_sensor_acc_wo_g_f.y,
+    //             mw_4_sensor_acc_wo_g_f.y, mw_5_sensor_acc_wo_g_f.y);
 
-    AP::logger().Write("IN24",
-                "TimeUS,az1,az2,az3,az4,az5",
-                "sooooo",
-                "F00000",
-                "Qfffff",
-                AP_HAL::micros64(),
-                mw_1_sensor_acc_wo_g_f.z, mw_2_sensor_acc_wo_g_f.z, mw_3_sensor_acc_wo_g_f.z,
-                mw_4_sensor_acc_wo_g_f.z, mw_5_sensor_acc_wo_g_f.z);
+    // AP::logger().Write("IN24",
+    //             "TimeUS,az1,az2,az3,az4,az5",
+    //             "sooooo",
+    //             "F00000",
+    //             "Qfffff",
+    //             AP_HAL::micros64(),
+    //             mw_1_sensor_acc_wo_g_f.z, mw_2_sensor_acc_wo_g_f.z, mw_3_sensor_acc_wo_g_f.z,
+    //             mw_4_sensor_acc_wo_g_f.z, mw_5_sensor_acc_wo_g_f.z);
+
+    AP::logger().Write("IN25",
+                    "TimeUS,pwmt",
+                    "se",
+                    "F0",
+                    "Qf",
+                    AP_HAL::micros64(),
+                    pwm_test_1);
 }
 
 
