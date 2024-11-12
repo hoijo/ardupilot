@@ -90,7 +90,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: kg
     // @Range: 0.01 10
     // @User: Standard
-    AP_GROUPINFO("_MASS",                           11, AC_INDI_Control, _mass_kg, 4.2f),
+    AP_GROUPINFO("_MASS",                           11, AC_INDI_Control, _mass_kg, 14.5f),
 
     // @Param: _MOI_XX
     // @DisplayName: Moment of inertia of vehicle  in x-X axis in kg.m² 
@@ -98,7 +98,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: kg.m²
     // @Range: 0.001 1
     // @User: Standard
-    AP_GROUPINFO("_MOI_XX",                         12, AC_INDI_Control, _moment_inertia_xx_kgm2, 0.004f),
+    AP_GROUPINFO("_MOI_XX",                         12, AC_INDI_Control, _moment_inertia_xx_kgm2, 0.91f),
 
     // @Param: _MOI_YY
     // @DisplayName: Moment of inertia of vehicle  in y-y axis in kg.m² 
@@ -106,7 +106,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: kg.m²
     // @Range: 0.001 1
     // @User: Standard
-    AP_GROUPINFO("_MOI_YY",                         13, AC_INDI_Control, _moment_inertia_yy_kgm2, 0.004f),
+    AP_GROUPINFO("_MOI_YY",                         13, AC_INDI_Control, _moment_inertia_yy_kgm2, 1.287f),
 
     // @Param: _MOI_Z
     // @DisplayName: Moment of inertia of vehicle in z axis in kg.m² 
@@ -114,7 +114,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: kg.m²
     // @Range: 0.001 1
     // @User: Standard
-    AP_GROUPINFO("_MOI_Z",                          14, AC_INDI_Control, _moment_inertia_z_kgm2, 0.008f),
+    AP_GROUPINFO("_MOI_Z",                          14, AC_INDI_Control, _moment_inertia_z_kgm2, 2.147f),
 
     // @Param: _ARM_LEN
     // @DisplayName: Distance to motor in m
@@ -122,7 +122,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: m
     // @Range: 0.01 1
     // @User: Standard
-    AP_GROUPINFO("_ARM_LEN",                      15, AC_INDI_Control, _arm_length_m, 0.33f),
+    AP_GROUPINFO("_ARM_LEN",                      15, AC_INDI_Control, _arm_length_m, 0.4f),
 
     // @Param: _THR_COEF
     // @DisplayName: Thrust coefficent gain in N/(rad/s)²
@@ -193,7 +193,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: Hz
     // @Range: 20 120
     // @User: Standard
-    AP_GROUPINFO("_MW1_LPF",                     24, AC_INDI_Control, _mw1_lpf, 100),
+    AP_GROUPINFO("_MW1_LPF",                     24, AC_INDI_Control, _mw1_lpf, 30.0f),
 
     // @Param: _MW2_LPF
     // @DisplayName: Cutoff frequency of LPF about MW 2 sensor
@@ -201,7 +201,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: Hz
     // @Range: 20 120
     // @User: Standard
-    AP_GROUPINFO("_MW2_LPF",                     25, AC_INDI_Control, _mw2_lpf, 100),
+    AP_GROUPINFO("_MW2_LPF",                     25, AC_INDI_Control, _mw2_lpf, 30.0f),
 
     // @Param: _MW3_LPF
     // @DisplayName: Cutoff frequency of LPF about MW 3 sensor
@@ -209,7 +209,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: Hz
     // @Range: 20 120
     // @User: Standard
-    AP_GROUPINFO("_MW3_LPF",                     26, AC_INDI_Control, _mw3_lpf, 100),
+    AP_GROUPINFO("_MW3_LPF",                     26, AC_INDI_Control, _mw3_lpf, 30.0f),
 
     // @Param: _MW4_LPF
     // @DisplayName: Cutoff frequency of LPF about MW 4 sensor
@@ -217,7 +217,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: Hz
     // @Range: 20 120
     // @User: Standard
-    AP_GROUPINFO("_MW4_LPF",                     27, AC_INDI_Control, _mw4_lpf, 100),
+    AP_GROUPINFO("_MW4_LPF",                     27, AC_INDI_Control, _mw4_lpf, 30.0f),
 
     // @Param: _MW5_LPF
     // @DisplayName: Cutoff frequency of LPF about MW 5 sensor
@@ -225,7 +225,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units: Hz
     // @Range: 20 120
     // @User: Standard
-    AP_GROUPINFO("_MW5_LPF",                     28, AC_INDI_Control, _mw5_lpf, 100),
+    AP_GROUPINFO("_MW5_LPF",                     28, AC_INDI_Control, _mw5_lpf, 30.0f),
 
 // @Param: _I_AVEL_X
     // @DisplayName: I gain of angular velocity
@@ -281,7 +281,7 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Units:
     // @Range:
     // @User:
-    AP_GROUPINFO("_RPM_FILT",                     35, AC_INDI_Control, _rpm_filt, 20.0f),
+    AP_GROUPINFO("_RPM_FILT",                     35, AC_INDI_Control, _rpm_filt, 30.0f),
 
     // @Param: _X_SCALE
     // @DisplayName: scale indi output
@@ -306,6 +306,14 @@ const AP_Param::GroupInfo AC_INDI_Control::var_info[] = {
     // @Range:
     // @User:
     AP_GROUPINFO("_Z_SCALE",                     38, AC_INDI_Control, _z_scale, 1.0f),
+
+    // @Param: _Z_SCALE
+    // @DisplayName: scale indi output
+    // @Description:
+    // @Units:
+    // @Range:
+    // @User:
+    AP_GROUPINFO("_FED_RPM",                     39, AC_INDI_Control, _feed_pwm_rpm_gain, 1.0f),
 
 
     AP_GROUPEND
@@ -334,12 +342,17 @@ AC_INDI_Control::AC_INDI_Control(AP_AHRS_View& ahrs, const AP_InertialNav& inav)
     AP_Param::setup_object_defaults(this, var_info);
 }
 
-// INDI
+// att INDI
 void AC_INDI_Control::set_use_INDI(bool use_INDI)
 {
     _use_INDI = use_INDI;
 }
 
+// pos INDI
+void AC_INDI_Control::set_use_pos_INDI(bool use_pos_INDI)
+{
+    _use_pos_INDI = use_pos_INDI;
+}
 
 // run position and velocity controller in xy axes 
 void AC_INDI_Control::run_pos_vel_xy_controller(Vector3f target_point_m, Vector3f meas_dist_m, Vector3f vel_des_mps, Vector3f meas_vel_mps, Vector3f accel_des_mpss)
@@ -362,7 +375,7 @@ void AC_INDI_Control::run_pos_vel_xy_controller(Vector3f target_point_m, Vector3
     _lin_acc_target_ned_mpss.y = _p_vel_xy.get_p(_vel_target_neu_mps.y - meas_vel_mps.y) + _lin_acc_desired_ned_mpss.y;
 }
 
-// run position and velocity controller in z axis
+// run position and velocity controller in z axis // Run from AC_PosControl.cpp
 void AC_INDI_Control::run_pos_vel_z_controller(float target_alt_m, float meas_alt_m, float vel_des_mps, float meas_clmb_rate_mps, float accel_des_mpss, bool enable_xy, float accel_max_xy_mpss)
 {
     float error_pos_z;
@@ -378,7 +391,7 @@ void AC_INDI_Control::run_pos_vel_z_controller(float target_alt_m, float meas_al
     spec_thrust_to_scaled_thrust();
 }
 
-/* 
+/*
     specific thrust increment based on acceleration difference
     conceptually this function behaves like an integrator
 */
@@ -405,7 +418,7 @@ void AC_INDI_Control::indi_linear_accel(bool enable_xy, float accel_max_xy_mpss)
 void AC_INDI_Control::limit_specific_thrust(float accel_max_xy)
 {
     float spec_thrust_max;
-    spec_thrust_max = sq(_throttle2motor_speed) * _thrust_coefficient * 4.0f / _mass_kg;
+    spec_thrust_max = sq(_throttle2motor_speed) * _thrust_coefficient * 4.0f / _mass_kg;  // need tunning (memo: hoijo)
 
     // do not allow z axis acceleration to be bigger than zero
     // z axis of specific thrust should always be negative in NED frame
@@ -433,7 +446,7 @@ void AC_INDI_Control::limit_specific_thrust(float accel_max_xy)
 void AC_INDI_Control::spec_thrust_to_scaled_thrust(void)
 {
     float total_thrust_max;
-    total_thrust_max = sq(_throttle2motor_speed) * _thrust_coefficient * 4.0f;
+    total_thrust_max = sq(_throttle2motor_speed) * _thrust_coefficient * 4.0f; // need tunning (memo: hoijo)
 
     _total_thrust_cmd_body_N = - _spec_thrust_cmd_ned_mpss.length() * _mass_kg;
 
@@ -446,7 +459,7 @@ void AC_INDI_Control::spec_thrust_to_scaled_thrust(void)
     Construct target attitude using specific thrust command and target yaw(heading) angle 
     TODO: yaw should be reference not measurment
 */
-Quaternion AC_INDI_Control::input_acc_des_euler_angle_yaw(float yaw_rad)
+Quaternion AC_INDI_Control::input_acc_des_euler_angle_yaw(float yaw_rad)  // Run from AC_PosControl.cpp
 {
     Vector3f e_cur_z, e_des_x, e_des_y, e_des_z, e_b_y, temp, _rot_vector;
     Quaternion att_target_quat;
@@ -958,7 +971,7 @@ void AC_INDI_Control::control_allocation(void)
         {-a, -a, -b,  -1.0f}};
 
     // torque and thrust command from attitude and positon controller 
-    float cmds[4] = {_torque_cmd_body_Nm.x, _torque_cmd_body_Nm.y, _torque_cmd_body_Nm.z,_total_thrust_cmd_body_N};
+    float cmds[4] = {_torque_cmd_body_Nm.x, _torque_cmd_body_Nm.y, _torque_cmd_body_Nm.z, _total_thrust_cmd_body_N};
 
     // perform multiplication
     // can whole multiplication be performed in single step?
@@ -1006,13 +1019,13 @@ void AC_INDI_Control::get_motor_speed(void)
     // motor_speed_rpm[2] = rpm_indi_3;
     // motor_speed_rpm[3] = rpm_indi_4;
 
-    // M1 - RPM4
+    // Right front: M1 (Main out 1) - RPM4
     _motor_speed_rpm[0] = double(_rpm_indi_4);
-    // M2 - RPM3
+    // Left rear  : M2 (Main out 2) - RPM3
     _motor_speed_rpm[1] = double(_rpm_indi_3);
-    // M3 - RPM2
+    // Left front : M3 (Main out 3) - RPM2
     _motor_speed_rpm[2] = double(_rpm_indi_2);
-    // M4 - RPM1
+    // Right rear : M4 (Main out 4) - RPM1
     _motor_speed_rpm[3] = double(_rpm_indi_1);
 
 
@@ -1063,9 +1076,62 @@ void AC_INDI_Control::get_motor_speed(void)
     _motor_speed_meas_radps_f[3] = _rpm_4_filter.apply(_motor_speed_meas_radps[3]);
 
 
+    // Feedback PWM
+    SRV_Channel *c1 = SRV_Channels::srv_channel(0);
+    SRV_Channel *c2 = SRV_Channels::srv_channel(1);
+    SRV_Channel *c3 = SRV_Channels::srv_channel(2);
+    SRV_Channel *c4 = SRV_Channels::srv_channel(3);
 
-    SRV_Channel *c = SRV_Channels::srv_channel(1);
-    pwm_test_1 = c->get_output_pwm();
+    // Right front : M1 (Main out 1) - pwm_feed (Four)
+    _pwm_feed[0]   = c1->get_output_pwm();
+    _rpm_est[0]    = 5.0e-6 * pow(_pwm_feed[0],3) - 0.0285 * pow(_pwm_feed[0],2) + 58.523 * _pwm_feed[0] - 35293;
+    _thrust_est[0] = 5.0e-6 * pow(_pwm_feed[0],2) - 0.0056 * _pwm_feed[0] + 0.8571;
+    _torque_est[0] = 1.0e-6 * pow(_pwm_feed[0],2) - 0.0012 * _pwm_feed[0] + 0.1976;
+
+    _rpm_est[0] = _rpm_est[0] * _feed_pwm_rpm_gain;
+
+    // Left rear  : M2 (Main out 2) - pwm_feed (First)
+    _pwm_feed[1]   = c2->get_output_pwm();
+    _rpm_est[1]    = 5.0e-6 * pow(_pwm_feed[1],3) - 0.0285 * pow(_pwm_feed[1],2) + 58.523 * _pwm_feed[1] - 35293;
+    _thrust_est[1] = 5.0e-6 * pow(_pwm_feed[1],2) - 0.0056 * _pwm_feed[1] + 0.8571;
+    _torque_est[1] = 1.0e-6 * pow(_pwm_feed[1],2) - 0.0012 * _pwm_feed[1] + 0.1976;
+
+    _rpm_est[1] = _rpm_est[1] * _feed_pwm_rpm_gain;
+
+    // Left front  : M3 (Main out 3) - pwm_feed (Second)
+    _pwm_feed[2]   = c3->get_output_pwm();
+    _rpm_est[2]    = 5.0e-6 * pow(_pwm_feed[2],3) - 0.0285 * pow(_pwm_feed[2],2) + 58.523 * _pwm_feed[2] - 35293;
+    _thrust_est[2] = 5.0e-6 * pow(_pwm_feed[2],2) - 0.0056 * _pwm_feed[2] + 0.8571;
+    _torque_est[2] = 1.0e-6 * pow(_pwm_feed[2],2) - 0.0012 * _pwm_feed[2] + 0.1976;
+
+    _rpm_est[2] = _rpm_est[2] * _feed_pwm_rpm_gain;
+
+    // Right rear  : M4 (Main out 4) - pwm_feed (Third)
+    _pwm_feed[3]   = c4->get_output_pwm();
+    _rpm_est[3]    = 5.0e-6 * pow(_pwm_feed[3],3) - 0.0285 * pow(_pwm_feed[3],2) + 58.523 * _pwm_feed[3] - 35293;
+    _thrust_est[3] = 5.0e-6 * pow(_pwm_feed[3],2) - 0.0056 * _pwm_feed[3] + 0.8571;
+    _torque_est[3] = 1.0e-6 * pow(_pwm_feed[3],2) - 0.0012 * _pwm_feed[3] + 0.1976;
+
+    _rpm_est[3] = _rpm_est[3] * _feed_pwm_rpm_gain;
+
+    for (uint8_t i=0; i < 4; i++) {
+        _rpm_est_hz[i]     = _rpm_est[i] * 0.016667;
+        _rpm_est_radps[i]  = _rpm_est[i] * 0.10472; // [rad/s]
+    }
+
+    // Filtering estimated rpm
+    _pwmrpm_feed_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _rpm_filt);
+    _rpm_est_radps_f[0] = _pwmrpm_feed_filter.apply(_rpm_est_radps[0]);
+
+    _pwmrpm_feed_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _rpm_filt);
+    _rpm_est_radps_f[1] = _pwmrpm_feed_filter.apply(_rpm_est_radps[1]);
+
+    _pwmrpm_feed_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _rpm_filt);
+    _rpm_est_radps_f[2] = _pwmrpm_feed_filter.apply(_rpm_est_radps[2]);
+
+    _pwmrpm_feed_filter.set_cutoff_frequency(AP::scheduler().get_loop_rate_hz(), _rpm_filt);
+    _rpm_est_radps_f[3] = _pwmrpm_feed_filter.apply(_rpm_est_radps[3]);
+
 }
 
 /*
@@ -1105,9 +1171,17 @@ void AC_INDI_Control::calculate_torque_thrust_est(void)
     // }
 
     // calculate square of measured motor speed
-    double motor_speed_meas_sq[4];
+    // 1. Using hall sensor
+    // double motor_speed_meas_sq[4];
+
+    // 2. Using feedback pwm
+    double motor_speed_f_meas_sq[4];
     for (uint8_t i=0; i < 4; i++) {
-        motor_speed_meas_sq[i] = sq(double(_motor_speed_meas_radps[i]));
+        // 1. Using hall sensor
+        // motor_speed_meas_sq[i] = sq(double(_motor_speed_meas_radps[i]));
+
+        // 2. Using feedback pwm
+        motor_speed_f_meas_sq[i] = sq(double(_rpm_est_radps_f[i]));
     }
 
     double cmd[4] = {0.0f, 0.0f, 0.0f, 0.0f};
@@ -1115,7 +1189,11 @@ void AC_INDI_Control::calculate_torque_thrust_est(void)
     // can whole multiplication be performed in single step?
     for (uint8_t i=0; i < 4; i++) {
         for (uint8_t j=0; j < 4; j++) {
-            cmd[i] += control_alloc_G1[i][j] * motor_speed_meas_sq[j];
+            // 1. Using hall sensor
+            // cmd[i] += control_alloc_G1[i][j] * motor_speed_meas_sq[j];
+
+            // 2. Using feedback pwm
+            cmd[i] += control_alloc_G1[i][j] * motor_speed_f_meas_sq[j];
        }
        cmd[i] *= (Ct * double(_thrust_coefficient));
     }
@@ -1372,71 +1450,71 @@ void AC_INDI_Control::write_log(void)
 
 
     // ************************************************** Off-sensor data check pre-filter ***************************************************
-    // const Vector3f &mw_1_sensor_acc = get_mw_1_acc(); // [m/s^2]
-    // const Vector3f &mw_2_sensor_acc = get_mw_2_acc(); // [m/s^2]
-    // const Vector3f &mw_3_sensor_acc = get_mw_3_acc(); // [m/s^2]
-    // const Vector3f &mw_4_sensor_acc = get_mw_4_acc(); // [m/s^2]
-    // const Vector3f &mw_5_sensor_acc = get_mw_5_acc(); // [m/s^2]
-    // AP::logger().Write("IN13",
-    //             "TimeUS,ax1,ax2,ax3,ax4,ax5",
-    //             "sooooo",
-    //             "F00000",
-    //             "Qfffff",
-    //             AP_HAL::micros64(),
-    //             mw_1_sensor_acc.x, mw_2_sensor_acc.x, mw_3_sensor_acc.x,
-    //             mw_4_sensor_acc.x, mw_5_sensor_acc.x);
+    const Vector3f &mw_1_sensor_acc = get_mw_1_acc(); // [m/s^2]
+    const Vector3f &mw_2_sensor_acc = get_mw_2_acc(); // [m/s^2]
+    const Vector3f &mw_3_sensor_acc = get_mw_3_acc(); // [m/s^2]
+    const Vector3f &mw_4_sensor_acc = get_mw_4_acc(); // [m/s^2]
+    const Vector3f &mw_5_sensor_acc = get_mw_5_acc(); // [m/s^2]
+    AP::logger().Write("IN13",
+                "TimeUS,ax1,ax2,ax3,ax4,ax5",
+                "sooooo",
+                "F00000",
+                "Qfffff",
+                AP_HAL::micros64(),
+                mw_1_sensor_acc.x, mw_2_sensor_acc.x, mw_3_sensor_acc.x,
+                mw_4_sensor_acc.x, mw_5_sensor_acc.x);
 
-    // AP::logger().Write("IN14",
-    //             "TimeUS,ay1,ay2,ay3,ay4,ay5",
-    //             "sooooo",
-    //             "F00000",
-    //             "Qfffff",
-    //             AP_HAL::micros64(),
-    //             mw_1_sensor_acc.y, mw_2_sensor_acc.y, mw_3_sensor_acc.y,
-    //             mw_4_sensor_acc.y, mw_5_sensor_acc.y);
+    AP::logger().Write("IN14",
+                "TimeUS,ay1,ay2,ay3,ay4,ay5",
+                "sooooo",
+                "F00000",
+                "Qfffff",
+                AP_HAL::micros64(),
+                mw_1_sensor_acc.y, mw_2_sensor_acc.y, mw_3_sensor_acc.y,
+                mw_4_sensor_acc.y, mw_5_sensor_acc.y);
 
-    // AP::logger().Write("IN15",
-    //             "TimeUS,az1,az2,az3,az4,az5",
-    //             "sooooo",
-    //             "F00000",
-    //             "Qfffff",
-    //             AP_HAL::micros64(),
-    //             mw_1_sensor_acc.z, mw_2_sensor_acc.z, mw_3_sensor_acc.z,
-    //             mw_4_sensor_acc.z, mw_5_sensor_acc.z);
+    AP::logger().Write("IN15",
+                "TimeUS,az1,az2,az3,az4,az5",
+                "sooooo",
+                "F00000",
+                "Qfffff",
+                AP_HAL::micros64(),
+                mw_1_sensor_acc.z, mw_2_sensor_acc.z, mw_3_sensor_acc.z,
+                mw_4_sensor_acc.z, mw_5_sensor_acc.z);
 
-    // const Vector3f &mw_1_sensor_acc_wo_g    = get_mw_1_acc_wo_g(); // [m/s^2] no gravity
-    // const Vector3f &mw_2_sensor_acc_wo_g    = get_mw_2_acc_wo_g(); // [m/s^2] no gravity
-    // const Vector3f &mw_3_sensor_acc_wo_g    = get_mw_3_acc_wo_g(); // [m/s^2] no gravity
-    // const Vector3f &mw_4_sensor_acc_wo_g    = get_mw_4_acc_wo_g(); // [m/s^2] no gravity
-    // const Vector3f &mw_5_sensor_acc_wo_g    = get_mw_5_acc_wo_g(); // [m/s^2] no gravity
-    // const Vector3f &body_get_cg_acc_wo_grav = get_cg_acc_wo_grav(); // [m/s^2] no gravity
+    const Vector3f &mw_1_sensor_acc_wo_g    = get_mw_1_acc_wo_g(); // [m/s^2] no gravity
+    const Vector3f &mw_2_sensor_acc_wo_g    = get_mw_2_acc_wo_g(); // [m/s^2] no gravity
+    const Vector3f &mw_3_sensor_acc_wo_g    = get_mw_3_acc_wo_g(); // [m/s^2] no gravity
+    const Vector3f &mw_4_sensor_acc_wo_g    = get_mw_4_acc_wo_g(); // [m/s^2] no gravity
+    const Vector3f &mw_5_sensor_acc_wo_g    = get_mw_5_acc_wo_g(); // [m/s^2] no gravity
+    const Vector3f &body_get_cg_acc_wo_grav = get_cg_acc_wo_grav(); // [m/s^2] no gravity
 
-    // AP::logger().Write("IN16",
-    //             "TimeUS,ax1,ax2,ax3,ax4,ax5,axb",
-    //             "soooooo",
-    //             "F000000",
-    //             "Qffffff",
-    //             AP_HAL::micros64(),
-    //             mw_1_sensor_acc_wo_g.x, mw_2_sensor_acc_wo_g.x, mw_3_sensor_acc_wo_g.x,
-    //             mw_4_sensor_acc_wo_g.x, mw_5_sensor_acc_wo_g.x, body_get_cg_acc_wo_grav.x);
+    AP::logger().Write("IN16",
+                "TimeUS,ax1,ax2,ax3,ax4,ax5,axb",
+                "soooooo",
+                "F000000",
+                "Qffffff",
+                AP_HAL::micros64(),
+                mw_1_sensor_acc_wo_g.x, mw_2_sensor_acc_wo_g.x, mw_3_sensor_acc_wo_g.x,
+                mw_4_sensor_acc_wo_g.x, mw_5_sensor_acc_wo_g.x, body_get_cg_acc_wo_grav.x);
 
-    // AP::logger().Write("IN17",
-    //             "TimeUS,ay1,ay2,ay3,ay4,ay5,ayb",
-    //             "soooooo",
-    //             "F000000",
-    //             "Qffffff",
-    //             AP_HAL::micros64(),
-    //             mw_1_sensor_acc_wo_g.y, mw_2_sensor_acc_wo_g.y, mw_3_sensor_acc_wo_g.y,
-    //             mw_4_sensor_acc_wo_g.y, mw_5_sensor_acc_wo_g.y, body_get_cg_acc_wo_grav.y);
+    AP::logger().Write("IN17",
+                "TimeUS,ay1,ay2,ay3,ay4,ay5,ayb",
+                "soooooo",
+                "F000000",
+                "Qffffff",
+                AP_HAL::micros64(),
+                mw_1_sensor_acc_wo_g.y, mw_2_sensor_acc_wo_g.y, mw_3_sensor_acc_wo_g.y,
+                mw_4_sensor_acc_wo_g.y, mw_5_sensor_acc_wo_g.y, body_get_cg_acc_wo_grav.y);
 
-    // AP::logger().Write("IN18",
-    //             "TimeUS,az1,az2,az3,az4,az5,azb",
-    //             "soooooo",
-    //             "F000000",
-    //             "Qffffff",
-    //             AP_HAL::micros64(),
-    //             mw_1_sensor_acc_wo_g.z, mw_2_sensor_acc_wo_g.z, mw_3_sensor_acc_wo_g.z,
-    //             mw_4_sensor_acc_wo_g.z, mw_5_sensor_acc_wo_g.z, body_get_cg_acc_wo_grav.z);
+    AP::logger().Write("IN18",
+                "TimeUS,az1,az2,az3,az4,az5,azb",
+                "soooooo",
+                "F000000",
+                "Qffffff",
+                AP_HAL::micros64(),
+                mw_1_sensor_acc_wo_g.z, mw_2_sensor_acc_wo_g.z, mw_3_sensor_acc_wo_g.z,
+                mw_4_sensor_acc_wo_g.z, mw_5_sensor_acc_wo_g.z, body_get_cg_acc_wo_grav.z);
 
     // const Vector3f &mw_1_sensor_gyr = get_mw_1_gyr(); // [deg/s]
     // const Vector3f &mw_2_sensor_gyr = get_mw_2_gyr(); // [deg/s]
@@ -1471,79 +1549,111 @@ void AC_INDI_Control::write_log(void)
     //             mw_1_sensor_gyr.z, mw_2_sensor_gyr.z, mw_3_sensor_gyr.z,
     //             mw_4_sensor_gyr.z, mw_5_sensor_gyr.z);
 
-    // ************************************************** Off-sensor data check pre-filter ***************************************************
-    // const Vector3f &mw_1_sensor_acc_f = get_mw_1_acc_f(); // [m/s^2]
-    // const Vector3f &mw_2_sensor_acc_f = get_mw_2_acc_f(); // [m/s^2]
-    // const Vector3f &mw_3_sensor_acc_f = get_mw_3_acc_f(); // [m/s^2]
-    // const Vector3f &mw_4_sensor_acc_f = get_mw_4_acc_f(); // [m/s^2]
-    // const Vector3f &mw_5_sensor_acc_f = get_mw_5_acc_f(); // [m/s^2]
-    // AP::logger().Write("IN19",
-    //             "TimeUS,ax1,ax2,ax3,ax4,ax5",
-    //             "sooooo",
-    //             "F00000",
-    //             "Qfffff",
-    //             AP_HAL::micros64(),
-    //             mw_1_sensor_acc_f.x, mw_2_sensor_acc_f.x, mw_3_sensor_acc_f.x,
-    //             mw_4_sensor_acc_f.x, mw_5_sensor_acc_f.x);
+    // ************************************************** Off-sensor data check after filter ***************************************************
+    const Vector3f &mw_1_sensor_acc_f = get_mw_1_acc_f(); // [m/s^2]
+    const Vector3f &mw_2_sensor_acc_f = get_mw_2_acc_f(); // [m/s^2]
+    const Vector3f &mw_3_sensor_acc_f = get_mw_3_acc_f(); // [m/s^2]
+    const Vector3f &mw_4_sensor_acc_f = get_mw_4_acc_f(); // [m/s^2]
+    const Vector3f &mw_5_sensor_acc_f = get_mw_5_acc_f(); // [m/s^2]
+    AP::logger().Write("IN19",
+                "TimeUS,ax1,ax2,ax3,ax4,ax5",
+                "sooooo",
+                "F00000",
+                "Qfffff",
+                AP_HAL::micros64(),
+                mw_1_sensor_acc_f.x, mw_2_sensor_acc_f.x, mw_3_sensor_acc_f.x,
+                mw_4_sensor_acc_f.x, mw_5_sensor_acc_f.x);
 
-    // AP::logger().Write("IN20",
-    //             "TimeUS,ay1,ay2,ay3,ay4,ay5",
-    //             "sooooo",
-    //             "F00000",
-    //             "Qfffff",
-    //             AP_HAL::micros64(),
-    //             mw_1_sensor_acc_f.y, mw_2_sensor_acc_f.y, mw_3_sensor_acc_f.y,
-    //             mw_4_sensor_acc_f.y, mw_5_sensor_acc_f.y);
+    AP::logger().Write("IN20",
+                "TimeUS,ay1,ay2,ay3,ay4,ay5",
+                "sooooo",
+                "F00000",
+                "Qfffff",
+                AP_HAL::micros64(),
+                mw_1_sensor_acc_f.y, mw_2_sensor_acc_f.y, mw_3_sensor_acc_f.y,
+                mw_4_sensor_acc_f.y, mw_5_sensor_acc_f.y);
 
-    // AP::logger().Write("IN21",
-    //             "TimeUS,az1,az2,az3,az4,az5",
-    //             "sooooo",
-    //             "F00000",
-    //             "Qfffff",
-    //             AP_HAL::micros64(),
-    //             mw_1_sensor_acc_f.z, mw_2_sensor_acc_f.z, mw_3_sensor_acc_f.z,
-    //             mw_4_sensor_acc_f.z, mw_5_sensor_acc_f.z);
+    AP::logger().Write("IN21",
+                "TimeUS,az1,az2,az3,az4,az5",
+                "sooooo",
+                "F00000",
+                "Qfffff",
+                AP_HAL::micros64(),
+                mw_1_sensor_acc_f.z, mw_2_sensor_acc_f.z, mw_3_sensor_acc_f.z,
+                mw_4_sensor_acc_f.z, mw_5_sensor_acc_f.z);
 
-    // const Vector3f &mw_1_sensor_acc_wo_g_f    = get_mw_1_acc_wo_g_f(); // [m/s^2] no gravity
-    // const Vector3f &mw_2_sensor_acc_wo_g_f    = get_mw_2_acc_wo_g_f(); // [m/s^2] no gravity
-    // const Vector3f &mw_3_sensor_acc_wo_g_f    = get_mw_3_acc_wo_g_f(); // [m/s^2] no gravity
-    // const Vector3f &mw_4_sensor_acc_wo_g_f    = get_mw_4_acc_wo_g_f(); // [m/s^2] no gravity
-    // const Vector3f &mw_5_sensor_acc_wo_g_f    = get_mw_5_acc_wo_g_f(); // [m/s^2] no gravity
+    const Vector3f &mw_1_sensor_acc_wo_g_f    = get_mw_1_acc_wo_g_f(); // [m/s^2] no gravity
+    const Vector3f &mw_2_sensor_acc_wo_g_f    = get_mw_2_acc_wo_g_f(); // [m/s^2] no gravity
+    const Vector3f &mw_3_sensor_acc_wo_g_f    = get_mw_3_acc_wo_g_f(); // [m/s^2] no gravity
+    const Vector3f &mw_4_sensor_acc_wo_g_f    = get_mw_4_acc_wo_g_f(); // [m/s^2] no gravity
+    const Vector3f &mw_5_sensor_acc_wo_g_f    = get_mw_5_acc_wo_g_f(); // [m/s^2] no gravity
 
-    // AP::logger().Write("IN22",
-    //             "TimeUS,ax1,ax2,ax3,ax4,ax5",
-    //             "sooooo",
-    //             "F00000",
-    //             "Qfffff",
-    //             AP_HAL::micros64(),
-    //             mw_1_sensor_acc_wo_g_f.x, mw_2_sensor_acc_wo_g_f.x, mw_3_sensor_acc_wo_g_f.x,
-    //             mw_4_sensor_acc_wo_g_f.x, mw_5_sensor_acc_wo_g_f.x);
+    AP::logger().Write("IN22",
+                "TimeUS,ax1,ax2,ax3,ax4,ax5",
+                "sooooo",
+                "F00000",
+                "Qfffff",
+                AP_HAL::micros64(),
+                mw_1_sensor_acc_wo_g_f.x, mw_2_sensor_acc_wo_g_f.x, mw_3_sensor_acc_wo_g_f.x,
+                mw_4_sensor_acc_wo_g_f.x, mw_5_sensor_acc_wo_g_f.x);
 
-    // AP::logger().Write("IN23",
-    //             "TimeUS,ay1,ay2,ay3,ay4,ay5",
-    //             "sooooo",
-    //             "F00000",
-    //             "Qfffff",
-    //             AP_HAL::micros64(),
-    //             mw_1_sensor_acc_wo_g_f.y, mw_2_sensor_acc_wo_g_f.y, mw_3_sensor_acc_wo_g_f.y,
-    //             mw_4_sensor_acc_wo_g_f.y, mw_5_sensor_acc_wo_g_f.y);
+    AP::logger().Write("IN23",
+                "TimeUS,ay1,ay2,ay3,ay4,ay5",
+                "sooooo",
+                "F00000",
+                "Qfffff",
+                AP_HAL::micros64(),
+                mw_1_sensor_acc_wo_g_f.y, mw_2_sensor_acc_wo_g_f.y, mw_3_sensor_acc_wo_g_f.y,
+                mw_4_sensor_acc_wo_g_f.y, mw_5_sensor_acc_wo_g_f.y);
 
-    // AP::logger().Write("IN24",
-    //             "TimeUS,az1,az2,az3,az4,az5",
-    //             "sooooo",
-    //             "F00000",
-    //             "Qfffff",
-    //             AP_HAL::micros64(),
-    //             mw_1_sensor_acc_wo_g_f.z, mw_2_sensor_acc_wo_g_f.z, mw_3_sensor_acc_wo_g_f.z,
-    //             mw_4_sensor_acc_wo_g_f.z, mw_5_sensor_acc_wo_g_f.z);
+    AP::logger().Write("IN24",
+                "TimeUS,az1,az2,az3,az4,az5",
+                "sooooo",
+                "F00000",
+                "Qfffff",
+                AP_HAL::micros64(),
+                mw_1_sensor_acc_wo_g_f.z, mw_2_sensor_acc_wo_g_f.z, mw_3_sensor_acc_wo_g_f.z,
+                mw_4_sensor_acc_wo_g_f.z, mw_5_sensor_acc_wo_g_f.z);
 
     AP::logger().Write("IN25",
-                    "TimeUS,pwmt",
-                    "se",
-                    "F0",
-                    "Qf",
+                    "TimeUS,pwm1,pwm2,pwm3,pwm4",
+                    "s----",
+                    "F0000",
+                    "Qffff",
                     AP_HAL::micros64(),
-                    pwm_test_1);
+                    _pwm_feed[0],_pwm_feed[1],_pwm_feed[2],_pwm_feed[3]);
+
+    AP::logger().Write("IN26",
+                    "TimeUS,rpe1,rpe2,rpe3,rpe4",
+                    "s----",
+                    "F0000",
+                    "Qffff",
+                    AP_HAL::micros64(),
+                    _rpm_est[0],_rpm_est[1],_rpm_est[2],_rpm_est[3]);
+
+    AP::logger().Write("IN27",
+                    "TimeUS,rpr1,rpr2,rpr3,rpr4",
+                    "s----",
+                    "F0000",
+                    "Qffff",
+                    AP_HAL::micros64(),
+                    _rpm_est_radps_f[0],_rpm_est_radps_f[1],_rpm_est_radps_f[2],_rpm_est_radps_f[3]);
+
+    AP::logger().Write("IN28",
+                    "TimeUS,the1,the2,the3,the4",
+                    "s----",
+                    "F0000",
+                    "Qffff",
+                    AP_HAL::micros64(),
+                    _thrust_est[0],_thrust_est[1],_thrust_est[2],_thrust_est[3]);
+
+    AP::logger().Write("IN29",
+                    "TimeUS,tqe1,tqe2,tqe3,tqe4",
+                    "s----",
+                    "F0000",
+                    "Qffff",
+                    AP_HAL::micros64(),
+                    _torque_est[0],_torque_est[1],_torque_est[2],_torque_est[3]);
 }
 
 

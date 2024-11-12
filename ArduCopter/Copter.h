@@ -1014,6 +1014,10 @@ public:
     // switch INDI on / off
     void radio_set_use_INDI();
     bool flag_INDI_last = false;
+
+    // switch Pos INDI on / off
+    void radio_set_use_pos_INDI();
+    bool flag_pos_INDI_last = false;
 };
 
 extern Copter copter;

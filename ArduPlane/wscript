@@ -7,6 +7,7 @@ def build(bld):
         name=vehicle + '_libs',
         ap_vehicle=vehicle,
         ap_libraries=bld.ap_common_vehicle_libraries() + [
+            'AP_MW_AHRS',
             'APM_Control',
             'AP_AdvancedFailsafe',
             'AP_Avoidance',
@@ -30,6 +31,7 @@ def build(bld):
             'AC_AutoTune',
             'AP_KDECAN',
             'AP_Follow',
+            'AC_INDI_Control',
         ],
     )
 

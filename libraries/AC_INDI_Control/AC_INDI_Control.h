@@ -143,6 +143,10 @@ public:
     void set_use_INDI(bool use_INDI);
     bool get_use_INDI() { return _use_INDI;}
 
+    // pos INDI on/off switch
+    void set_use_pos_INDI(bool use_pos_INDI);
+    bool get_use_pos_INDI() { return _use_pos_INDI;}
+
 protected:
     // add delta linear accleration to current specific thrust to obtain
     // specific thrust command
@@ -249,6 +253,7 @@ protected:
     AP_Float    _mw3_lpf;                       // Cutoff frequency of LPF about MW 3 sensor
     AP_Float    _mw4_lpf;                       // Cutoff frequency of LPF about MW 4 sensor
     AP_Float    _mw5_lpf;                       // Cutoff frequency of LPF about MW 5 sensor
+    AP_Float    _feed_pwm_rpm_gain;             // RPM Scaling gain of feedback from pwm
 
     Vector3f    _pos_target_neu_m;              // position target in NEU frame in m
     Vector3f    _vel_target_neu_mps;            // velocity target in NEU frame in m/s
@@ -358,23 +363,29 @@ protected:
 private:
     static AC_INDI_Control *_singleton;
 
-    double Ct = 3.336e-5; // N/(rad/s_^2)
-    double Cq = 5.694e-7; // Nm/(rad/s_^2)
+    // AYK-250 VTOL motor
+    double Ct = 9.6812e-5; // N/(rad/s_^2)
+    double Cq = 2.2339e-6; // Nm/(rad/s_^2)
 
     // Num 1: Right (Coordinate : NWU)
-    Vector3f mw_1_pos = {0.0f, -0.48f, 0.0f};
+    // AYK-250 off-CG sensor array
+    Vector3f mw_1_pos = {-0.02f, -1.11f, 0.075f};
 
     // Num 2: Left (Coordinate : NWU)
-    Vector3f mw_2_pos = {0.0f, 0.48f, 0.0f};
+    // AYK-250 off-CG sensor array
+    Vector3f mw_2_pos = {-0.02f, 1.11f, 0.075f};
 
     // Num 3: Front (Coordinate : NWU)
-    Vector3f mw_3_pos = {0.48f, 0.0f, 0.0f};
+    // AYK-250 off-CG sensor array
+    Vector3f mw_3_pos = {0.44f, 0.0f, 0.06f};
 
     // Num 4: Rear (Coordinate : NWU)
-    Vector3f mw_4_pos = {-0.48f, 0.0f, 0.0f};
+    // AYK-250 off-CG sensor array
+    Vector3f mw_4_pos = {-0.57f, 0.0f, 0.6f};
 
     // Num 5: Top (Coordinate : NWU)
-    Vector3f mw_5_pos = {0.0f, 0.0f, -0.15f};
+    // AYK-250 off-CG sensor array
+    Vector3f mw_5_pos = {0.0f, 0.0f, 0.26f};
 
     // NAP : angular acceleration (NWU)
     Vector3f acc_nap = {0.0f,0.0f,0.0f};
@@ -401,12 +412,45 @@ private:
     // Convert a 321-intrinsic euler angle derivative to an angular velocity vector
     void ned_to_body(const Vector3f& euler_rad, const Vector3f& ned_contents, Vector3f& body_contents);
 
-    float pwm_test_1;
+    // feedback the pwm of each motor (VTOL motor)
+    // double pwm_feed_1;
+    // double pwm_feed_2;
+    // double pwm_feed_3;
+    // double pwm_feed_4;
+    double _pwm_feed[4];
 
+    // Estimated rpm using feedback pwm (VTOL motor)
+    // double rpm_est_1;
+    // double rpm_est_2;
+    // double rpm_est_3;
+    // double rpm_est_4;
+    double _rpm_est[4];
+    double _rpm_est_hz[4];
+    double _rpm_est_radps[4];
+    double _rpm_est_radps_f[4];
+
+    // Estimated thrust using feedback pwm (VTOL motor)
+    // double thrust_est_1;
+    // double thrust_est_2;
+    // double thrust_est_3;
+    // double thrust_est_4;
+    double _thrust_est[4];
+
+    // Estimated torque using feedback pwm (VTOL motor)
+    // double torque_est_1;
+    // double torque_est_2;
+    // double torque_est_3;
+    // double torque_est_4;
+    double _torque_est[4];
+
+    LowPassFilterFloat _pwmrpm_feed_filter;
 
 public:
-    // INDI on/off switch
+    // att INDI on/off switch
     bool _use_INDI = true;
+
+    // pos INDI on/off switch
+    bool _use_pos_INDI = true;
 
     float _rpm_indi_1 = 0.0f;
     float _rpm_indi_2 = 0.0f;

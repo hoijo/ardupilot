@@ -113,6 +113,7 @@ void Copter::read_radio()
     // ***************************************** Hoijo
     doublet_on_switch();
     radio_set_use_INDI();
+    radio_set_use_pos_INDI();
 
     // No radio input this time
     if (failsafe.radio)
@@ -182,9 +183,31 @@ void Copter::radio_set_use_INDI()
     {
         flag_INDI_last = indi_control->get_use_INDI();
         if (indi_control->get_use_INDI())
-            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "INDI is On : ch10");
+            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ATT INDI On: ch10");
         else
-            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "INDI is Off : ch10");
+            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ATT INDI Off: ch10");
+    }
+}
+
+// For pos INDI radio on/off code
+void Copter::radio_set_use_pos_INDI()
+{
+    if (RC_Channels::rc_channel(CH_11)->get_radio_in() > 1600)
+    {
+        indi_control->set_use_pos_INDI(true);
+    }
+    else
+    {
+        indi_control->set_use_pos_INDI(false);
+    }
+
+    if (flag_pos_INDI_last != indi_control->get_use_pos_INDI())
+    {
+        flag_pos_INDI_last = indi_control->get_use_pos_INDI();
+        if (indi_control->get_use_pos_INDI())
+            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "POS INDI On: ch11");
+        else
+            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "POS INDI Off: ch11");
     }
 }
 
